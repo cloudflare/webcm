@@ -5,6 +5,9 @@ import "pug";
 export default function (zaraz) {
   // map yourdomain.com/cdn-cgi/zaraz/example/api/hello -> api.example.com/hello
   zaraz.registerProxy("/api", "api.example.com");
+
+  // make static assets available
+  // TODO: how do we enforce smart loading of these assets?
   zaraz.serveStatic("/public", "public");
 
   // yourdomain.com/cdn-cgi/zaraz/example/ping -> 204
@@ -12,6 +15,7 @@ export default function (zaraz) {
     return new Response(204);
   });
 
+  // Register to user-configured events
   zaraz.addEventListener("event", async (event) => {
     const { context, emitter } = event;
 
@@ -36,6 +40,7 @@ export default function (zaraz) {
     // TODO: Reserved event names? Pageview? SPA? LoadWidget?
   });
 
+  // Register to Pageview events
   zaraz.addEventListener("pageview", async (event) => {
     const { context, emitter, page } = event;
 
@@ -49,6 +54,7 @@ export default function (zaraz) {
     });
   });
 
+  // Register to provide an embed widget
   zaraz.addEventListener("embed", (event) => {
     const { element, emitter, context } = event; // TODO: an embed needs `page`?
     const color = element.attributes.darkTheme ? "light" : "dark";
@@ -74,7 +80,7 @@ export default function (zaraz) {
     element.eval("index.js"); // TODO: restirct this JS to the element using iframe srcdoc?
   });
 
-  // Tools can register to DOM changes
+  // Register to DOM changes
   zaraz.addEventListener("DOMChange", async (event) => {
     const { context, emitter, change } = event;
 
