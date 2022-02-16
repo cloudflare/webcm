@@ -1,7 +1,7 @@
 {
   "name": "example-tool",
-  "version": "1.0.0",
-  "description": "a Zaraz 2.0 example tool",
+  "version": "1.2.3rc-1",
+  "description": "a Zaraz 2.0 example tool package",
   "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

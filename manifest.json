@@ -1,7 +1,6 @@
 {
   "name": "ExampleTool",
-  "description": "ExampleTool is a great tool",
-  "version": "1.2.3rc-1",
+  "description": "ExampleTool is a great tool for X and Y!",
   "namespace": "example",
   "icon": "assets/icon.svg",
   "categories": ["Attribution"],
