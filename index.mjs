@@ -36,6 +36,19 @@ export default function (zaraz) {
     // TODO: Reserved event names? Pageview? SPA? LoadWidget?
   });
 
+  zaraz.addEventListener("pageview", async (event) => {
+    const { context, emitter, page } = event;
+
+    // Send server-side request
+    fetch("https://crazyegg.com/collect", {
+      method: "POST",
+      data: {
+        url: context.system.page.url.href,
+        body: page.response.body,
+      },
+    });
+  });
+
   zaraz.addEventListener("embed", (event) => {
     const { element, emitter, context } = event; // TODO: an embed needs `page`?
     const color = element.attributes.darkTheme ? "light" : "dark";
@@ -59,6 +72,17 @@ export default function (zaraz) {
       element.applyStylesheet("assets/style-loggedin.css"); // you can dynamicaly add more
 
     element.eval("index.js"); // TODO: restirct this JS to the element using iframe srcdoc?
+  });
+
+  // Tools can register to DOM changes
+  zaraz.addEventListener("DOMChange", async (event) => {
+    const { context, emitter, change } = event;
+
+    // Send server-side request
+    fetch("https://example.com/record_dom_changes", {
+      method: "POST",
+      data: JSON.stringify(change),
+    });
   });
 }
 
