@@ -207,7 +207,7 @@ To place an embed in the page, the website owner includes a placeholder `div` el
 </div>
 ```
 
-Inside the Zaraz Took Package, the embed will be defined like in this example:
+Inside the Zaraz Tool Package, the embed will be defined like in this example:
 
 ```js
 zaraz.registerEmbed("twitter-example", ({ element }) => {
@@ -254,7 +254,7 @@ In the above example, the tool defined a widget called `floatingTweet`. It reads
 
 ### useCache
 
-The `useCache` method is used to provide tools with an abstract layer of caching that easy to use. The method takes 3 arguments - `name`, `function` and `expirty`. When used, `useCache` will use the data from the cache if it exists, and if the expiry time did not pass. If it cannot use the cache, `useCache` will run the function and cache it for next time.
+The `useCache` method is used to provide tools with an abstract layer of caching that easy to use. The method takes 3 arguments - `name`, `function` and `expiry`. When used, `useCache` will use the data from the cache if it exists, and if the expiry time did not pass. If it cannot use the cache, `useCache` will run the function and cache it for next time.
 
 ```js
 zaraz.useCache(
