@@ -97,8 +97,6 @@ Zaraz provides a couple of methods that allow a tool to introduce server-side fu
 #### registerProxy
 Create a reverse proxy from some path to another server. It can be used in order to access the tool vendor servers without the browser needing to send a request to a different domain.
 
-**Example**
-
 ```js
 zaraz.registerProxy("/api", "api.example.com");
 ````
@@ -107,8 +105,6 @@ For a tool that uses the namespace `example`, the above code will map `domain.co
 #### serveStatic
 Serve static assets.
 
-**Example**
-
 ```js
 zaraz.serveStatic("public", "assets");
 ```
@@ -116,8 +112,6 @@ The tool will provide a directory with it static assets under `public`, and it w
 
 #### route 
 Define custom server-side logic. These will run without a proxy, making them faster and more reliable.
-
-**Example**
 
 ```js
 zaraz.route("/ping", (request) => {
@@ -152,8 +146,6 @@ The above will send a server-side request to `example.com/collect` whenever the 
 
 The `historyChange` event is called whenever the page changes in a Single Page Application, by mean of `history.pushState` or `history.replaceState`. Tools can automatically trigger an action when this event occurs using an Event Listener.
 
-**Example**
-
 ```js
 zaraz.addEventListener("historyChange", async (event) => {
   const { context, emitter, page } = event;
@@ -173,7 +165,6 @@ The above will send a server-side request to `example.com/collect` whenever the 
 #### User-configured event
 Users can configure events using a site-wide [Events API](https://developers.cloudflare.com/zaraz/web-api), and then map these events to different tools. A tool can register to listen to events and then define the way it will be processed.
 
-**Example**
 ```js
 zaraz.addEventListener("event", async ({ context, emitter }) => {
     // Send server-side request
@@ -262,3 +253,28 @@ In the above example, the tool defined a widget called `floatingTweet`. It reads
 ### Caching
 
 ### useCache
+
+The `useCache` method is used to provide tools with an abstract layer of caching that easy to use. The method takes 3 arguments - `name`, `function` and `expirty`. When used, `useCache` will use the data from the cache if it exists, and if the expiry time did not pass. If it cannot use the cache, `useCache` will run the function and cache it for next time.
+
+```js
+zaraz.useCache(
+  `widget-${tweet.id}`,
+  pug.compile("templates/floating-widget.pug", { tweet }),
+  60
+)
+```
+
+In the above example the template will only be rerendered using Pug if the cache doesn't already have the rendered template saved, or if it has been more than 60 seconds since the time it was cached.
+
+
+### invalidateCache
+
+Used when a tool needs to forcefully remove a cached item.
+
+```js
+zaraz.route("/invalidate", (request) => {
+  zaraz.invalidateCache("some_cached_item")
+  return new Response(204);
+});
+```
+The above example can be used by a tool to remotely wipe a cached item, for example when it wants the website to re-fetch data from the tool vendor API.
