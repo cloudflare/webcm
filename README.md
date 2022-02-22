@@ -4,11 +4,13 @@
 A Zaraz Tool Package is an NPM package that defines how a certain third-party tool works in a website. It contains all of the assets required for the tool to function, and it allows to tool to subscribe to different events, to update the DOM and to introduce server-logic.
 
 Tools that provide a Zaraz Tool Package have a few important advantages over tools that don't:
-- Same domain
-- Integrated Consent Manager support
-- Website-wide events system
-- Server logic: They can provide same-domain server logic
-- Server-side rendered widgets and embeds
+
+- **Same domain**: the tool never requires the browser to connect to a third-party domain. All of the assets and the API is served from the same domain as the website itself.
+- **Website-wide events system**: the tool can hook to a pre-existing events system that the website uses for tracking events
+- **Server logic**: the tool can provide server-side logic on the same domain as the website, including proxying a different server, serving static assets or generating dynamic responses
+- **Server-side rendered widgets and embeds**: the tool can easily extend the capability of the website with widgets and embeds that are performant
+- **Pre-Page-Rendering Actions**: the tool can run server-side actions that read or write a website page, before the browser started rendering it
+- **Integrated Consent Manager support**: 
 
 Note: The Zaraz Tool Package format is still under active development, and new capabilities are added all the time. The format is meant to be open and not platform specific: vendors and website owners will be able to load a tool written in this format without using Cloudflare Zaraz.
 
@@ -69,6 +71,23 @@ Every Zaraz Tool Package includes a `manifest.json` in addition to the normal NP
 | `allowCustomFields` | Whether or not users should be allowed to send custom fields to the tool |
 | `permissions` | Array of permissions the tool requires for its operation |
 
+## Permissions 
+
+The following table describes the permissions that a tool can ask for when being added to a website.
+
+| Permission | Description |
+|--|--|
+| set_cookie |  | 
+| read_cookie |  | 
+| run_client_js |  | 
+| use_client_fetch |  | 
+| run_scoped_client_js |  | 
+| serve_static |  | 
+| read_page |  | 
+| provide_embed |  | 
+| provide_widget |  | 
+| hook_events |  | 
+
 ## API Overview
 
 ### Server functionality
@@ -109,8 +128,49 @@ zaraz.route("/ping", (request) => {
 The above will map respond with a 204 code to all requests under `domain.com/cdn-cgi/zaraz/example/ping`.
 
 
-### User Events 
+### Events 
 
+#### Pageview
+
+```js
+zaraz.addEventListener("pageview", async (event) => {
+  const { context, emitter, page } = event;
+
+  // Send server-side request
+  fetch("https://example.com/collect", {
+    method: "POST",
+    data: {
+      url: context.system.page.url.href,
+      title: context.system.page.title,
+    },
+  });
+});
+```
+The above will send a server-side request to `example.com/collect` whenever the a new page loads, with the URL and the page title as payload.
+
+#### Single Page Application navigation
+
+The `historyChange` event is called whenever the page changes in a Single Page Application, by mean of `history.pushState` or `history.replaceState`. Tools can automatically trigger an action when this event occurs using an Event Listener.
+
+**Example**
+
+```js
+zaraz.addEventListener("historyChange", async (event) => {
+  const { context, emitter, page } = event;
+
+  // Send server-side request
+  fetch("https://example.com/collect", {
+    method: "POST",
+    data: {
+      url: context.system.page.url.href,
+      title: context.system.page.title,
+    },
+  });
+});
+```
+The above will send a server-side request to `example.com/collect` whenever the page changes in a Single Page Application, with the URL and the page title as payload.
+
+#### User-configured event
 Users can configure events using a site-wide [Events API](https://developers.cloudflare.com/zaraz/web-api), and then map these events to different tools. A tool can register to listen to events and then define the way it will be processed.
 
 **Example**
@@ -137,6 +197,7 @@ zaraz.addEventListener("event", async ({ context, emitter }) => {
 
 In the above example, when the tool receives an event it will do multiple things: (1) Make a server-side post request to /collect endpoint, with the visitor IP and the event name. If the visitor is using a normal web browser (e.g. not using the mobile SDK), the tool will also set a cookie named `example-uuid` to a random UUIDv4 string, and it ask the browser to make a client-side fetch request with the page title.
 
+#### DOM Change
 
 ### Embeds and Widgets
 
@@ -198,3 +259,6 @@ zaraz.registerWidget("floatingTweet", ({ element, settings }) => {
 ```
 In the above example, the tool defined a widget called `floatingTweet`. It reads the tweet ID from the `settings` object, and then uses the same method as the embed to fetch from an API and render its HTML code.
 
+### Caching
+
+### useCache
