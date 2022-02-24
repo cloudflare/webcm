@@ -1,7 +1,7 @@
 # Zaraz Tool Package
 
 ## Introduction
-A Zaraz Tool Package is an NPM package that defines how a certain third-party tool works in a website. It contains all of the assets required for the tool to function, and it allows to tool to subscribe to different events, to update the DOM and to introduce server-logic.
+A Zaraz Tool Package is an NPM package that defines how a certain third-party tool works in a website. It contains all of the assets required for the tool to function, and it allows the tool to subscribe to different events, to update the DOM and to introduce server-logic.
 
 Tools that provide a Zaraz Tool Package have a few important advantages over tools that don't:
 
