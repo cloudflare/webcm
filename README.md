@@ -80,7 +80,7 @@ The following table describes the permissions that a tool can ask for when being
 | Permission           | Required for                                                                |
 | -------------------- | --------------------------------------------------------------------------- |
 | client_kv            | `client.set`, `client.get`                                                  |
-| client_ext_kv        | `client.set`                                                                |
+| client_ext_kv        | `client.get` when getting a key from another tool                           |
 | run_client_js        |                                                                             |
 | client_fetch         | `client.fetch`                                                              |
 | run_scoped_client_js |                                                                             |
@@ -364,4 +364,23 @@ As keys are scoped to each tool, a tool can also explicitly ask for getting the 
 
 ```js
 client.get("uuid", "facebook-pixel");
+```
+
+#### `client.return`
+
+Return a value to the client so that it can use it.
+
+```js
+zaraz.addEventListener("event", async ({ context, payload, client }) => {
+  if (context.eventName === "multiply") {
+    client.return(context.x * context.y);
+  }
+});
+```
+
+On the browser, the website can access this result using:
+
+```js
+const value = await zaraz.track("multiply", { x: 21, y: 2 });
+const result = value.return["exampleTool"]; // = 42
 ```
