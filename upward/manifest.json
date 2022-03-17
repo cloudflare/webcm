@@ -1,0 +1,24 @@
+{
+  "name": "ExampleTool",
+  "description": "ExampleTool is a great tool for X and Y!",
+  "namespace": "example",
+  "icon": "assets/icon.svg",
+  "categories": ["Attribution"],
+  "provides": ["events", "ecommerce", "embed"],
+  "fields": {
+    "account_id": {}
+  },
+  "allowCustomFields": false,
+  "permissions": [
+    {
+      "permission": "getCachedPage",
+      "explanation": "ExampleTool needs a copy of the page so it can present it when playing the session",
+      "required": true
+    },
+    {
+      "permission": "clientFetch",
+      "explanation": "Third-party cookies help us attribute sessions more accurately",
+      "required": false
+    }
+  ]
+}
