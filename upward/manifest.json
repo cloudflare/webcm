@@ -1,24 +1,13 @@
 {
-  "name": "ExampleTool",
-  "description": "ExampleTool is a great tool for X and Y!",
+  "name": "Upward",
+  "description": "Upward is a recruiting tool!",
   "namespace": "example",
-  "icon": "assets/icon.svg",
-  "categories": ["Attribution"],
-  "provides": ["events", "ecommerce", "embed"],
+  "icon": "assets/upward.svg",
+  "categories": ["Recruiting"],
+  "provides": ["events"],
   "fields": {
     "account_id": {}
   },
-  "allowCustomFields": false,
-  "permissions": [
-    {
-      "permission": "getCachedPage",
-      "explanation": "ExampleTool needs a copy of the page so it can present it when playing the session",
-      "required": true
-    },
-    {
-      "permission": "clientFetch",
-      "explanation": "Third-party cookies help us attribute sessions more accurately",
-      "required": false
-    }
-  ]
+  "allowCustomFields": true,
+  "permissions": []
 }
