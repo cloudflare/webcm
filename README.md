@@ -103,7 +103,7 @@ Zaraz provides a couple of methods that allow a tool to introduce server-side fu
 Create a reverse proxy from some path to another server. It can be used in order to access the tool vendor servers without the browser needing to send a request to a different domain.
 
 ```js
-zaraz.proxy("/api", "api.example.com");
+manager.proxy("/api", "api.example.com");
 ```
 
 For a tool that uses the namespace `example`, the above code will map `domain.com/cdn-cgi/zaraz/example/api/*` to `api.example.com`. For example, a request to `domain.com/cdn-cgi/zaraz/example/api/hello` will be proxied, server-side, to `api.example.com/hello`.
@@ -111,7 +111,7 @@ For a tool that uses the namespace `example`, the above code will map `domain.co
 In the case of proxying static assets, you can use the third optional argument to force caching:
 
 ```js
-zaraz.proxy("/assets", "assets.example.com", { cache: "always" });
+manager.proxy("/assets", "assets.example.com", { cache: "always" });
 ```
 
 The third argument is optional and defaults to:
@@ -127,7 +127,7 @@ The third argument is optional and defaults to:
 Serve static assets.
 
 ```js
-zaraz.serveStatic("public", "assets");
+manager.serveStatic("public", "assets");
 ```
 
 The tool will provide a directory with it static assets under `public`, and it will be available under the same domain. In the above example, the tool's `public` directory will be exposed under `domain.com/cdn-cgi/zaraz/example/assets`.
@@ -137,7 +137,7 @@ The tool will provide a directory with it static assets under `public`, and it w
 Define custom server-side logic. These will run without a proxy, making them faster and more reliable.
 
 ```js
-zaraz.route("/ping", (request) => {
+manager.route("/ping", (request) => {
   return new Response(204);
 });
 ```
@@ -149,7 +149,7 @@ The above will map respond with a 204 code to all requests under `domain.com/cdn
 #### Pageview
 
 ```js
-zaraz.addEventListener("pageview", async (event) => {
+manager.addEventListener("pageview", async (event) => {
   const { context, client, page } = event;
 
   // Send server-side request
@@ -170,7 +170,7 @@ The above will send a server-side request to `example.com/collect` whenever the 
 The `historyChange` event is called whenever the page changes in a Single Page Application, by mean of `history.pushState` or `history.replaceState`. Tools can automatically trigger an action when this event occurs using an Event Listener.
 
 ```js
-zaraz.addEventListener("historyChange", async (event) => {
+manager.addEventListener("historyChange", async (event) => {
   const { context, client, page } = event;
 
   // Send server-side request
@@ -191,7 +191,7 @@ The above will send a server-side request to `example.com/collect` whenever the 
 Users can configure events using a site-wide [Events API](https://developers.cloudflare.com/zaraz/web-api), and then map these events to different tools. A tool can register to listen to events and then define the way it will be processed.
 
 ```js
-zaraz.addEventListener("event", async ({ context, client }) => {
+manager.addEventListener("event", async ({ context, client }) => {
   // Send server-side request
   fetch("https://example.com/collect", {
     method: "POST",
@@ -234,16 +234,16 @@ To place an embed in the page, the website owner includes a placeholder `div` el
 Inside the Zaraz Tool Package, the embed will be defined like in this example:
 
 ```js
-zaraz.registerEmbed("twitter-example", ({ element }) => {
+manager.registerEmbed("twitter-example", ({ element }) => {
   const color = element.attributes["dark-theme"] ? "light" : "dark";
   const tweetId = element.attributes["tweet-id"];
-  const tweet = zaraz.useCache(
+  const tweet = manager.useCache(
     "tweet-" + tweetId,
     await(await fetch("https://api.twitter.com/tweet/" + tweetId)).json()
   );
 
   element.render(
-    zaraz.useCache(
+    manager.useCache(
       "widget",
       pug.compile("templates/widget.pug", { tweet, color })
     )
@@ -258,15 +258,15 @@ In the above example, the tool defined an embed called `twitter-example`. It che
 Floating widgets are not replacing an element, instead, they are appended to the `<body>` tag of the page. Inside the Zaraz Took Package, a floating tweet widget will be defined like this:
 
 ```js
-zaraz.registerWidget("floatingTweet", ({ element }) => {
+manager.registerWidget("floatingTweet", ({ element }) => {
   const tweetId = element.attributes["tweet-id"];
-  const tweet = zaraz.useCache(
+  const tweet = manager.useCache(
     "tweet-" + tweetId,
     await(await fetch("https://api.twitter.com/tweet/" + tweetId)).json()
   );
 
   element.render(
-    zaraz.useCache(
+    manager.useCache(
       "widget",
       pug.compile("templates/floating-widget.pug", { tweet })
     )
@@ -283,7 +283,7 @@ In the above example, the tool defined a widget called `floatingTweet`. It reads
 Save a variable to a KV storage.
 
 ```js
-zaraz.set("message", "hello world");
+manager.set("message", "hello world");
 ```
 
 #### `get`
@@ -291,7 +291,7 @@ zaraz.set("message", "hello world");
 Get a variable from KV storage.
 
 ```js
-zaraz.get("message", "hello world");
+manager.get("message", "hello world");
 ```
 
 ### Caching
@@ -301,7 +301,7 @@ zaraz.get("message", "hello world");
 The `useCache` method is used to provide tools with an abstract layer of caching that easy to use. The method takes 3 arguments - `name`, `function` and `expiry`. When used, `useCache` will use the data from the cache if it exists, and if the expiry time did not pass. If it cannot use the cache, `useCache` will run the function and cache it for next time.
 
 ```js
-zaraz.useCache(
+manager.useCache(
   `widget-${tweet.id}`,
   pug.compile("templates/floating-widget.pug", { tweet }),
   60
@@ -315,8 +315,8 @@ In the above example the template will only be rerendered using Pug if the cache
 Used when a tool needs to forcefully remove a cached item.
 
 ```js
-zaraz.route("/invalidate", (request) => {
-  zaraz.invalidateCache("some_cached_item");
+manager.route("/invalidate", (request) => {
+  manager.invalidateCache("some_cached_item");
   return new Response(204);
 });
 ```
@@ -371,7 +371,7 @@ client.get("uuid", "facebook-pixel");
 Return a value to the client so that it can use it.
 
 ```js
-zaraz.addEventListener("event", async ({ context, payload, client }) => {
+manager.addEventListener("event", async ({ context, payload, client }) => {
   if (context.eventName === "multiply") {
     client.return(context.x * context.y);
   }
@@ -381,6 +381,6 @@ zaraz.addEventListener("event", async ({ context, payload, client }) => {
 On the browser, the website can access this result using:
 
 ```js
-const value = await zaraz.track("multiply", { x: 21, y: 2 });
+const value = await manager.track("multiply", { x: 21, y: 2 });
 const result = value.return["exampleTool"]; // = 42
 ```
