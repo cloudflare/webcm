@@ -5,8 +5,18 @@ export default function (zaraz) {
 
     // event.data is event.payload.event_type
     payload.tid = client.get("upward_tid");
-    const dataToSend = zaraz.utils.filterOutEmptyValues(payload); // TODO should we provide some simple `utils`? how do we deal with these?
-    if (Object.keys(dataToSend).length) {
+
+    for (let param in payload) {
+      if (
+        payload[param] === undefined ||
+        payload[param] === null ||
+        payload[param] === ""
+      ) {
+        delete payload[param];
+      }
+    }
+
+    if (Object.keys(payload).length) {
       const params = new URLSearchParams(payload).toString();
       fetch(`https://www.upward.net/search/u_convert.fsn?${params}`);
     }
