@@ -1,0 +1,13 @@
+{
+  "name": "Google Analytics",
+  "description": "Google Analytics",
+  "namespace": "google-analytics",
+  "icon": "assets/google-analytics.svg",
+  "categories": ["Analytics"],
+  "provides": ["events"],
+  "fields": {
+    "account_id": {}
+  },
+  "allowCustomFields": true,
+  "permissions": []
+}
