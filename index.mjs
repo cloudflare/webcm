@@ -1,9 +1,14 @@
 import { createServer } from "http";
 import httpProxy from "http-proxy";
 import { buildClient } from "./client.mjs";
-import config from './config.json' assert { type: 'json' };
+import config from "./config.json" assert { type: "json" };
+import { set, get } from "kv-storage";
 
 const zaraz = new EventTarget();
+
+zaraz.set = set;
+zaraz.get = get;
+
 const { target } = config;
 
 for (const mod of config.modules) {
