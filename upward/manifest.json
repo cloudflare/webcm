@@ -1,7 +1,7 @@
 {
   "name": "Upward",
   "description": "Upward is a recruiting tool!",
-  "namespace": "example",
+  "namespace": "upward",
   "icon": "assets/upward.svg",
   "categories": ["Recruiting"],
   "provides": ["events"],
