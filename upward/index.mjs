@@ -3,7 +3,6 @@ export default function (zaraz) {
   zaraz.addEventListener("event", async (event) => {
     const { client, payload } = event;
 
-    // event.data is event.payload.event_type
     payload.tid = client.get("upward_tid");
 
     for (let param in payload) {
