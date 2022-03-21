@@ -26,7 +26,7 @@ export default function (zaraz) {
     const { client } = event;
 
     const tid = client.page.query.tid;
-    if (client.type === "browser") {
+    if (client.type === "browser" && tid) {
       client.set("upward_tid", tid, {
         scope: "infinite",
       });
