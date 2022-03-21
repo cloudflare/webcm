@@ -1,0 +1,4 @@
+{
+  "modules": ["upward"],
+  "target": "http://localhost:8000"
+}
