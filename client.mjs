@@ -16,6 +16,9 @@ export const buildClient = (req, res) => {
       query: Object.fromEntries(url.searchParams),
     },
     type: "browser",
+    eval: (code) => {
+      res.payload.eval.push(code);
+    },
     fetch: (resource, settings) => {
       res.payload.fetch.push([resource, settings]);
     },

