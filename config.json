@@ -1,4 +1,6 @@
 {
   "modules": ["upward"],
-  "target": "http://localhost:8000"
+  "target": "http://localhost:8000",
+  "hostname": "localhost",
+  "port": 1337
 }

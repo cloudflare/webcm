@@ -1,22 +1,23 @@
 import { createServer } from "http";
 import httpProxy from "http-proxy";
-import { buildClient } from "./client.mjs";
 import config from "./config.json" assert { type: "json" };
-import { set, get } from "kv-storage";
+import { buildClient } from "./client.mjs";
+import { set, get } from "./kv-storage.mjs";
+import { readFileSync } from "fs";
 
 const zaraz = new EventTarget();
 
 zaraz.set = set;
 zaraz.get = get;
 
-const { target } = config;
+const { target, hostname, port } = config;
 
 for (const mod of config.modules) {
   const tool = await import(`./${mod}/index.mjs`);
   tool.default(zaraz);
 }
 
-const injectedScript = "console.log('Zaraz is in the house')";
+const injectedScript = readFileSync("browser/track.js");
 const sourcedScript = "console.log('Zaraz script is sourced again')";
 
 const proxy = httpProxy.createProxyServer();
@@ -34,8 +35,13 @@ proxy.on("proxyReq", function (proxyRes, req, res) {
       const event = new Event("event");
       event.payload = JSON.parse(data);
       event.client = buildClient(req, res);
+      res.payload = {
+        fetch: [],
+        eval: [],
+        return: undefined
+      }
       zaraz.dispatchEvent(event);
-      res.end();
+      res.end(JSON.stringify(res.payload));
     });
   }
 });
@@ -66,4 +72,6 @@ createServer(function (req, res) {
     target,
     selfHandleResponse: true,
   });
-}).listen(1337);
+}).listen(port, hostname);
+
+console.info(`\n🚀 EC-Web is now proxying ${target} at http://${hostname}:${port}`)

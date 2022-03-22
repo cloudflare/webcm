@@ -16,6 +16,15 @@ export const buildClient = (req, res) => {
       query: Object.fromEntries(url.searchParams),
     },
     type: "browser",
+    eval: (code) => {
+      res.payload.eval.push(code);
+    },
+    return: (value) => {
+      res.payload.return = value;
+    },
+    fetch: (resource, settings) => {
+      res.payload.fetch.push([resource, settings]);
+    },
     set: (key, value) => {
       res.setHeader("set-cookie", `${key}=${value}`);
     },

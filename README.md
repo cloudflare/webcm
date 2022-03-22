@@ -81,7 +81,7 @@ The following table describes the permissions that a tool can ask for when being
 | -------------------- | --------------------------------------------------------------------------- |
 | client_kv            | `client.set`, `client.get`                                                  |
 | client_ext_kv        | `client.get` when getting a key from another tool                           |
-| run_client_js        |                                                                             |
+| run_client_js        | `client.execute`                                                            |
 | client_fetch         | `client.fetch`                                                              |
 | run_scoped_client_js |                                                                             |
 | serve_static         | `serveStatic`                                                               |
@@ -333,6 +333,8 @@ Make a `fetch` request from the client.
 client.fetch("https://example.com/collect");
 ```
 
+The above will send a fetch request from the client to the resource specified.
+
 #### `client.set`
 
 Save a value on the client. In a normal web browser, this would translate into a cookie, or a localStorage/sessionStorage item.
@@ -384,3 +386,16 @@ On the browser, the website can access this result using:
 const value = await manager.track("multiply", { x: 21, y: 2 });
 const result = value.return["exampleTool"]; // = 42
 ```
+
+
+#### `client.execute`
+
+Run client-side JS code in the client.
+
+```js
+manager.addEventListener("event", async ({ context, payload, client }) => {
+  client.eval("console.log('Hello World');")
+});
+```
+
+This would make the browser print "Hello World" to the console.
