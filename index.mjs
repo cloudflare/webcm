@@ -37,7 +37,8 @@ proxy.on("proxyReq", function (proxyRes, req, res) {
       event.client = buildClient(req, res);
       res.payload = {
         fetch: [],
-        eval: []
+        eval: [],
+        return: undefined
       }
       zaraz.dispatchEvent(event);
       res.end(JSON.stringify(res.payload));

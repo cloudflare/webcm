@@ -1,16 +1,17 @@
 const ec = {
-  track: (payload) => {
-    fetch('/cdn-cgi/zaraz/t', {
+  track: async (payload) => {
+    const res = await fetch('/cdn-cgi/zaraz/t', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)
-    }).then(res => res.json())
-      .then(res => {
-        console.log("Track response:", res)
-        for (const f of res.fetch) fetch(f[0], f[1])
-        for (const e of res.eval) eval(e)
-      });
-    }
+    })
+    const data = await res.json();
+
+    console.log("Track response:", data)
+    for (const f of data.fetch) fetch(f[0], f[1])
+    for (const e of data.eval) eval(e)
+    return data.return
+  }
 }

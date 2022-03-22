@@ -19,6 +19,9 @@ export const buildClient = (req, res) => {
     eval: (code) => {
       res.payload.eval.push(code);
     },
+    return: (value) => {
+      res.payload.return = value;
+    },
     fetch: (resource, settings) => {
       res.payload.fetch.push([resource, settings]);
     },
