@@ -9,7 +9,7 @@ const zaraz = new EventTarget();
 zaraz.set = set;
 zaraz.get = get;
 
-const { target } = config;
+const { target, hostname, port } = config;
 
 for (const mod of config.modules) {
   const tool = await import(`./${mod}/index.mjs`);
@@ -66,4 +66,6 @@ createServer(function (req, res) {
     target,
     selfHandleResponse: true,
   });
-}).listen(1337);
+}).listen(port, hostname);
+
+console.info(`\n🚀 EC-Web is now proxying ${target} at http://${hostname}:${port}`)
