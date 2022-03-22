@@ -3,6 +3,7 @@ import httpProxy from "http-proxy";
 import config from "./config.json" assert { type: "json" };
 import { buildClient } from "./client.mjs";
 import { set, get } from "./kv-storage.mjs";
+import { readFileSync } from "fs";
 
 const zaraz = new EventTarget();
 
@@ -16,7 +17,7 @@ for (const mod of config.modules) {
   tool.default(zaraz);
 }
 
-const injectedScript = "console.log('Zaraz is in the house')";
+const injectedScript = readFileSync("browser/track.js");
 const sourcedScript = "console.log('Zaraz script is sourced again')";
 
 const proxy = httpProxy.createProxyServer();
@@ -34,8 +35,12 @@ proxy.on("proxyReq", function (proxyRes, req, res) {
       const event = new Event("event");
       event.payload = JSON.parse(data);
       event.client = buildClient(req, res);
+      res.payload = {
+        fetch: [],
+        execture: []
+      }
       zaraz.dispatchEvent(event);
-      res.end();
+      res.end(JSON.stringify(res.payload));
     });
   }
 });
