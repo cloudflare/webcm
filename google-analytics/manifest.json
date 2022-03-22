@@ -9,5 +9,16 @@
     "account_id": {}
   },
   "allowCustomFields": true,
-  "permissions": []
+  "permissions": [
+    {
+      "permission": "clientFetch",
+      "explanation": "Google Analytics uses client fetch to attribute sessions more accurately",
+      "required": false
+    },
+    {
+      "permission": "run_client_js",
+      "explanation": "If you're using GA Audiences",
+      "required": true
+    }
+  ]
 }
