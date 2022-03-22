@@ -1,8 +1,8 @@
 import { createServer } from "http";
 import httpProxy from "http-proxy";
-import { buildClient } from "./client.mjs";
 import config from "./config.json" assert { type: "json" };
-import { set, get } from "kv-storage";
+import { buildClient } from "./client.mjs";
+import { set, get } from "./kv-storage.mjs";
 
 const zaraz = new EventTarget();
 
