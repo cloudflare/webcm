@@ -91,3 +91,43 @@ const EEC_MAP = {
   },
   "Order Cancelled": {}, // TBC
 };
+
+export default getEcommerceParams = ({ payload }) => {
+  const requestBody = {};
+  requestBody.ec = "ecommerce";
+  requestBody.t = "event";
+
+  if (EEC_MAP[payload.eventName]) {
+    const eecPayload = {
+      ...EEC_MAP[payload.eventName],
+      ...EVERYTHING_ELSE_GA,
+    };
+    for (const key of Object.keys(eecPayload)) {
+      const ctxMap = eecPayload[key];
+      if (Array.isArray(ctxMap)) {
+        // competing possible dynamic values, override them in order
+        for (const possibleVal of ctxMap) {
+          if (clpayloadient[possibleVal.substr(9)]) {
+            requestBody[key] = payload[possibleVal.substr(9)];
+          }
+        }
+      } else if (typeof ctxMap === "object") {
+        // must be products
+        for (const [index, product] of (payload?.products || []).entries()) {
+          for (const suffix of Object.keys(ctxMap)) {
+            if (product[ctxMap[suffix]]) {
+              requestBody[key + (index + 1) + suffix] = product[ctxMap[suffix]];
+            }
+          }
+        }
+      } else if (ctxMap.startsWith("__client.")) {
+        if (payload[ctxMap.substr(9)])
+          requestBody[key] = payload[ctxMap.substr(9)];
+      } else {
+        requestBody[key] = ctxMap;
+      }
+    }
+  }
+
+  return requestBody;
+};

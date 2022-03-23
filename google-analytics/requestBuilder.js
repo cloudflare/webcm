@@ -1,7 +1,6 @@
 const getRandomInt = () => Math.floor(2147483647 * Math.random());
 
-export default getToolRequest = ({ client, payload }) => {
-  const settings = {} // TODO where do we get the settings from?
+export default getToolRequest = ({ client, payload, settings }) => {
   // TODO - create a requestBody type just for GA?
   const requestBody = {
     t: "pageview",
@@ -14,7 +13,6 @@ export default getToolRequest = ({ client, payload }) => {
     ul: client.device.language,
     dl: client.page.url.href,
     ua: client.device.userAgent.ua,
-    // TODO where do we take this value from? should it be serverSide settings?
     ...(settings?.hideOriginalIP && {
       uip: client.device.ip,
     }),
@@ -91,48 +89,7 @@ export default getToolRequest = ({ client, payload }) => {
     });
   }
 
-  // TODO how do we deal with ecommerce? zarazTrack. zarazEcommerce don't exist
-  if (payload.__zarazEcommerce === true) {
-    requestBody.ec = "ecommerce";
-    requestBody.t = "event";
+  const rawParams = { ...requestBody, ...payload }; // TODO in old zaraz we appended event.data - I guess here we're appending the payload
 
-    if (EEC_MAP[payload.__zarazTrack]) {
-      const eecPayload = {
-        ...EEC_MAP[payload.__zarazTrack],
-        ...EVERYTHING_ELSE_GA,
-      };
-      for (const key of Object.keys(eecPayload)) {
-        const ctxMap = eecPayload[key];
-        if (Array.isArray(ctxMap)) {
-          // competing possible dynamic values, override them in order
-          for (const possibleVal of ctxMap) {
-            if (clpayloadient[possibleVal.substr(9)]) {
-              requestBody[key] = payload[possibleVal.substr(9)];
-            }
-          }
-        } else if (typeof ctxMap === "object") {
-          // must be products
-          for (const [index, product] of (payload?.products || []).entries()) {
-            for (const suffix of Object.keys(ctxMap)) {
-              if (product[ctxMap[suffix]]) {
-                requestBody[key + (index + 1) + suffix] =
-                  product[ctxMap[suffix]];
-              }
-            }
-          }
-        } else if (ctxMap.startsWith("__client.")) {
-          if (payload[ctxMap.substr(9)])
-            requestBody[key] = payload[ctxMap.substr(9)];
-        } else {
-          requestBody[key] = ctxMap;
-        }
-      }
-    }
-  }
-
-  const rawParams = { ...requestBody }; // TODO in old zaraz we appended event.data - I guess requestBody is enough here since we don't have any eventData. Double check :)
-  const params = new URLSearchParams(rawParams).toString();
-  const baseURL = "https://www.google-analytics.com/collect?";
-  const finalURL = baseURL + params;
-  return { _clientJS: clientJS, finalURL, rawParams };
+  return rawParams;
 };
