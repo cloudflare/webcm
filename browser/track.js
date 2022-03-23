@@ -1,6 +1,6 @@
 const ec = {
   track: async (payload) => {
-    const res = await fetch('/cdn-cgi/zaraz/t', {
+    const res = await fetch('/cdn-cgi/ecweb/t', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

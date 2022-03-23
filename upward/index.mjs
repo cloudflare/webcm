@@ -1,6 +1,6 @@
-export default function (zaraz) {
+export default function (manager) {
   // ====== Subscribe to User-Configured Events ======
-  zaraz.addEventListener("event", async (event) => {
+  manager.addEventListener("event", async (event) => {
     const { client, payload } = event;
 
     payload.tid = client.get("upward_tid");
@@ -22,7 +22,7 @@ export default function (zaraz) {
   });
 
   // ====== Subscribe to Pageview Events ======
-  zaraz.addEventListener("pageview", async (event) => {
+  manager.addEventListener("pageview", async (event) => {
     const { client } = event;
 
     const tid = client.page.query.tid;

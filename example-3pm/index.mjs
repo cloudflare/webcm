@@ -2,21 +2,21 @@
 // some tool
 import "pug";
 
-export default function (zaraz) {
-  // map yourdomain.com/cdn-cgi/zaraz/example/api/hello -> api.example.com/hello
-  zaraz.registerProxy("/api", "api.example.com");
+export default function (manager) {
+  // map yourdomain.com/cdn-cgi/manager/example/api/hello -> api.example.com/hello
+  manager.registerProxy("/api", "api.example.com");
 
   // make static assets available
   // TODO: how do we enforce smart loading of these assets?
-  zaraz.serveStatic("/public", "public");
+  manager.serveStatic("/public", "public");
 
-  // yourdomain.com/cdn-cgi/zaraz/example/ping -> 204
-  zaraz.get("/ping", (request) => {
+  // yourdomain.com/cdn-cgi/manager/example/ping -> 204
+  manager.get("/ping", (request) => {
     return new Response(204);
   });
 
   // Register to user-configured events
-  zaraz.addEventListener("event", async (event) => {
+  manager.addEventListener("event", async (event) => {
     const { context, emitter } = event;
 
     // Send server-side request
@@ -41,7 +41,7 @@ export default function (zaraz) {
   });
 
   // Register to Pageview events
-  zaraz.addEventListener("pageview", async (event) => {
+  manager.addEventListener("pageview", async (event) => {
     const { context, emitter, page } = event;
 
     // Send server-side request
@@ -55,18 +55,18 @@ export default function (zaraz) {
   });
 
   // Register to provide an embed widget
-  zaraz.addEventListener("embed", (event) => {
+  manager.addEventListener("embed", (event) => {
     const { element, emitter, context } = event; // TODO: an embed needs `page`?
     const color = element.attributes.darkTheme ? "light" : "dark";
     const tweetId = element.attributes.id;
-    const tweet = zaraz.useCache(
+    const tweet = manager.useCache(
       "tweet-" + tweetId,
       null,
       await(await fetch("https://api.twitter.com/tweet/" + tweetId)).json() // TODO: How do we make sure we don't slow the rendering?
     );
 
     element.render(
-      zaraz.useCache(
+      manager.useCache(
         "widget",
         ["system.context.userAgent.ua"],
         pug.compile("templates/widget.pug", { context }) // Use your own templating system, output is cached
@@ -81,7 +81,7 @@ export default function (zaraz) {
   });
 
   // Register to DOM changes
-  zaraz.addEventListener("DOMChange", async (event) => {
+  manager.addEventListener("DOMChange", async (event) => {
     const { context, emitter, change } = event;
 
     // Send server-side request
@@ -116,16 +116,16 @@ export default function (zaraz) {
 //
 //
 
-// zaraz.registerEmbed(attributes) {
+// manager.registerEmbed(attributes) {
 //   const color = attributes.darkTheme ? "light" : "dark"
-//   const html = zaraz.useCache("blue", [""])
+//   const html = manager.useCache("blue", [""])
 //   return html
 // }
 //
 //
 // // is there even such a thing as "pageload"?
-// zaraz.addEventListener("pageload", async (context) => {
-//   page.replaceElement(".zaraz-widget", render("widget", { context })); // implement caching, allow whatever templating system
+// manager.addEventListener("pageload", async (context) => {
+//   page.replaceElement(".manager-widget", render("widget", { context })); // implement caching, allow whatever templating system
 //   page.insertStylesheet("style.css"); // these assets should be precompiled
 //   if (context.system.cookies.example_loggedin)
 //     page.insertStylesheet("style-loggedin.css"); // you can dynamicaly add more

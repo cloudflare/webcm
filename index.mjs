@@ -5,27 +5,27 @@ import { buildClient } from "./client.mjs";
 import { set, get } from "./kv-storage.mjs";
 import { readFileSync } from "fs";
 
-const zaraz = new EventTarget();
+const ecweb = new EventTarget();
 
-zaraz.set = set;
-zaraz.get = get;
+ecweb.set = set;
+ecweb.get = get;
 
 const { target, hostname, port } = config;
 
 for (const mod of config.modules) {
   const tool = await import(`./${mod}/index.mjs`);
-  tool.default(zaraz);
+  tool.default(ecweb);
 }
 
 const injectedScript = readFileSync("browser/track.js");
-const sourcedScript = "console.log('Zaraz script is sourced again')";
+const sourcedScript = "console.log('ecweb script is sourced again')";
 
 const proxy = httpProxy.createProxyServer();
 proxy.on("proxyReq", function (proxyRes, req, res) {
   console.log(req.url);
-  if (req.url === "/cdn-cgi/zaraz/s.js") {
+  if (req.url === "/cdn-cgi/ecweb/s.js") {
     res.end(sourcedScript);
-  } else if (req.url === "/cdn-cgi/zaraz/t") {
+  } else if (req.url === "/cdn-cgi/ecweb/t") {
     req.fullUrl = target + req.url;
     let data = "";
     req.on("data", (chunk) => {
@@ -40,7 +40,7 @@ proxy.on("proxyReq", function (proxyRes, req, res) {
         eval: [],
         return: undefined
       }
-      zaraz.dispatchEvent(event);
+      ecweb.dispatchEvent(event);
       res.end(JSON.stringify(res.payload));
     });
   }
@@ -48,11 +48,11 @@ proxy.on("proxyReq", function (proxyRes, req, res) {
 
 proxy.on("proxyRes", function (proxyRes, req, res) {
   req.fullUrl = target + req.url;
-  if (req.url !== "/cdn-cgi/zaraz/s.js" && req.url !== "/cdn-cgi/zaraz/t") {
+  if (req.url !== "/cdn-cgi/ecweb/s.js" && req.url !== "/cdn-cgi/ecweb/t") {
     const event = new Event("pageview");
 
     event.client = buildClient(req, res);
-    zaraz.dispatchEvent(event);
+    ecweb.dispatchEvent(event);
     let body = [];
     proxyRes.on("data", function (chunk) {
       body.push(chunk);
