@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.mjs",
   "dependencies": {
-    "http-proxy": "^1.18.1"
+    "express": "^4.17.3",
+    "http-proxy-middleware": "^2.0.4"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx nodemon --experimental-fetch index.mjs"
@@ -15,8 +15,8 @@
     "type": "git",
     "url": "ssh://git@bitbucket.cfdata.org:7999/eco/zaraz-2.0.git"
   },
-  "engines" : { 
-    "node" : ">=17.0.0"
+  "engines": {
+    "node": ">=17.0.0"
   },
   "author": "",
   "license": "ISC"

@@ -1,6 +1,6 @@
 {
   "modules": ["upward"],
-  "target": "http://localhost:8000",
+  "target": "http://localhost:3000",
   "hostname": "localhost",
   "trackPath": "/crazy/tracking/path",
   "port": 1337
