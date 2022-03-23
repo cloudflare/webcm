@@ -10,14 +10,14 @@ const ecweb = new EventTarget();
 ecweb.set = set;
 ecweb.get = get;
 
-const { target, hostname, port } = config;
+const { target, hostname, port, trackPath } = config;
 
 for (const mod of config.modules) {
   const tool = await import(`./${mod}/index.mjs`);
   tool.default(ecweb);
 }
 
-const injectedScript = readFileSync("browser/track.js");
+const injectedScript = readFileSync("browser/track.js").toString().replace("TRACK_PATH", trackPath);
 const sourcedScript = "console.log('ecweb script is sourced again')";
 
 const proxy = httpProxy.createProxyServer();
@@ -25,7 +25,7 @@ proxy.on("proxyReq", function (proxyRes, req, res) {
   console.log(req.url);
   if (req.url === "/cdn-cgi/ecweb/s.js") {
     res.end(sourcedScript);
-  } else if (req.url === "/cdn-cgi/ecweb/t") {
+  } else if (req.url === trackPath) {
     req.fullUrl = target + req.url;
     let data = "";
     req.on("data", (chunk) => {
@@ -48,7 +48,7 @@ proxy.on("proxyReq", function (proxyRes, req, res) {
 
 proxy.on("proxyRes", function (proxyRes, req, res) {
   req.fullUrl = target + req.url;
-  if (req.url !== "/cdn-cgi/ecweb/s.js" && req.url !== "/cdn-cgi/ecweb/t") {
+  if (req.url !== "/cdn-cgi/ecweb/s.js" && req.url !== trackPath) {
     const event = new Event("pageview");
 
     event.client = buildClient(req, res);
