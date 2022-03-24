@@ -1,35 +1,39 @@
-export default function (zaraz) {
+export default async function (manager) {
   // ====== Subscribe to User-Configured Events ======
-  zaraz.addEventListener("event", async (event) => {
-    const { client, payload } = event;
+  manager.addEventListener('event', async (event) => {
+    const { client, payload } = event
 
-    payload.tid = client.get("upward_tid");
+    payload.tid = client.get('upward_tid')
 
     for (let param in payload) {
       if (
         payload[param] === undefined ||
         payload[param] === null ||
-        payload[param] === ""
+        payload[param] === ''
       ) {
-        delete payload[param];
+        delete payload[param]
       }
     }
 
     if (Object.keys(payload).length) {
-      const params = new URLSearchParams(payload).toString();
-      fetch(`https://www.upward.net/search/u_convert.fsn?${params}`);
+      const params = new URLSearchParams(payload).toString()
+      fetch(`https://www.upward.net/search/u_convert.fsn?${params}`).catch(
+        () => {
+          throw new Error('Error fetching from Upward')
+        }
+      )
     }
-  });
+  })
 
   // ====== Subscribe to Pageview Events ======
-  zaraz.addEventListener("pageview", async (event) => {
-    const { client } = event;
+  manager.addEventListener('pageview', async (event) => {
+    const { client } = event
 
-    const tid = client.page.query.tid;
-    if (client.type === "browser" && tid) {
-      client.set("upward_tid", tid, {
-        scope: "infinite",
-      });
+    const tid = client.page.query.tid
+    if (client.type === 'browser' && tid) {
+      client.set('upward_tid', tid, {
+        scope: 'infinite',
+      })
     }
-  });
+  })
 }
