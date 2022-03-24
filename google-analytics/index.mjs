@@ -1,6 +1,6 @@
-import ecommerce from "./ecommerce";
-import gaDoubleClick from "./gaDoubleClick";
-import getToolRequest from "./requestBuilder";
+import { getEcommerceParams } from "./ecommerce.mjs";
+import { gaDoubleClick } from "./gaDoubleClick.mjs";
+import { getToolRequest } from "./requestBuilder.mjs";
 
 const _getFinalUrl = (rawParams) => {
   const params = new URLSearchParams(rawParams).toString();
@@ -15,7 +15,8 @@ const _getFinalUrl = (rawParams) => {
  * This function will be used to handle both types of events
  * */
 const _runTool = function (event, zaraz) {
-  const { settings } = event;
+  let { settings } = event;
+  if (!settings) settings = {};
 
   const rawParams = getToolRequest(event);
   const finalURL = _getFinalUrl(rawParams);
@@ -41,7 +42,7 @@ export default function (zaraz) {
   // ====== Subscribe to Ecommerce Events ======
   zaraz.addEventListener("ecommerce", async (event) => {
     const rawParams = getToolRequest(event);
-    const ecommerceParams = ecommerce(event);
+    const ecommerceParams = getEcommerceParams(event);
     const finalURL = _getFinalUrl({ ...rawParams, ...ecommerceParams });
 
     fetch(finalURL);
