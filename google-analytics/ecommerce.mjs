@@ -92,7 +92,7 @@ const EEC_MAP = {
   "Order Cancelled": {}, // TBC
 };
 
-export default getEcommerceParams = ({ payload }) => {
+export const getEcommerceParams = ({ payload }) => {
   const requestBody = {};
   requestBody.ec = "ecommerce";
   requestBody.t = "event";

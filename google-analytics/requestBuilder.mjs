@@ -1,6 +1,7 @@
+import crypto from "crypto";
 const getRandomInt = () => Math.floor(2147483647 * Math.random());
 
-export default getToolRequest = ({ client, payload, settings }) => {
+export const getToolRequest = ({ client, payload, settings }) => {
   // TODO - create a requestBody type just for GA?
   const requestBody = {
     t: "pageview",
@@ -8,22 +9,22 @@ export default getToolRequest = ({ client, payload, settings }) => {
     jid: getRandomInt(),
     gjid: getRandomInt(),
     z: getRandomInt(),
-    sr: client.device.resolution,
-    dt: client.page.title,
-    ul: client.device.language,
-    dl: client.page.url.href,
-    ua: client.device.userAgent.ua,
+    sr: client.device?.resolution,
+    dt: client.page?.title,
+    ul: client.device?.language,
+    dl: client.page?.url?.href,
+    ua: client.device?.userAgent.ua,
     ...(settings?.hideOriginalIP && {
       uip: client.device.ip,
     }),
   };
 
-  if (!client.device.viewport.includes("undefined")) {
-    requestBody.vp = client.device.viewport;
+  if (!client.device?.viewport.includes("undefined")) {
+    requestBody.vp = client.device?.viewport;
   }
 
-  if (client.page.referrer) {
-    requestBody.dr = client.page.referrer;
+  if (client.page?.referrer) {
+    requestBody.dr = client.page?.referrer;
   }
 
   if (client.get["_ga"]) {
@@ -32,7 +33,11 @@ export default getToolRequest = ({ client, payload, settings }) => {
   } else {
     const uid = crypto.randomUUID();
     requestBody["cid"] = uid;
+    console.log("Client set cid: ", uid);
     client.set("_ga", uid, { scope: "infinite" });
+    client.set("_dpd", "simona", {
+      scope: "infinite",
+    });
   }
 
   if (client.get["_gid"]) {
@@ -41,12 +46,12 @@ export default getToolRequest = ({ client, payload, settings }) => {
   }
 
   /* Start of gclid treating, taken from our Google Conversion Pixel implementation */
-  if (client.page.query._gl) {
+  if (client.page?.query._gl) {
     try {
       const gclaw = atob(
         // because it's in a try-catch already
         // @ts-ignore
-        client.page.query._gl.split("*").pop().replaceAll(".", "")
+        client.page?.query._gl.split("*").pop().replaceAll(".", "")
       );
       client.set("_gcl_aw", gclaw, { scope: "infinite" });
       requestBody.gclid = gclaw.split(".").pop();
@@ -69,22 +74,22 @@ export default getToolRequest = ({ client, payload, settings }) => {
   }
 
   if (client.page.query.utma) {
-    client.set("_utma", system.page.query.utma, {
+    client.set("_utma", client.page?.query.utma, {
       scope: "infinite",
     });
   }
   if (client.page.query.utmz) {
-    client.set("_utmz", system.page.query.utmz, {
+    client.set("_utmz", client.page?.query.utmz, {
       scope: "infinite",
     });
   }
   if (client.page.query.dpd) {
-    client.set("_dpd", system.page.query.dpd, {
+    client.set("_dpd", client.page?.query.dpd, {
       scope: "infinite",
     });
   }
   if (client.page.query.utm_wtk) {
-    client.set("utm_wtk", system.page.query.utm_wtk, {
+    client.set("utm_wtk", client.page?.query.utm_wtk, {
       scope: "infinite",
     });
   }

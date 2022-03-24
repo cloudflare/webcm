@@ -1,4 +1,4 @@
-export default gaDoubleClick = ({ payload, client }, finalUrl, settings) => {
+export const gaDoubleClick = ({ payload, client }, finalUrl, settings) => {
   const analyticsURL = new URL(finalUrl);
   const jid = analyticsURL.searchParams.get("jid");
   const gjid = analyticsURL.searchParams.get("gjid");
