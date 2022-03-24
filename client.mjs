@@ -26,7 +26,7 @@ export const buildClient = (req, res) => {
       res.payload.fetch.push([resource, settings]);
     },
     set: (key, value) => {
-      res.setHeader("set-cookie", `${key}=${value}`);
+      res.append("set-cookie", `${key}=${value}`);
     },
     get: (key) => {
       return cookies[key];
