@@ -22,9 +22,17 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 for (const mod of config.modules) {
-  const tool = await import(`./${mod}/index.mjs`)
+  let moduleName = ''
+  let moduleSettings = {}
+  if (typeof mod === 'object') {
+    moduleName = Object.keys(mod)[0]
+    moduleSettings = mod[moduleName]
+  } else {
+    moduleName = mod
+  }
+  const tool = await import(`./${moduleName}/index.mjs`)
   try {
-    await tool.default(ecweb)
+    await tool.default(ecweb, moduleSettings)
   } catch (error) {
     console.error('Error loading tool', error)
   }
