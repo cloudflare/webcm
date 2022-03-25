@@ -2,24 +2,39 @@ import { getEcommerceParams } from "./ecommerce.mjs";
 import { gaDoubleClick } from "./gaDoubleClick.mjs";
 import { getToolRequest } from "./requestBuilder.mjs";
 
-const _getFinalUrl = (rawParams) => {
-  const params = new URLSearchParams(rawParams).toString();
-  const baseURL = "https://www.google-analytics.com/collect?";
-  const finalURL = baseURL + params;
+const BASE_URL = "https://www.google-analytics.com/collect?";
 
-  return finalURL;
+export default function (manager, settings) {
+  // ====== Subscribe to User-Configured Events ======
+  manager.addEventListener("event", sendGA3Event(event, settings));
+
+  // ====== Subscribe to Pageview Events ======
+  manager.addEventListener("pageview", sendGA3Event(event, settings));
+
+  // ====== Subscribe to Ecommerce Events ======
+  manager.addEventListener("ecommerce", async (event) => {
+    const requestPayload = getToolRequest(event);
+    const ecommerceParams = getEcommerceParams(event);
+    const finalURL = getFullURL({ ...requestPayload, ...ecommerceParams });
+
+    fetch(finalURL);
+
+    //TODO  Do we need the Advertising features also here ??
+  });
+}
+
+const getFullURL = (requestPayload) => {
+  const params = new URLSearchParams(requestPayload).toString();
+  return BASE_URL + params;
 };
 
 /**
  * Google Analytics has the same behaviour for both Pageviews and User-Configured Events
  * This function will be used to handle both types of events
  * */
-const _runTool = function (event, zaraz) {
-  let { settings } = event;
-  if (!settings) settings = {};
-
-  const rawParams = getToolRequest(event);
-  const finalURL = _getFinalUrl(rawParams);
+const sendGA3Event = function (event, settings) {
+  const requestPayload = getToolRequest(event);
+  const finalURL = getFullURL(requestPayload);
 
   fetch(finalURL);
 
@@ -28,25 +43,4 @@ const _runTool = function (event, zaraz) {
   }
 };
 
-export default function (zaraz) {
-  // ====== Subscribe to User-Configured Events ======
-  zaraz.addEventListener("event", async (event) => {
-    _runTool(event, zaraz);
-  });
 
-  // ====== Subscribe to Pageview Events ======
-  zaraz.addEventListener("pageview", async (event) => {
-    _runTool(event, zaraz);
-  });
-
-  // ====== Subscribe to Ecommerce Events ======
-  zaraz.addEventListener("ecommerce", async (event) => {
-    const rawParams = getToolRequest(event);
-    const ecommerceParams = getEcommerceParams(event);
-    const finalURL = _getFinalUrl({ ...rawParams, ...ecommerceParams });
-
-    fetch(finalURL);
-
-    //TODO  Do we need the Advertising features also here ??
-  });
-}
