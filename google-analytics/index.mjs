@@ -6,10 +6,10 @@ const BASE_URL = "https://www.google-analytics.com/collect?";
 
 export default function (manager, settings) {
   // ====== Subscribe to User-Configured Events ======
-  manager.addEventListener("event", sendGA3Event(event, settings));
+  manager.addEventListener("event", (event) => sendGA3Event(event, settings));
 
   // ====== Subscribe to Pageview Events ======
-  manager.addEventListener("pageview", sendGA3Event(event, settings));
+  manager.addEventListener("pageview", (event) => sendGA3Event(event, settings));
 
   // ====== Subscribe to Ecommerce Events ======
   manager.addEventListener("ecommerce", async (event) => {
@@ -35,7 +35,6 @@ const getFullURL = (requestPayload) => {
 const sendGA3Event = function (event, settings) {
   const requestPayload = getToolRequest(event);
   const finalURL = getFullURL(requestPayload);
-
   fetch(finalURL);
 
   if (settings["ga-audiences"] || settings["ga-doubleclick"]) {
