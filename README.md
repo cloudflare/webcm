@@ -1,8 +1,12 @@
 # External Components
 
-## Introduction
+Nowadays, when web developers want to add a third-party tool to their website, they usually add some JavaScript snippet that loads a remote resource. This can potentially be very problemtic, for multiple reasons:
 
-An External Components is a JavaScript module that defines how a certain third-party tool works in a website. It contains all of the assets required for the tool to function, and it allows the tool to subscribe to different events, to update the DOM and to introduce server-logic.
+- **Performance**: It is slow. Every tool requires another network request, and much more than one. The code is then executed in the browser, which can block the main thread and slow down interacting with the website itself.
+- **Security**: It is dangerous. The tool runs in the browser and so it has unlimited access to everything in the page. It can steal information, hijack the visitor or change the page in an undesired way.
+- **Privacy**: Because the browser has to fetch all tools, every single vendor gets access to the visitor IP address and User Agent. It's impossible to prevent sending this information. Also, tools can collect information using JavaScript without any restrictions, and the web developer can do very little to restrict that.
+
+An External Components is a JavaScript module that defines how a certain third-party tool works in a website. It contains all of the assets required for the tool to function, and it allows the tool to subscribe to different events, to update the DOM as well as to introduce server-side logic.
 
 Tools that provide an External Component can earn from multiple capabilities:
 
@@ -16,13 +20,13 @@ Tools that provide an External Component can earn from multiple capabilities:
 
 ## Concepts
 
-External Components can be used with any compliant third-party manager. Example third-party managers are Cloudflare Zaraz and the open-source EC-Web server, which serves as an implementation reference.
+External Components can be used with any compliant External Components Manager (ECM). Example ECMs are Cloudflare Zaraz and the open-source EC-Web server, which serves as an implementation reference.
 
-It is the responsbility of the third-party manager to implement the External Components APIs, and to provide an interface for website owners to set their settings or configure their events.
+It is the responsbility of the ECM to implement the External Components APIs, and to provide an interface for website owners to set their settings or configure their events.
 
 ## Manifest
 
-Every External Component includes a `manifest.json`. The manifest file includes information that the third-party manager uses when presenting the tool to the website owners.
+Every External Component includes a `manifest.json`. The manifest file includes information that the ECM uses when presenting the tool to the website owners.
 
 ```json
 {
@@ -65,9 +69,9 @@ Every External Component includes a `manifest.json`. The manifest file includes 
 | ------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `name`              | User facing name of the tool                                                                                  |
 | `description`       | User facing description of the tool                                                                           |
-| `namespace`         | A namespace string that third-party manager should serve server-side endpoints for the tool                   |
+| `namespace`         | A namespace string that the ECM should serve server-side endpoints for the tool                   |
 | `icon`              | Path to an SVG icon that will be displayed with the tool                                                      |
-| `fields`            | An object describing the fields the third-party manager should ask for when configuring an event for the tool |
+| `fields`            | An object describing the fields the ECM should ask for when configuring an event for the tool |
 | `allowCustomFields` | Whether or not users should be allowed to send custom fields to the tool                                      |
 | `permissions`       | Array of permissions the tool requires for its operation                                                      |
 
@@ -341,7 +345,7 @@ Save a value on the client. In a normal web browser, this would translate into a
 client.set("uuid", uuidv4(), { scope: "infinite" });
 ```
 
-The above will save a UUIDv4 string under a key called `uuid`, readable by this tool only. The third-party manager will attempt to make this key persist infintely.
+The above will save a UUIDv4 string under a key called `uuid`, readable by this tool only. The ECM will attempt to make this key persist infintely.
 
 The third argument is an optional object with these defaults:
 
