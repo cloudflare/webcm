@@ -1,10 +1,10 @@
-# Zaraz Tool Package
+# External Components
 
 ## Introduction
 
-A Zaraz Tool Package is an NPM package that defines how a certain third-party tool works in a website. It contains all of the assets required for the tool to function, and it allows the tool to subscribe to different events, to update the DOM and to introduce server-logic.
+An External Components is a JavaScript module that defines how a certain third-party tool works in a website. It contains all of the assets required for the tool to function, and it allows the tool to subscribe to different events, to update the DOM and to introduce server-logic.
 
-Tools that provide a Zaraz Tool Package can earn from multiple capabilities:
+Tools that provide an External Component can earn from multiple capabilities:
 
 - **Same domain**: Serve assets from the same domain as the website itself, for faster and more secure execution
 - **Website-wide events system**: Hook to a pre-existing events system that the website uses for tracking events - no need to define tool specific API
@@ -14,17 +14,15 @@ Tools that provide a Zaraz Tool Package can earn from multiple capabilities:
 - **Pre-Page-Rendering Actions**: Run server-side actions that read or write a website page, before the browser started rendering it
 - **Integrated Consent Manager support**: Easier integration in a consent-aware environment
 
-Note: The Zaraz Tool Package format is still under active development, and new capabilities are added all the time. The format is meant to be open and not platform specific: vendors and website owners will be able to load a tool written in this format without using Cloudflare Zaraz.
-
 ## Concepts
 
-The Zaraz Tool Package can be used with any compliant third-party manager. Example third-party managers are Cloudflare Zaraz and the open-source Zaraz Runtime.
+External Components can be used with any compliant third-party manager. Example third-party managers are Cloudflare Zaraz and the open-source EC-Web server, which serves as an implementation reference.
 
-It is the responsbility of the third-party manager to implement the Zaraz Tool Package APIs, and to provide an interface for website owners to set their settings or configure their events.
+It is the responsbility of the third-party manager to implement the External Components APIs, and to provide an interface for website owners to set their settings or configure their events.
 
 ## Manifest
 
-Every Zaraz Tool Package includes a `manifest.json` in addition to the normal NPM `package.json` file. The manifest file includes information that the third-party manager uses when presenting the tool to the website owners.
+Every External Component includes a `manifest.json`. The manifest file includes information that the third-party manager uses when presenting the tool to the website owners.
 
 ```json
 {
@@ -96,7 +94,7 @@ The following table describes the permissions that a tool can ask for when being
 
 ### Server functionality
 
-Zaraz provides a couple of methods that allow a tool to introduce server-side functionality:
+External Components provides a couple of methods that allow a tool to introduce server-side functionality:
 
 #### `proxy`
 
@@ -217,7 +215,7 @@ In the above example, when the tool receives an event it will do multiple things
 
 ### Embeds and Widgets
 
-Tools can provide embeds (elements pre-placed by the website owner using a placeholder) and widgets (floating elements) through the Zaraz Tool Package.
+External Components can provide embeds (elements pre-placed by the website owner using a placeholder) and widgets (floating elements).
 
 #### Embed support
 
@@ -231,7 +229,7 @@ To place an embed in the page, the website owner includes a placeholder `div` el
 ></div>
 ```
 
-Inside the Zaraz Tool Package, the embed will be defined like in this example:
+Inside the External Component, the embed will be defined like in this example:
 
 ```js
 manager.registerEmbed("twitter-example", ({ element }) => {
@@ -251,11 +249,11 @@ manager.registerEmbed("twitter-example", ({ element }) => {
 });
 ```
 
-In the above example, the tool defined an embed called `twitter-example`. It checks for some HTML attributes on the placeholder element, makes a request to a remote API, caches it, and then renders the new element instead the placeholder using the [Pug templating engine](https://pugjs.org/). Note the Pug templating system isn't a part of the Zaraz Package Tool - a tool can choose to use whatever templating engine it wants, as long as it responds with valid HTML code.
+In the above example, the tool defined an embed called `twitter-example`. It checks for some HTML attributes on the placeholder element, makes a request to a remote API, caches it, and then renders the new element instead the placeholder using the [Pug templating engine](https://pugjs.org/). Note the Pug templating system isn't a part of the External Component API - a tool can choose to use whatever templating engine it wants, as long as it responds with valid HTML code.
 
 #### Widget support
 
-Floating widgets are not replacing an element, instead, they are appended to the `<body>` tag of the page. Inside the Zaraz Took Package, a floating tweet widget will be defined like this:
+Floating widgets are not replacing an element, instead, they are appended to the `<body>` tag of the page. Inside the External Component, a floating tweet widget will be defined like this:
 
 ```js
 manager.registerWidget("floatingTweet", ({ element }) => {
