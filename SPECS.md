@@ -1,5 +1,7 @@
 # External Components Module Specification
 
+This document details the specifications and capabilities of an External Component module.
+
 ## Manifest
 
 Every External Component includes a `manifest.json`. The manifest file includes information that the ECM uses when presenting the tool to the website owners.
