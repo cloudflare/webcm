@@ -1,9 +1,46 @@
+getUniqueSelector = el => {
+  const path = []
+  let current = el
+
+  while (current) {
+    const parent = current.parentNode
+
+    if (parent) {
+      let nthOfType = 0
+      for (const child of parent.children) {
+        if (child === current) {
+          break
+        }
+        if (child.nodeName === current.nodeName) {
+          nthOfType++
+        }
+      }
+      if (nthOfType > 0) {
+        path.unshift(
+          `${current.nodeName.toLowerCase()}:nth-of-type(${nthOfType + 1})`
+        )
+      } else {
+        path.unshift(current.nodeName.toLowerCase())
+      }
+    }
+
+    if (current === document.body) {
+      break
+    }
+
+    current = parent
+  }
+
+  return path.join('>')
+}
+
 window.addEventListener('mousedown', async event => {
   const payload = {}
   for (const key of ec._syncedAttributes) {
     if (['number', 'string', 'boolean'].includes(typeof event[key]))
       payload[key] = event[key]
   }
+  payload.target = getUniqueSelector(event.target)
   const res = await fetch(ec._systemEventsPath, {
     method: 'POST',
     headers: {
