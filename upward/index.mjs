@@ -17,11 +17,7 @@ export default async function (manager) {
 
     if (Object.keys(payload).length) {
       const params = new URLSearchParams(payload).toString()
-      fetch(`https://www.upward.net/search/u_convert.fsn?${params}`).catch(
-        () => {
-          throw new Error('Error fetching from Upward')
-        }
-      )
+      fetch(`https://www.upward.net/search/u_convert.fsn?${params}`)
     }
   })
 
