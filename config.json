@@ -3,5 +3,6 @@
   "target": "http://www.example.com",
   "hostname": "localhost",
   "trackPath": "/ecweb/track",
+  "systemEventsPath": "/ecweb/system",
   "port": 1337
 }

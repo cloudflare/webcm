@@ -13,7 +13,7 @@ const ecweb = new EventTarget()
 ecweb.set = set
 ecweb.get = get
 
-const { target, hostname, port, trackPath } = config
+const { target, hostname, port, trackPath, systemEventsPath } = config
 
 if (process.env.NODE_ENV === 'production') {
   process.on('unhandledRejection', (reason, promise) => {
@@ -49,6 +49,19 @@ const app = express()
     req.fullUrl = target + req.url
     const event = new Event('event')
     event.payload = req.body
+    event.client = buildClient(req, res)
+    res.payload = {
+      fetch: [],
+      eval: [],
+      return: undefined,
+    }
+    ecweb.dispatchEvent(event)
+    res.end(JSON.stringify(res.payload))
+  })
+  .post(systemEventsPath, (req, res, next) => {
+    req.fullUrl = target + req.url
+    const event = new Event(req.body.event)
+    event.payload = req.body.payload
     event.client = buildClient(req, res)
     res.payload = {
       fetch: [],
