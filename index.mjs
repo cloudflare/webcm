@@ -30,7 +30,7 @@ for (const mod of config.modules) {
   } else {
     moduleName = mod
   }
-  const tool = await import(`./${moduleName}/index.mjs`)
+  const tool = await import(`./modules/${moduleName}/index.mjs`)
   try {
     await tool.default(ecweb, moduleSettings)
   } catch (error) {

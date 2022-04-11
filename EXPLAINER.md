@@ -19,8 +19,9 @@ Tools that provide an External Component can earn from multiple capabilities:
 - **Integrated Consent Manager support**: Easier integration in a consent-aware environment
 
 For more information about how to write and External Component, see:
+
 - [SPECS.md](SPECS.md)
-- [Example Component](example-3pm/index.mjs)
+- [Example Component](modules/example-3pm/index.mjs)
 
 ## External Components Manager
 
