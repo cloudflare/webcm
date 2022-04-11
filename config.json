@@ -2,6 +2,6 @@
   "modules": ["upward", {"google-analytics": { "tid": "UA-123456" }}],
   "target": "http://localhost:8000",
   "hostname": "localhost",
-  "trackPath": "/crazy/tracking/path",
+  "trackPath": "/ecweb/track",
   "port": 1337
 }
