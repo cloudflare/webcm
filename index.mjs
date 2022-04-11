@@ -38,9 +38,15 @@ for (const mod of config.modules) {
   }
 }
 
-const injectedScript = readFileSync('browser/track.js')
-  .toString()
-  .replace('TRACK_PATH', trackPath)
+const snippets = ['track', 'mousedown']
+let injectedScript = ''
+
+for (const snippet of snippets) {
+  injectedScript += readFileSync(`browser/${snippet}.js`)
+    .toString()
+    .replace('TRACK_PATH', trackPath)
+    .replace('SYSTEM_EVENTS_PATH', systemEventsPath)
+}
 const sourcedScript = "console.log('ecweb script is sourced again')"
 
 const app = express()
