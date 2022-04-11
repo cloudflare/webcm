@@ -77,8 +77,9 @@ const app = express()
   })
   .use('**', (req, res, next) => {
     req.fullUrl = target + req.url
-    const settingsWith3pp = {
+    const proxySettings = {
       target,
+      changeOrigin: true,
       selfHandleResponse: true,
       onProxyRes: responseInterceptor(
         async (responseBuffer, proxyRes, req, res) => {
@@ -93,8 +94,8 @@ const app = express()
         }
       ),
     }
-    const proxyWith3pp = createProxyMiddleware(settingsWith3pp)
-    proxyWith3pp(req, res, next)
+    const proxy = createProxyMiddleware(proxySettings)
+    proxy(req, res, next)
   })
 
 app.listen(port, hostname)
