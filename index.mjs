@@ -1,5 +1,5 @@
 import express from 'express'
-import { readFileSync } from 'fs'
+import { readFileSync, existsSync } from 'fs'
 import {
   createProxyMiddleware,
   responseInterceptor,
@@ -8,10 +8,20 @@ import { buildClient } from './client.mjs'
 import config from './config.json' assert { type: 'json' }
 import { get, set } from './kv-storage.mjs'
 
+const requiredSnippets = ['track']
+
 const ecweb = new EventTarget()
 
 ecweb.set = set
 ecweb.get = get
+const originalListener = ecweb.addEventListener
+ecweb.addEventListener = function () {
+  const eventName = arguments[0]
+  if (!requiredSnippets.includes(eventName)) {
+    requiredSnippets.push(eventName)
+  }
+  originalListener.apply(this, arguments)
+}
 
 const { target, hostname, port, trackPath, systemEventsPath } = config
 
@@ -38,14 +48,16 @@ for (const mod of config.modules) {
   }
 }
 
-const snippets = ['track', 'mousedown']
 let injectedScript = ''
 
-for (const snippet of snippets) {
-  injectedScript += readFileSync(`browser/${snippet}.js`)
-    .toString()
-    .replace('TRACK_PATH', trackPath)
-    .replace('SYSTEM_EVENTS_PATH', systemEventsPath)
+for (const snippet of requiredSnippets) {
+  const snippetPath = `browser/${snippet}.js`
+  if (existsSync(snippetPath)) {
+    injectedScript += readFileSync(snippetPath)
+      .toString()
+      .replace('TRACK_PATH', trackPath)
+      .replace('SYSTEM_EVENTS_PATH', systemEventsPath)
+  }
 }
 const sourcedScript = "console.log('ecweb script is sourced again')"
 
