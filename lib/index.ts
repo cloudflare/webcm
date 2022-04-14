@@ -84,7 +84,4 @@ export class ECWeb extends EventTarget {
     }
     return injectedScript
   }
-
-  // TODO do we want this?
-  // dispatchEvent(event: CustomEvent<ECWebEvent>): boolean
 }
