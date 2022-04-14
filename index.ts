@@ -1,5 +1,4 @@
 import express, { Request, RequestHandler, Response } from 'express'
-import { IncomingMessage, ServerResponse } from 'http'
 import {
   createProxyMiddleware,
   responseInterceptor,
