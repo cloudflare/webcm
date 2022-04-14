@@ -1,5 +1,5 @@
 {
-  "modules": ["dummyModuleNoSettings"],
+  "modules": ["dummyModule"],
   "target": "http://www.example.com",
   "hostname": "localhost",
   "trackPath": "/ecweb/track",

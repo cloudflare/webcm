@@ -1,18 +1,16 @@
 import { ECWeb } from '../../lib'
 
 export default async function (manager: ECWeb) {
-  // TODO patch addEventListener to use CustomEvents instead
-  manager.addEventListener('mousedown', async (event: any) => {
+  manager.addEventListener('mousedown', async event => {
     // Save mouse coordinates as a cookie
-    const { client, payload } = event.detail
+    const { client, payload } = event
     client.set('lastClickX', payload.clientX)
     client.set('lastClickY', payload.clientY)
   })
 
-  // TODO patch addEventListener to use CustomEvents instead
-  manager.addEventListener('event', async (event: any) => {
+  manager.addEventListener('event', async event => {
     // Forward events to vendor
-    const { client, payload } = event.detail
+    const { client, payload } = event
     payload.user_id = client.get('user_id')
 
     if (Object.keys(payload).length) {
@@ -21,10 +19,9 @@ export default async function (manager: ECWeb) {
     }
   })
 
-  // TODO patch addEventListener to use CustomEvents instead
-  manager.addEventListener('pageview', async (event: any) => {
+  manager.addEventListener('pageview', async event => {
     // Set a user_id based on a query param
-    const { client } = event.detail
+    const { client } = event
 
     const user_id = client.page.query.user_id
     client.set('user_id', user_id, {
