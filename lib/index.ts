@@ -1,16 +1,10 @@
 import { existsSync, readFileSync } from 'fs'
 import { get, set } from '../storage/kv-storage'
 
-export interface ECWebEvent extends Event {
-  detail: {
-    payload: any
-    client: any
-  }
-}
-
 declare global {
-  interface GlobalEventHandlersEventMap {
-    event: CustomEvent<ECWebEvent>
+  interface Event {
+    payload?: any
+    client?: any
   }
 }
 

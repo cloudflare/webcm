@@ -1,4 +1,4 @@
-import express, { RequestHandler } from 'express'
+import express, { Request, RequestHandler, Response } from 'express'
 import { IncomingMessage, ServerResponse } from 'http'
 import {
   createProxyMiddleware,
@@ -22,12 +22,9 @@ const handleTrack =
   (manager: ECWeb): RequestHandler =>
   (req, res, _next) => {
     req.fullUrl = target + req.url
-    const event = new CustomEvent('event', {
-      detail: {
-        payload: req.body,
-        client: buildClient(req, res, _next),
-      },
-    })
+    const event = new Event('event')
+    event.payload = req.body.payload
+    event.client = buildClient(req, res)
     res.payload = {
       fetch: [],
       eval: [],
@@ -41,12 +38,9 @@ const handleSystemEvent =
   (manager: ECWeb): RequestHandler =>
   (req, res, _next) => {
     req.fullUrl = target + req.url
-    const event = new CustomEvent(req.body.event, {
-      detail: {
-        payload: req.body.payload,
-        client: buildClient(req, res, _next),
-      },
-    })
+    const event = new Event(req.body.event)
+    event.payload = req.body.payload
+    event.client = buildClient(req, res)
     res.payload = {
       fetch: [],
       eval: [],
@@ -56,16 +50,12 @@ const handleSystemEvent =
     res.end(JSON.stringify(res.payload))
   }
 
-const handlePageView =
-  (manager: ECWeb) => (req: IncomingMessage, res: ServerResponse) => {
-    const event = new CustomEvent('pageview', {
-      detail: {
-        // TODO this is gross - should it even work?
-        client: buildClient(req as any, res as any, null as any),
-      },
-    })
-    manager.dispatchEvent(event)
-  }
+const handlePageView = (manager: ECWeb) => (req: Request, res: Response) => {
+  const event = new Event('pageview')
+  event.payload = req.body.payload
+  event.client = buildClient(req, res)
+  manager.dispatchEvent(event)
+}
 
 const app = express()
   .use(express.json())
@@ -82,9 +72,9 @@ const app = express()
       changeOrigin: true,
       selfHandleResponse: true,
       onProxyRes: responseInterceptor(
-        async (responseBuffer, proxyRes, req, res) => {
+        async (responseBuffer, _proxyRes, req, res) => {
           const response = responseBuffer.toString('utf8') // convert buffer to string
-          handlePageView(ecWeb)(req, res)
+          handlePageView(ecWeb)(req as any, res as any) // TODO do we have a problem here??
           return response.replace(
             '<head>',
             `<head><script>${ecWeb.getInjectedScript()}</script>`
