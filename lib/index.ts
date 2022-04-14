@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'fs'
+import path from 'path'
 import { get, set } from '../storage/kv-storage'
 
 declare global {
@@ -14,6 +15,7 @@ export interface ECModuleSettings {
 
 type ECModuleConfig = string | ECModuleSettings
 
+const EXTS = ['.ts', '.js', '.mts', '.mjs']
 export class ECWeb extends EventTarget {
   modules: ECModuleConfig[]
   trackPath: string
@@ -54,6 +56,8 @@ export class ECWeb extends EventTarget {
 
   async initScript() {
     for (const mod of this.modules) {
+      let tool
+      let toolPath = ''
       let moduleName = ''
       let moduleSettings = {}
       if (typeof mod === 'object') {
@@ -62,11 +66,21 @@ export class ECWeb extends EventTarget {
       } else {
         moduleName = mod
       }
-      const tool = await import(`../modules/${moduleName}`)
-      try {
-        await tool.default(this, moduleSettings)
-      } catch (error) {
-        console.error('Error loading tool', error)
+      for (const ext of EXTS) {
+        toolPath = path.join(__dirname, `../modules/${moduleName}/index${ext}`)
+        if (existsSync(toolPath)) {
+          tool = ext === '.mjs' ? await import(toolPath) : require(toolPath)
+          break
+        }
+      }
+
+      if (tool) {
+        try {
+          console.info('loading tool', moduleName)
+          await tool.default(this, moduleSettings)
+        } catch (error) {
+          console.error('Error loading tool', toolPath, tool, error)
+        }
       }
     }
   }
