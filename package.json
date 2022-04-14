@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx nodemon --files index.ts"
+    "dev": "TS_NODE_FILES=true npx nodemon --exec 'node --experimental-fetch --loader ts-node/esm' index.ts"
   },
   "repository": {
     "type": "git",
