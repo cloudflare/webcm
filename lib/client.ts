@@ -1,4 +1,4 @@
-import { RequestHandler } from 'express'
+import { Request, Response } from 'express'
 
 const parseCookies = (cookieString?: string) => {
   if (!cookieString) return {}
@@ -10,7 +10,7 @@ const parseCookies = (cookieString?: string) => {
   )
 }
 
-export const buildClient: RequestHandler = (req, res) => {
+export const buildClient = (req: Request, res: Response) => {
   const url = new URL(req.fullUrl)
   const cookies = parseCookies(req.headers['cookie'])
   return {
