@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'fs'
 import path from 'path'
 import { get, set } from '../storage/kv-storage'
+import { useCache } from '../cache/index'
 
 declare global {
   interface Event {
@@ -24,6 +25,7 @@ export class ECWeb extends EventTarget {
   requiredSnippets: string[]
   set: (key: string, value: any) => boolean
   get: (key: string) => any
+  useCache: (key: string, callback: Function, expiry?: number) => any
 
   constructor(Context: {
     set?: (key: string, value: any) => boolean
@@ -31,6 +33,7 @@ export class ECWeb extends EventTarget {
     components: ComponentConfig[]
     trackPath: string
     systemEventsPath: string
+    useCache?: (key: string, callback: Function, expiry?: number) => any
   }) {
     super()
     this.sourcedScript = "console.log('ecweb script is sourced again')"
@@ -40,6 +43,7 @@ export class ECWeb extends EventTarget {
     this.set = Context.set || set
     this.get = Context.get || get
     this.components = Context.components
+    this.useCache = Context.useCache || useCache
     this.initScript()
   }
 
