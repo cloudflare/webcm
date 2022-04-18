@@ -32,4 +32,12 @@ export default async function (manager: Manager) {
   manager.addEventListener('historyChange', async event => {
     console.info('Ch Ch Ch Chaaanges to history detected!')
   })
+
+  manager.addEventListener('resize', async event => {
+    console.info(
+      'New window size!',
+      event.payload?.height,
+      event.payload?.width
+    )
+  })
 }
