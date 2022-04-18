@@ -1,4 +1,6 @@
-export default async function (manager) {
+import { ECWeb } from '../../lib/index'
+
+export default async function (manager: ECWeb) {
   manager.addEventListener('mousedown', async event => {
     // Save mouse coordinates as a cookie
     const { client, payload } = event
