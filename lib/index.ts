@@ -15,7 +15,7 @@ export interface ComponentSettings {
 
 type ComponentConfig = string | ComponentSettings
 
-const EXTS = ['.ts', '.js', '.mts', '.mjs']
+const EXTS = ['.ts', '.mts', '.mjs', '.js']
 export class ECWeb extends EventTarget {
   components: ComponentConfig[]
   trackPath: string
