@@ -28,4 +28,8 @@ export default async function (manager: ECWeb) {
       scope: 'infinite',
     })
   })
+
+  manager.addEventListener('historyChange', async event => {
+    console.info('Ch Ch Ch Chaaanges to history detected!')
+  })
 }
