@@ -4,7 +4,7 @@ import {
   responseInterceptor,
 } from 'http-proxy-middleware'
 import config from './config.json'
-import { ECWeb } from './lib'
+import { Manager } from './lib'
 import { buildClient } from './lib/client'
 
 if (process.env.NODE_ENV === 'production') {
@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'production') {
 const { target, hostname, port, trackPath, systemEventsPath, components } =
   config
 
-const manager = new ECWeb({ components, trackPath, systemEventsPath })
+const manager = new Manager({ components, trackPath, systemEventsPath })
 
 const handleTrack: RequestHandler = (req, res) => {
   req.fullUrl = target + req.url
