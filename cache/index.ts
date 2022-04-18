@@ -9,5 +9,5 @@ export const useCache = (
   const cached = cache[key]
   if (cached && cached.expiry >= currentTime) return cached.value
   cache[key] = { value: callback(), expiry: currentTime + expirySeconds }
-  return callback()
+  return cache[key].value
 }
