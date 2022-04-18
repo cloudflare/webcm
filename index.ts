@@ -17,51 +17,47 @@ const { target, hostname, port, trackPath, systemEventsPath, modules } = config
 
 const ecWeb = new ECWeb({ modules, trackPath, systemEventsPath })
 
-const handleTrack =
-  (manager: ECWeb): RequestHandler =>
-  (req, res, _next) => {
-    req.fullUrl = target + req.url
-    const event = new Event('event')
-    event.payload = req.body.payload
-    event.client = buildClient(req, res)
-    res.payload = {
-      fetch: [],
-      eval: [],
-      return: undefined,
-    }
-    manager.dispatchEvent(event)
-    return res.end(JSON.stringify(res.payload))
+const handleTrack = (req: Request, res: Response) => {
+  req.fullUrl = target + req.url
+  const event = new Event('event')
+  event.payload = req.body.payload
+  event.client = buildClient(req, res)
+  res.payload = {
+    fetch: [],
+    eval: [],
+    return: undefined,
   }
+  ecWeb.dispatchEvent(event)
+  return res.end(JSON.stringify(res.payload))
+}
 
-const handleSystemEvent =
-  (manager: ECWeb): RequestHandler =>
-  (req, res, _next) => {
-    req.fullUrl = target + req.url
-    const event = new Event(req.body.event)
-    event.payload = req.body.payload
-    event.client = buildClient(req, res)
-    res.payload = {
-      fetch: [],
-      eval: [],
-      return: undefined,
-    }
-    manager.dispatchEvent(event)
-    res.end(JSON.stringify(res.payload))
+const handleSystemEvent = (req: Request, res: Response) => {
+  req.fullUrl = target + req.url
+  const event = new Event(req.body.event)
+  event.payload = req.body.payload
+  event.client = buildClient(req, res)
+  res.payload = {
+    fetch: [],
+    eval: [],
+    return: undefined,
   }
+  ecWeb.dispatchEvent(event)
+  res.end(JSON.stringify(res.payload))
+}
 
-const handlePageView = (manager: ECWeb) => (req: Request, res: Response) => {
+const handlePageView = (req: Request, res: Response) => {
   const event = new Event('pageview')
   event.payload = req.body.payload
   event.client = buildClient(req, res)
-  manager.dispatchEvent(event)
+  ecWeb.dispatchEvent(event)
 }
 
 const app = express()
   .use(express.json())
-  .post(trackPath, handleTrack(ecWeb))
-  .post(systemEventsPath, handleSystemEvent(ecWeb))
+  .post(trackPath, handleTrack)
+  .post(systemEventsPath, handleSystemEvent)
   // s.js TODO
-  .get('/sourcedScript', (req, res, next) => {
+  .get('/sourcedScript', (_req, res) => {
     res.end(ecWeb.sourcedScript)
   })
   .use('**', (req, res, next) => {
@@ -73,7 +69,7 @@ const app = express()
       onProxyRes: responseInterceptor(
         async (responseBuffer, _proxyRes, req, res) => {
           const response = responseBuffer.toString('utf8') // convert buffer to string
-          handlePageView(ecWeb)(req as any, res as any) // TODO do we have a problem here??
+          handlePageView(req as any, res as any) // TODO do we have a problem here??
           return response.replace(
             '<head>',
             `<head><script>${ecWeb.getInjectedScript()}</script>`
