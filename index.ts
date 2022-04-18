@@ -13,11 +13,12 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-const { target, hostname, port, trackPath, systemEventsPath, modules } = config
+const { target, hostname, port, trackPath, systemEventsPath, components } =
+  config
 
-const ecWeb = new ECWeb({ modules, trackPath, systemEventsPath })
+const manager = new ECWeb({ components, trackPath, systemEventsPath })
 
-const handleTrack = (req: Request, res: Response) => {
+const handleTrack: RequestHandler = (req, res) => {
   req.fullUrl = target + req.url
   const event = new Event('event')
   event.payload = req.body.payload
@@ -27,11 +28,11 @@ const handleTrack = (req: Request, res: Response) => {
     eval: [],
     return: undefined,
   }
-  ecWeb.dispatchEvent(event)
+  manager.dispatchEvent(event)
   return res.end(JSON.stringify(res.payload))
 }
 
-const handleSystemEvent = (req: Request, res: Response) => {
+const handleSystemEvent: RequestHandler = (req, res) => {
   req.fullUrl = target + req.url
   const event = new Event(req.body.event)
   event.payload = req.body.payload
@@ -41,15 +42,15 @@ const handleSystemEvent = (req: Request, res: Response) => {
     eval: [],
     return: undefined,
   }
-  ecWeb.dispatchEvent(event)
+  manager.dispatchEvent(event)
   res.end(JSON.stringify(res.payload))
 }
 
-const handlePageView = (req: Request, res: Response) => {
+const handlePageView: RequestHandler = (req, res) => {
   const event = new Event('pageview')
   event.payload = req.body.payload
   event.client = buildClient(req, res)
-  ecWeb.dispatchEvent(event)
+  manager.dispatchEvent(event)
 }
 
 const app = express()
@@ -58,7 +59,7 @@ const app = express()
   .post(systemEventsPath, handleSystemEvent)
   // s.js TODO
   .get('/sourcedScript', (_req, res) => {
-    res.end(ecWeb.sourcedScript)
+    res.end(manager.sourcedScript)
   })
   .use('**', (req, res, next) => {
     req.fullUrl = target + req.url
@@ -69,10 +70,10 @@ const app = express()
       onProxyRes: responseInterceptor(
         async (responseBuffer, _proxyRes, req, res) => {
           const response = responseBuffer.toString('utf8') // convert buffer to string
-          handlePageView(req as any, res as any) // TODO do we have a problem here??
+          handlePageView(req as any, res as any, next) // TODO do we have a problem here??
           return response.replace(
             '<head>',
-            `<head><script>${ecWeb.getInjectedScript()}</script>`
+            `<head><script>${manager.getInjectedScript()}</script>`
           )
         }
       ),

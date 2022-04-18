@@ -9,15 +9,15 @@ declare global {
   }
 }
 
-export interface ECModuleSettings {
+export interface ComponentSettings {
   [key: string]: any
 }
 
-type ECModuleConfig = string | ECModuleSettings
+type ComponentConfig = string | ComponentSettings
 
 const EXTS = ['.ts', '.js', '.mts', '.mjs']
 export class ECWeb extends EventTarget {
-  modules: ECModuleConfig[]
+  components: ComponentConfig[]
   trackPath: string
   systemEventsPath: string
   sourcedScript: string
@@ -28,7 +28,7 @@ export class ECWeb extends EventTarget {
   constructor(Context: {
     set?: (key: string, value: any) => boolean
     get?: (key: string) => any
-    modules: ECModuleConfig[]
+    components: ComponentConfig[]
     trackPath: string
     systemEventsPath: string
   }) {
@@ -39,7 +39,7 @@ export class ECWeb extends EventTarget {
     this.systemEventsPath = Context.systemEventsPath
     this.set = Context.set || set
     this.get = Context.get || get
-    this.modules = Context.modules
+    this.components = Context.components
     this.initScript()
   }
 
@@ -55,31 +55,42 @@ export class ECWeb extends EventTarget {
   }
 
   async initScript() {
-    for (const mod of this.modules) {
-      let tool
-      let toolPath = ''
-      let moduleName = ''
-      let moduleSettings = {}
-      if (typeof mod === 'object') {
-        ;[moduleName] = Object.keys(mod)
-        moduleSettings = mod[moduleName]
+    for (const compConfig of this.components) {
+      let component
+      let componentPath = ''
+      let componentName = ''
+      let componentSettings = {}
+      if (typeof compConfig === 'object') {
+        ;[componentName] = Object.keys(compConfig)
+        componentSettings = compConfig[componentName]
       } else {
-        moduleName = mod
+        componentName = compConfig
       }
       for (const ext of EXTS) {
-        toolPath = path.join(__dirname, `../modules/${moduleName}/index${ext}`)
-        if (existsSync(toolPath)) {
-          tool = ext === '.mjs' ? await import(toolPath) : require(toolPath)
+        componentPath = path.join(
+          __dirname,
+          `../components/${componentName}/index${ext}`
+        )
+        if (existsSync(componentPath)) {
+          component =
+            ext === '.mjs'
+              ? await import(componentPath)
+              : require(componentPath)
           break
         }
       }
 
-      if (tool) {
+      if (component) {
         try {
-          console.info('loading tool', moduleName)
-          await tool.default(this, moduleSettings)
+          console.info('loading component', componentName)
+          await component.default(this, componentSettings)
         } catch (error) {
-          console.error('Error loading tool', toolPath, tool, error)
+          console.error(
+            'Error loading component',
+            componentPath,
+            component,
+            error
+          )
         }
       }
     }

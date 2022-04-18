@@ -1,4 +1,4 @@
-import { ECWeb } from '../../lib'
+import { ECWeb } from '../../lib/index'
 
 export default async function (manager: ECWeb) {
   manager.addEventListener('mousedown', async event => {
