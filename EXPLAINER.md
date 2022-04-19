@@ -1,4 +1,4 @@
-# External Components
+# Managed Components
 
 Today, when web developers want to add a third-party tool to their website, they usually add some JavaScript snippet that loads a remote resource. This can potentially be very problematic, for multiple reasons:
 
@@ -6,9 +6,9 @@ Today, when web developers want to add a third-party tool to their website, they
 - **Security**: It is dangerous. The tool runs in the browser and so it has unlimited access to everything in the page. It can steal information, hijack the visitor or change the page in an undesired way.
 - **Privacy**: Because the browser has to fetch all tools, every single vendor gets access to the visitor IP address and User Agent. It's impossible to prevent sending this information. Also, tools can collect information using JavaScript without any restrictions, and the web developer can do very little to restrict that.
 
-An External Components is a JavaScript module that defines how a certain third-party tool works in a website. It contains all of the assets required for the tool to function, and it allows the tool to subscribe to different events, to update the DOM as well as to introduce server-side logic.
+A Managed Component is a JavaScript module that defines how a certain third-party tool works in a website. It contains all of the assets required for the tool to function, and it allows the tool to subscribe to different events, to update the DOM as well as to introduce server-side logic.
 
-Tools that provide an External Component can earn from multiple capabilities:
+Tools that provide a Managed Component can earn from multiple capabilities:
 
 - **Same domain**: Serve assets from the same domain as the website itself, for faster and more secure execution
 - **Website-wide events system**: Hook to a pre-existing events system that the website uses for tracking events - no need to define tool specific API
@@ -18,17 +18,17 @@ Tools that provide an External Component can earn from multiple capabilities:
 - **Pre-Page-Rendering Actions**: Run server-side actions that read or write a website page, before the browser started rendering it
 - **Integrated Consent Manager support**: Easier integration in a consent-aware environment
 
-For more information about how to write and External Component, see:
+For more information about how to write an Managed Component, see:
 
 - [SPECS.md](SPECS.md)
-- [Example Component](modules/example-3pm/index.mjs)
+- [Example Component](components/demoComponent/index.ts)
 
-## External Components Manager
+## Components Manager
 
-External Components needs to be loaded by an External Components Manager (ECM). Example ECMs are Cloudflare Zaraz and the open-source [EC-Web proxy](README.md), which serves as an implementation reference.
+Managed Components needs to be loaded by a Components Manager. Example Managers are [Cloudflare Zaraz](https://www.cloudflare.com/products/zaraz/) and the open-source [WebCM proxy](README.md), which serves as an implementation reference.
 
-ECMs implements the APIs that are used by EC modules. For example, they collect information about the user device, or client-side events, and they pass them to the the modules. Modules can then respond with different asks - make a network request, save client-side information, load a widget and more - and the ECM then acts upon these asks.
+Components Managers implement the APIs that are used by Components. For example, they collect information about the user device, or client-side events, and they pass them to the Components. Components can then respond with different asks - make a network request, save client-side information, load a widget and more - and the Manager then acts upon these asks.
 
-ECMs can work in many different environments. While EC-Web works as a proxy-server, a complete ECM implementation can also be written client-side, in a Web Worker, Service Worker, HTTP Server, and even outside the WWW. ECMs can be written as SDKs for mobile development, and can be used in desktop applications too. The only requirement is a JavaScript-capable environment to execute the modules code.
+Components Managers can work in many different environments. While WebCM works as a proxy server, a Components Manager implementation can also be written client-side, in a Service Worker, HTTP Server, and even outside the WWW. They can be written as SDKs for mobile development, and can be used in desktop applications too. The only requirement is a JavaScript-capable environment to execute the Components code.
 
-The configuration for EC modules is also done through the ECM. It determines which modules to load, when, what permissions to give them, and what configuration should be passed to them.
+The configuration for Managed Components is also done through the Components Manager. It determines which Components to load, when, what permissions to give them, and what configuration should be passed to them.

@@ -1,10 +1,10 @@
-# External Components Module Specification
+# Managed Components Specification
 
-This document details the specifications and capabilities of an External Component module.
+This document details the specifications and capabilities of a Managed Component.
 
 ## Manifest
 
-Every External Component includes a `manifest.json`. The manifest file includes information that the ECM uses when presenting the tool to the website owners.
+Every Managed Component includes a `manifest.json`. The manifest file includes information that the Components Manager uses when presenting the tool to the website owners.
 
 ```json
 {
@@ -47,9 +47,9 @@ Every External Component includes a `manifest.json`. The manifest file includes 
 | ------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `name`              | User facing name of the tool                                                                                  |
 | `description`       | User facing description of the tool                                                                           |
-| `namespace`         | A namespace string that the ECM should serve server-side endpoints for the tool                   |
+| `namespace`         | A namespace string that the Components Manager should serve server-side endpoints for the tool                   |
 | `icon`              | Path to an SVG icon that will be displayed with the tool                                                      |
-| `fields`            | An object describing the fields the ECM should ask for when configuring an event for the tool |
+| `fields`            | An object describing the fields the Components Manager should ask for when configuring an event for the tool |
 | `allowCustomFields` | Whether or not users should be allowed to send custom fields to the tool                                      |
 | `permissions`       | Array of permissions the tool requires for its operation                                                      |
 
@@ -217,13 +217,13 @@ Inside the External Component, the embed will be defined like in this example:
 manager.registerEmbed("twitter-example", ({ element }) => {
   const color = element.attributes["dark-theme"] ? "light" : "dark";
   const tweetId = element.attributes["tweet-id"];
-  const tweet = manager.useCache(
+  const tweet = await manager.useCache(
     "tweet-" + tweetId,
     await(await fetch("https://api.twitter.com/tweet/" + tweetId)).json()
   );
 
   element.render(
-    manager.useCache(
+    await manager.useCache(
       "widget",
       pug.compile("templates/widget.pug", { tweet, color })
     )
@@ -240,13 +240,13 @@ Floating widgets are not replacing an element, instead, they are appended to the
 ```js
 manager.registerWidget("floatingTweet", ({ element }) => {
   const tweetId = element.attributes["tweet-id"];
-  const tweet = manager.useCache(
+  const tweet = await manager.useCache(
     "tweet-" + tweetId,
     await(await fetch("https://api.twitter.com/tweet/" + tweetId)).json()
   );
 
   element.render(
-    manager.useCache(
+    await manager.useCache(
       "widget",
       pug.compile("templates/floating-widget.pug", { tweet })
     )
@@ -281,7 +281,7 @@ manager.get("message", "hello world");
 The `useCache` method is used to provide tools with an abstract layer of caching that easy to use. The method takes 3 arguments - `name`, `function` and `expiry`. When used, `useCache` will use the data from the cache if it exists, and if the expiry time did not pass. If it cannot use the cache, `useCache` will run the function and cache it for next time.
 
 ```js
-manager.useCache(
+await manager.useCache(
   `widget-${tweet.id}`,
   pug.compile("templates/floating-widget.pug", { tweet }),
   60
@@ -323,7 +323,7 @@ Save a value on the client. In a normal web browser, this would translate into a
 client.set("uuid", uuidv4(), { scope: "infinite" });
 ```
 
-The above will save a UUIDv4 string under a key called `uuid`, readable by this tool only. The ECM will attempt to make this key persist infintely.
+The above will save a UUIDv4 string under a key called `uuid`, readable by this tool only. The Components Manager will attempt to make this key persist infintely.
 
 The third argument is an optional object with these defaults:
 

@@ -84,7 +84,7 @@ const app = express()
 
 app.listen(port, hostname)
 console.info(
-  `\n🚀 EC-Web is now proxying ${target} at http://${hostname}:${port}`
+  `\n🚀 WebCM is now proxying ${target} at http://${hostname}:${port}`
 )
 
 export {}
