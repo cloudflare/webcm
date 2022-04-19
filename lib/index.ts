@@ -119,23 +119,23 @@ export class Manager extends EventTarget {
     return injectedScript
   }
 
-  processEmbeds(response: string, client: any) {
+  async processEmbeds(response: string, client: any) {
     const dom = new JSDOM(response)
     for (const div of dom.window.document.querySelectorAll(
-      'div[data-zaraz-embed]'
+      'div[data-component-embed]'
     )) {
-      const data = Object.assign(
+      const parameters = Object.assign(
         // @ts-ignore
         ...Array.prototype.slice.call(div.attributes).map(attr => {
           let o: any = {}
-          o[attr.nodeName] = attr.nodeValue
+          o[attr.nodeName.replace('data-', '')] = attr.nodeValue
           return o
         })
       )
 
-      const name = data['data-zaraz-embed']
-      div.innerHTML = this.registeredEmbeds[name]({
-        data,
+      const name = parameters['component-embed']
+      div.innerHTML = await this.registeredEmbeds[name]({
+        parameters,
         client,
       })
     }

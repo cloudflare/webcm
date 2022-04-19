@@ -61,7 +61,7 @@ const app = express()
   .get('/sourcedScript', (_req, res) => {
     res.end(manager.sourcedScript)
   })
-  .use('**', (req, res, next) => {
+  .use('**', async (req, res, next) => {
     req.fullUrl = target + req.url
     const client = buildClient(req, res)
     const proxySettings = {
@@ -73,7 +73,7 @@ const app = express()
           if (proxyRes.headers['content-type'] === 'text/html') {
             handlePageView(req as any, res as any, client as any) // TODO do we have a problem here??
             let response = responseBuffer.toString('utf8') // convert buffer to string
-            response = manager.processEmbeds(response, client)
+            response = await manager.processEmbeds(response, client)
             return response.replace(
               '<head>',
               `<head><script>${manager.getInjectedScript()}</script>`
