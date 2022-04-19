@@ -1,6 +1,6 @@
-import { ECWeb } from '../../lib/index'
+import { Manager } from '../../lib/index'
 
-export default async function (manager: ECWeb) {
+export default async function (manager: Manager) {
   manager.addEventListener('mousedown', async event => {
     // Save mouse coordinates as a cookie
     const { client, payload } = event
@@ -31,5 +31,13 @@ export default async function (manager: ECWeb) {
 
   manager.addEventListener('historyChange', async event => {
     console.info('Ch Ch Ch Chaaanges to history detected!')
+  })
+
+  manager.addEventListener('resize', async event => {
+    console.info(
+      'New window size!',
+      event.payload?.height,
+      event.payload?.width
+    )
   })
 }
