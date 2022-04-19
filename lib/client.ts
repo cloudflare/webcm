@@ -10,7 +10,21 @@ const parseCookies = (cookieString?: string) => {
   )
 }
 
-export const buildClient = (req: Request, res: Response) => {
+export interface MCClient {
+  page: {
+    query: {
+      [k: string]: string
+    }
+  }
+  type: string
+  eval: (code: string) => void
+  return: (value: unknown) => void
+  fetch: (resource: string, settings: any) => void
+  set: (key: string, value: any) => void
+  get: (key: string) => any
+}
+
+export const buildClient = (req: Request, res: Response): MCClient => {
   const url = new URL(req.fullUrl)
   const cookies = parseCookies(req.headers['cookie'])
   return {
