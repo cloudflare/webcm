@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs'
 import path from 'path'
 import { get, set } from '../storage/kv-storage'
 import { useCache } from '../cache/index'
+import { JSDOM } from 'jsdom'
 
 declare global {
   interface Event {
@@ -23,6 +24,9 @@ export class Manager extends EventTarget {
   systemEventsPath: string
   sourcedScript: string
   requiredSnippets: string[]
+  registeredEmbeds: {
+    [k: string]: Function
+  }
   set: (key: string, value: any) => boolean
   get: (key: string) => any
   useCache: (key: string, callback: Function, expiry?: number) => any
@@ -38,6 +42,7 @@ export class Manager extends EventTarget {
     super()
     this.sourcedScript = "console.log('ecweb script is sourced again')"
     this.requiredSnippets = ['track']
+    this.registeredEmbeds = {}
     this.trackPath = Context.trackPath
     this.systemEventsPath = Context.systemEventsPath
     this.set = Context.set || set
@@ -112,5 +117,33 @@ export class Manager extends EventTarget {
       }
     }
     return injectedScript
+  }
+
+  processEmbeds(response: string, client: any) {
+    const dom = new JSDOM(response)
+    for (const div of dom.window.document.querySelectorAll(
+      'div[data-zaraz-embed]'
+    )) {
+      const data = Object.assign(
+        // @ts-ignore
+        ...Array.prototype.slice.call(div.attributes).map(attr => {
+          let o: any = {}
+          o[attr.nodeName] = attr.nodeValue
+          return o
+        })
+      )
+
+      const name = data['data-zaraz-embed']
+      div.innerHTML = this.registeredEmbeds[name]({
+        data,
+        client,
+      })
+    }
+
+    return dom.serialize()
+  }
+
+  registerEmbed(name: string, callback: Function) {
+    this.registeredEmbeds[name] = callback
   }
 }

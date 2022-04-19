@@ -46,10 +46,10 @@ const handleSystemEvent: RequestHandler = (req, res) => {
   res.end(JSON.stringify(res.payload))
 }
 
-const handlePageView: RequestHandler = (req, res) => {
+const handlePageView = (req: Request, res: any, client: any) => {
   const event = new Event('pageview')
   event.payload = req.body.payload
-  event.client = buildClient(req, res)
+  event.client = client
   manager.dispatchEvent(event)
 }
 
@@ -63,18 +63,23 @@ const app = express()
   })
   .use('**', (req, res, next) => {
     req.fullUrl = target + req.url
+    const client = buildClient(req, res)
     const proxySettings = {
       target,
       changeOrigin: true,
       selfHandleResponse: true,
       onProxyRes: responseInterceptor(
-        async (responseBuffer, _proxyRes, req, res) => {
-          const response = responseBuffer.toString('utf8') // convert buffer to string
-          handlePageView(req as any, res as any, next) // TODO do we have a problem here??
-          return response.replace(
-            '<head>',
-            `<head><script>${manager.getInjectedScript()}</script>`
-          )
+        async (responseBuffer, proxyRes, req, res) => {
+          if (proxyRes.headers['content-type'] === 'text/html') {
+            handlePageView(req as any, res as any, client as any) // TODO do we have a problem here??
+            let response = responseBuffer.toString('utf8') // convert buffer to string
+            response = manager.processEmbeds(response, client)
+            return response.replace(
+              '<head>',
+              `<head><script>${manager.getInjectedScript()}</script>`
+            )
+          }
+          return responseBuffer
         }
       ),
     }
