@@ -1,4 +1,7 @@
-window.addEventListener('resize', async event => {
+let delay = 500
+let timeout
+
+const getDimensions = async () => {
   const payload = {
     width: window.innerWidth || window.screen.availWidth,
     height: window.innerHeight || window.screen.availHeight,
@@ -11,4 +14,9 @@ window.addEventListener('resize', async event => {
     body: JSON.stringify({ event: 'resize', payload }),
   })
   ec._processServerResponse(res)
+}
+
+window.addEventListener('resize', _event => {
+  clearTimeout(timeout)
+  timeout = setTimeout(getDimensions, delay)
 })
