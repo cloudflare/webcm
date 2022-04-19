@@ -40,4 +40,18 @@ export default async function (manager: Manager) {
       event.payload?.width
     )
   })
+
+  manager.registerEmbed(
+    'weather-example',
+    async ({ parameters }: { parameters: any }) => {
+      const location = parameters['location']
+      const widget = await manager.useCache('weather-' + location, async () => {
+        const response = await (
+          await fetch(`https://wttr.in/${location}?format=j1`)
+        ).json()
+        return `<p>Temperature in ${location} is: ${response.current_condition[0].temp_C} &#8451;</p>`
+      })
+      return widget
+    }
+  )
 }

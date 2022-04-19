@@ -2,6 +2,8 @@ import { existsSync, readFileSync } from 'fs'
 import path from 'path'
 import { get, set } from '../storage/kv-storage'
 import { useCache } from '../cache/index'
+import { JSDOM } from 'jsdom'
+import { MCClient } from './client'
 
 declare global {
   interface Event {
@@ -23,6 +25,9 @@ export class Manager extends EventTarget {
   systemEventsPath: string
   sourcedScript: string
   requiredSnippets: string[]
+  registeredEmbeds: {
+    [k: string]: Function
+  }
   set: (key: string, value: any) => boolean
   get: (key: string) => any
   useCache: (key: string, callback: Function, expiry?: number) => any
@@ -38,6 +43,7 @@ export class Manager extends EventTarget {
     super()
     this.sourcedScript = "console.log('ecweb script is sourced again')"
     this.requiredSnippets = ['track']
+    this.registeredEmbeds = {}
     this.trackPath = Context.trackPath
     this.systemEventsPath = Context.systemEventsPath
     this.set = Context.set || set
@@ -112,5 +118,29 @@ export class Manager extends EventTarget {
       }
     }
     return injectedScript
+  }
+
+  async processEmbeds(response: string, client: MCClient) {
+    const dom = new JSDOM(response)
+    for (const div of dom.window.document.querySelectorAll(
+      'div[data-component-embed]'
+    )) {
+      const parameters = Object.fromEntries(
+        Array.prototype.slice
+          .call(div.attributes)
+          .map(attr => [attr.nodeName.replace('data-', ''), attr.nodeValue])
+      )
+      const name = parameters['component-embed']
+      div.innerHTML = await this.registeredEmbeds[name]({
+        parameters,
+        client,
+      })
+    }
+
+    return dom.serialize()
+  }
+
+  registerEmbed(name: string, callback: Function) {
+    this.registeredEmbeds[name] = callback
   }
 }

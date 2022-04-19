@@ -1,11 +1,11 @@
-import express, { RequestHandler } from 'express'
+import express, { Request, RequestHandler } from 'express'
 import {
   createProxyMiddleware,
   responseInterceptor,
 } from 'http-proxy-middleware'
 import config from './config.json'
 import { Manager } from './lib'
-import { buildClient } from './lib/client'
+import { buildClient, MCClient } from './lib/client'
 
 if (process.env.NODE_ENV === 'production') {
   process.on('unhandledRejection', reason => {
@@ -46,10 +46,10 @@ const handleSystemEvent: RequestHandler = (req, res) => {
   res.end(JSON.stringify(res.payload))
 }
 
-const handlePageView: RequestHandler = (req, res) => {
+const handlePageView = (req: Request, client: MCClient) => {
   const event = new Event('pageview')
   event.payload = req.body.payload
-  event.client = buildClient(req, res)
+  event.client = client
   manager.dispatchEvent(event)
 }
 
@@ -61,20 +61,25 @@ const app = express()
   .get('/sourcedScript', (_req, res) => {
     res.end(manager.sourcedScript)
   })
-  .use('**', (req, res, next) => {
+  .use('**', async (req, res, next) => {
     req.fullUrl = target + req.url
+    const client = buildClient(req, res)
     const proxySettings = {
       target,
       changeOrigin: true,
       selfHandleResponse: true,
       onProxyRes: responseInterceptor(
-        async (responseBuffer, _proxyRes, req, res) => {
-          const response = responseBuffer.toString('utf8') // convert buffer to string
-          handlePageView(req as any, res as any, next) // TODO do we have a problem here??
-          return response.replace(
-            '<head>',
-            `<head><script>${manager.getInjectedScript()}</script>`
-          )
+        async (responseBuffer, proxyRes, req, _res) => {
+          if (proxyRes.headers['content-type'] === 'text/html') {
+            handlePageView(req as Request, client)
+            let response = responseBuffer.toString('utf8')
+            response = await manager.processEmbeds(response, client)
+            return response.replace(
+              '<head>',
+              `<head><script>${manager.getInjectedScript()}</script>`
+            )
+          }
+          return responseBuffer
         }
       ),
     }
