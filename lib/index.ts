@@ -3,6 +3,7 @@ import path from 'path'
 import { get, set } from '../storage/kv-storage'
 import { useCache } from '../cache/index'
 import { JSDOM } from 'jsdom'
+import { MCClient } from './client'
 
 declare global {
   interface Event {
@@ -119,20 +120,16 @@ export class Manager extends EventTarget {
     return injectedScript
   }
 
-  async processEmbeds(response: string, client: any) {
+  async processEmbeds(response: string, client: MCClient) {
     const dom = new JSDOM(response)
     for (const div of dom.window.document.querySelectorAll(
       'div[data-component-embed]'
     )) {
-      const parameters = Object.assign(
-        // @ts-ignore
-        ...Array.prototype.slice.call(div.attributes).map(attr => {
-          let o: any = {}
-          o[attr.nodeName.replace('data-', '')] = attr.nodeValue
-          return o
-        })
+      const parameters = Object.fromEntries(
+        Array.prototype.slice
+          .call(div.attributes)
+          .map(attr => [attr.nodeName.replace('data-', ''), attr.nodeValue])
       )
-
       const name = parameters['component-embed']
       div.innerHTML = await this.registeredEmbeds[name]({
         parameters,
