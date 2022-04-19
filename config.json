@@ -1,6 +1,6 @@
 {
   "components": [
-    "dummyComponent",
+    "demoComponent",
     { "google-analytics": { "tid": "UA-123456" } }
   ],
   "target": "http://www.example.com",
