@@ -61,7 +61,7 @@ const app = express()
   .get('/sourcedScript', (_req, res) => {
     res.end(manager.sourcedScript)
   })
-  .use('**', async (req, res, next) => {
+  .use('**', (req, res, next) => {
     req.fullUrl = target + req.url
     const client = buildClient(req, res)
     const proxySettings = {
