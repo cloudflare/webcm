@@ -1,5 +1,5 @@
-let delay = 500
-let timeout
+let resizeDelay = 500
+let resizeTimeout
 
 const getDimensions = async () => {
   const payload = {
@@ -17,6 +17,6 @@ const getDimensions = async () => {
 }
 
 window.addEventListener('resize', _event => {
-  clearTimeout(timeout)
-  timeout = setTimeout(getDimensions, delay)
+  clearTimeout(resizeTimeout)
+  resizeTimeout = setTimeout(getDimensions, resizeDelay)
 })
