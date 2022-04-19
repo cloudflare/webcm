@@ -41,6 +41,15 @@ export default async function (manager: Manager) {
     )
   })
 
+  manager.addEventListener('scroll', async event => {
+    console.info(
+      'They see me scrollin...they hatin...',
+      event.payload?.scrollX,
+      event.payload?.scrollY,
+      event.payload?.element
+    )
+  })
+
   manager.registerEmbed(
     'weather-example',
     async ({ parameters }: { parameters: any }) => {
