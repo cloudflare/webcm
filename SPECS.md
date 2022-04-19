@@ -205,7 +205,7 @@ To place an embed in the page, the website owner includes a placeholder `div` el
 
 ```html
 <div
-  data-zaraz-embed="twitter-example"
+  data-component-embed="twitter-example"
   data-dark-theme
   data-tweet-id="1488098745438855172"
 ></div>
