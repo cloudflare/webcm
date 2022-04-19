@@ -49,7 +49,7 @@ export default async function (manager: Manager) {
         const response = await (
           await fetch(`https://wttr.in/${location}?format=j1`)
         ).json()
-        return `<p>Temprature in ${location} is: ${response.current_condition[0].temp_C} &#8451;</p>`
+        return `<p>Temperature in ${location} is: ${response.current_condition[0].temp_C} &#8451;</p>`
       })
       return widget
     }
