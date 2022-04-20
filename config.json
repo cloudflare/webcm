@@ -3,7 +3,7 @@
     "demoComponent",
     { "google-analytics": { "tid": "UA-123456" } }
   ],
-  "target": "http://localhost:3000",
+  "target": "http://example.com",
   "hostname": "localhost",
   "trackPath": "/ecweb/track",
   "systemEventsPath": "/ecweb/system",
