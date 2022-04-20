@@ -50,6 +50,13 @@ export default async function (manager: Manager) {
     )
   })
 
+  manager.addEventListener('resourcePerformanceEntry', async event => {
+    console.info(
+      'Witness the fitness - fresh resourcePerformanceEntry',
+      event.payload
+    )
+  })
+
   manager.registerEmbed(
     'weather-example',
     async ({ parameters }: { parameters: any }) => {
