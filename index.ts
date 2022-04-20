@@ -70,7 +70,11 @@ const app = express()
       selfHandleResponse: true,
       onProxyRes: responseInterceptor(
         async (responseBuffer, proxyRes, req, _res) => {
-          if (proxyRes.headers['content-type']?.startsWith('text/html')) {
+          if (
+            proxyRes.headers['content-type']
+              ?.toLowerCase()
+              .includes('text/html')
+          ) {
             handlePageView(req as Request, client)
             let response = responseBuffer.toString('utf8')
             response = await manager.processEmbeds(response, client)
