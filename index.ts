@@ -61,7 +61,7 @@ const app = express()
   .get('/sourcedScript', (_req, res) => {
     res.end(manager.sourcedScript)
   })
-  .use('**', async (req, res, next) => {
+  .use('**', (req, res, next) => {
     req.fullUrl = target + req.url
     const client = buildClient(req, res)
     const proxySettings = {
@@ -70,7 +70,11 @@ const app = express()
       selfHandleResponse: true,
       onProxyRes: responseInterceptor(
         async (responseBuffer, proxyRes, req, _res) => {
-          if (proxyRes.headers['content-type'] === 'text/html') {
+          if (
+            proxyRes.headers['content-type']
+              ?.toLowerCase()
+              .includes('text/html')
+          ) {
             handlePageView(req as Request, client)
             let response = responseBuffer.toString('utf8')
             response = await manager.processEmbeds(response, client)
