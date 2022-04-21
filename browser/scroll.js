@@ -2,11 +2,16 @@ let scrollDelay = 250
 let scrollTimeout
 
 const getScrollPosition = event => async () => {
+  const { scrollX, scrollY } = window
   const payload = {
-    scrollX: window.scrollX,
-    scrollY: window.scrollY,
-    element:
-      event.target === document ? document.scrollingElement : event.target,
+    scrolls: [
+      {
+        scrollX,
+        scrollY,
+        element:
+          event.target === document ? document.scrollingElement : event.target,
+      },
+    ],
   }
   const res = await fetch(ec._systemEventsPath, {
     method: 'POST',
