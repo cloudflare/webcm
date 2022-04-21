@@ -77,33 +77,6 @@ const sendFbEvent = async (event: Event, settings: ComponentSettings) => {
     // If _fbp is missing, we are generating it, saving it as cookie, and sending one request from the client side too
     fbp = fbCookieBase() + String(Math.round(2147483647 * Math.random())) // This is taken from the FB pixel code
     client.set('_fbp', fbp)
-
-    console.log("Facebook cookie wasn't available, going light mode once")
-    const params: { [k: string]: any } = {
-      it: new Date().valueOf(),
-      id: payload.property,
-      ev: payload.ev,
-      eid: eventId,
-      dl: client.page.url.href,
-      rl: client.page.referrer || '',
-      if: false,
-      sw: client.device.width, // TODO do we have all this info under client already? I don't think so
-      sh: client.device.height,
-      v: '2.9.33',
-      r: 'stable',
-      fbp: fbp,
-      coo: false, // seems to be true for "codeless" events, maybe created from the online GUI
-      rqm: 'GET',
-      ts: new Date().valueOf(),
-    }
-
-    if (fbc) params.fbc = fbc
-
-    for (const p in payload) {
-      if (!['ev', 'property'].includes(p)) {
-        params[`cd[${[p]}]`] = payload[p]
-      }
-    }
   }
 
   // ====== starting FB cloud load ======
