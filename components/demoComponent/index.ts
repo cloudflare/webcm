@@ -8,6 +8,11 @@ export default async function (manager: Manager) {
     client.set('lastClickY', payload.clientY)
   })
 
+  manager.addEventListener('mousemove', async event => {
+    const { payload } = event
+    console.info('Mousemove:', payload)
+  })
+
   manager.addEventListener('event', async event => {
     // Forward events to vendor
     const { client, payload } = event
