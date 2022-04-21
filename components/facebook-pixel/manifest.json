@@ -1,0 +1,19 @@
+{
+  "name": "Facebook Pixel",
+  "description": "Facebook Pixel",
+  "namespace": "facebook-pixel",
+  "icon": "assets/facebook-pixel.svg",
+  "categories": ["Advertising"],
+  "provides": ["events"],
+  "fields": {
+    "property": {}
+  },
+  "allowCustomFields": true,
+  "permissions": [
+    {
+      "permission": "clientFetch",
+      "explanation": "Facebook Pixel uses client fetch to attribute sessions more accurately",
+      "required": false
+    }
+  ]
+}
