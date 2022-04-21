@@ -17,7 +17,7 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   // ====== Subscribe to Ecommerce Events ======
   manager.addEventListener(
     'ecommerce',
-    async event => await sendFbEvent(event, settings)
+    async event => await sendFbEvent(event, settings, true)
   )
 }
 
@@ -38,7 +38,11 @@ const USER_DATA: { [k: string]: any } = {
   lead_id: {},
 }
 
-const sendFbEvent = async (event: Event, settings: ComponentSettings) => {
+const sendFbEvent = async (
+  event: Event,
+  settings: ComponentSettings,
+  ecommerce: boolean = false
+) => {
   const { client, payload } = event
 
   const eventId = String(Math.round(Math.random() * 100000000000000000))
@@ -80,7 +84,6 @@ const sendFbEvent = async (event: Event, settings: ComponentSettings) => {
   }
 
   // ====== starting FB cloud load ======
-
   const request: { [k: string]: any } = {
     event_name: payload.ev,
     event_id: eventId,
@@ -121,7 +124,7 @@ const sendFbEvent = async (event: Event, settings: ComponentSettings) => {
 
   request.custom_data = payload
 
-  if (client.__zarazEcommerce === true) {
+  if (ecommerce === true) {
     request.custom_data.currency = client.currency
     request.custom_data.content_ids = [
       ...(client.products?.map((p: any) => p.sku || p.product_id) || []),
@@ -142,7 +145,7 @@ const sendFbEvent = async (event: Event, settings: ComponentSettings) => {
     request.custom_data.value =
       client.value || client.price || client.total || client.revenue
 
-    switch (client.__zarazTrack) {
+    switch (payload.eventName) {
       case 'Order Completed':
         request.event_name = 'PURCHASE'
         break
@@ -168,8 +171,8 @@ const sendFbEvent = async (event: Event, settings: ComponentSettings) => {
         request.event_name = client.__zarazTrack
     }
 
-    const additionalData = flattenKeys(client)
-    delete additionalData.__zarazTrack
+    const additionalData = flattenKeys(payload)
+    delete additionalData.eventName
     request.custom_data = { ...additionalData, ...request.custom_data }
   }
 
