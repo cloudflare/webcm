@@ -13,11 +13,11 @@ const getMousePosition = async event => {
   const { left, top, width, height } = rect
 
   const payload = {
-    clientX: clientX,
-    clientY: clientY,
-    pageX: pageX,
-    pageY: pageY,
-    target: target,
+    clientX,
+    clientY,
+    pageX,
+    pageY,
+    target,
     relativeX: round(((clientX - left) / width) * 100),
     relativeY: round(((clientY - top) / height) * 100),
   }
