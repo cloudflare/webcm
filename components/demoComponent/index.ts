@@ -39,20 +39,11 @@ export default async function (manager: Manager) {
   })
 
   manager.addEventListener('resize', async event => {
-    console.info(
-      'New window size!',
-      event.payload?.height,
-      event.payload?.width
-    )
+    console.info('New window size!', event.payload)
   })
 
   manager.addEventListener('scroll', async event => {
-    console.info(
-      'They see me scrollin...they hatin...',
-      event.payload?.scrollX,
-      event.payload?.scrollY,
-      event.payload?.element
-    )
+    console.info('They see me scrollin...they hatin...', event.payload)
   })
 
   manager.addEventListener('resourcePerformanceEntry', async event => {
