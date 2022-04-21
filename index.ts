@@ -13,8 +13,16 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-const { target, hostname, port, trackPath, systemEventsPath, components } =
-  config
+const {
+  target: configTarget,
+  hostname,
+  port,
+  trackPath,
+  systemEventsPath,
+  components,
+} = config
+
+const target = process.env.CM_TARGET_URL || configTarget
 
 const manager = new Manager({ components, trackPath, systemEventsPath })
 
