@@ -1,4 +1,4 @@
-getUniqueSelector = el => {
+const getUniqueSelector = el => {
   const path = []
   let current = el
 

@@ -37,7 +37,7 @@ export default async function (manager: Manager) {
   })
 
   manager.addEventListener('historyChange', async event => {
-    console.info('Ch Ch Ch Chaaanges to history detected!')
+    console.info('Ch Ch Ch Chaaanges to history detected!', event.payload)
   })
 
   manager.addEventListener('resize', async event => {
@@ -57,7 +57,7 @@ export default async function (manager: Manager) {
 
   manager.registerEmbed(
     'weather-example',
-    async ({ parameters }: { parameters: any }) => {
+    async ({ parameters }: { parameters: { [k: string]: unknown } }) => {
       const location = parameters['location']
       const widget = await manager.useCache('weather-' + location, async () => {
         const response = await (

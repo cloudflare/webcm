@@ -16,6 +16,8 @@ export interface ComponentSettings {
   [key: string]: any
 }
 
+type EmbedCallback = (contex: { parameters: { [k: string]: unknown } }) => any
+
 type ComponentConfig = string | ComponentSettings
 
 const EXTS = ['.ts', '.mts', '.mjs', '.js']
@@ -26,10 +28,11 @@ export class Manager extends EventTarget {
   sourcedScript: string
   requiredSnippets: string[]
   registeredEmbeds: {
-    [k: string]: Function
+    [k: string]: EmbedCallback
   }
   set: (key: string, value: any) => boolean
   get: (key: string) => any
+  // eslint-disable-next-line @typescript-eslint/ban-types
   useCache: (key: string, callback: Function, expiry?: number) => any
 
   constructor(Context: {
@@ -38,6 +41,7 @@ export class Manager extends EventTarget {
     components: ComponentConfig[]
     trackPath: string
     systemEventsPath: string
+    // eslint-disable-next-line @typescript-eslint/ban-types
     useCache?: (key: string, callback: Function, expiry?: number) => any
   }) {
     super()
@@ -140,7 +144,7 @@ export class Manager extends EventTarget {
     return dom.serialize()
   }
 
-  registerEmbed(name: string, callback: Function) {
+  registerEmbed(name: string, callback: EmbedCallback) {
     this.registeredEmbeds[name] = callback
   }
 }
