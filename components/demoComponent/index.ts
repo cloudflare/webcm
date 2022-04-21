@@ -4,13 +4,15 @@ export default async function (manager: Manager) {
   manager.addEventListener('mousedown', async event => {
     // Save mouse coordinates as a cookie
     const { client, payload } = event
-    client.set('lastClickX', payload.clientX)
-    client.set('lastClickY', payload.clientY)
+    console.info('🐁 ⬇️ Mousedown payload:', payload)
+    const [firstClick] = payload.mousedown
+    client.set('lastClickX', firstClick.clientX)
+    client.set('lastClickY', firstClick.clientY)
   })
 
   manager.addEventListener('mousemove', async event => {
     const { payload } = event
-    console.info('Mousemove:', payload)
+    console.info('🐁 🪤 Mousemove:', payload)
   })
 
   manager.addEventListener('event', async event => {
