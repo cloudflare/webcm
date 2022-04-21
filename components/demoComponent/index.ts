@@ -4,13 +4,15 @@ export default async function (manager: Manager) {
   manager.addEventListener('mousedown', async event => {
     // Save mouse coordinates as a cookie
     const { client, payload } = event
-    client.set('lastClickX', payload.clientX)
-    client.set('lastClickY', payload.clientY)
+    console.info('🐁 ⬇️ Mousedown payload:', payload)
+    const [firstClick] = payload.mousedown
+    client.set('lastClickX', firstClick.clientX)
+    client.set('lastClickY', firstClick.clientY)
   })
 
   manager.addEventListener('mousemove', async event => {
     const { payload } = event
-    console.info('Mousemove:', payload)
+    console.info('🐁 🪤 Mousemove:', payload)
   })
 
   manager.addEventListener('event', async event => {
@@ -35,24 +37,15 @@ export default async function (manager: Manager) {
   })
 
   manager.addEventListener('historyChange', async event => {
-    console.info('Ch Ch Ch Chaaanges to history detected!')
+    console.info('Ch Ch Ch Chaaanges to history detected!', event.payload)
   })
 
   manager.addEventListener('resize', async event => {
-    console.info(
-      'New window size!',
-      event.payload?.height,
-      event.payload?.width
-    )
+    console.info('New window size!', event.payload)
   })
 
   manager.addEventListener('scroll', async event => {
-    console.info(
-      'They see me scrollin...they hatin...',
-      event.payload?.scrollX,
-      event.payload?.scrollY,
-      event.payload?.element
-    )
+    console.info('They see me scrollin...they hatin...', event.payload)
   })
 
   manager.addEventListener('resourcePerformanceEntry', async event => {
@@ -64,7 +57,7 @@ export default async function (manager: Manager) {
 
   manager.registerEmbed(
     'weather-example',
-    async ({ parameters }: { parameters: any }) => {
+    async ({ parameters }: { parameters: { [k: string]: unknown } }) => {
       const location = parameters['location']
       const widget = await manager.useCache('weather-' + location, async () => {
         const response = await (

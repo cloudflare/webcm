@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 const cache: { [k: string]: { value: any; expiry: number } } = {}
 
 export const useCache = async (

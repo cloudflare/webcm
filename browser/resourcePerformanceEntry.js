@@ -1,5 +1,4 @@
 const PE_CACHE_KEY = 'resources-cache'
-const PE_CACHE_MAX = 5000
 
 class PECache {
   constructor() {
@@ -69,7 +68,7 @@ const sendPE = async entries => {
 const resCacheData = sessionStorage.getItem(PE_CACHE_KEY)
 
 if (resCacheData) {
-  for (const d of JSON.parse(cacheData)) {
+  for (const d of JSON.parse(resCacheData)) {
     resCache.addRaw(d)
   }
 }
@@ -79,7 +78,7 @@ if (window.performance && window.performance.getEntriesByType) {
 }
 
 if (typeof PerformanceObserver !== 'undefined') {
-  performanceObserver = new PerformanceObserver(list => {
+  const performanceObserver = new PerformanceObserver(list => {
     sendPE(list.getEntries())
   })
   performanceObserver.observe({ entryTypes: ['resource'] })

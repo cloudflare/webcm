@@ -2,9 +2,16 @@ let resizeDelay = 500
 let resizeTimeout
 
 const getDimensions = async () => {
+  const { innerWidth, innerHeight, screen } = window
   const payload = {
-    width: window.innerWidth || window.screen.availWidth,
-    height: window.innerHeight || window.screen.availHeight,
+    dimensions: [
+      {
+        innerWidth,
+        innerHeight,
+        availHeight: screen.availHeight,
+        availWidth: screen.availWidth,
+      },
+    ],
   }
   const res = await fetch(ec._systemEventsPath, {
     method: 'POST',

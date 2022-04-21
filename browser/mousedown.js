@@ -1,4 +1,4 @@
-getUniqueSelector = el => {
+const getUniqueSelector = el => {
   const path = []
   let current = el
 
@@ -35,12 +35,12 @@ getUniqueSelector = el => {
 }
 
 window.addEventListener('mousedown', async event => {
-  const payload = {}
+  const snapshot = { target: getUniqueSelector(event.target) }
   for (const key of ec._syncedAttributes) {
     if (['number', 'string', 'boolean'].includes(typeof event[key]))
-      payload[key] = event[key]
+      snapshot[key] = event[key]
   }
-  payload.target = getUniqueSelector(event.target)
+  const payload = { mousedown: [snapshot] }
   const res = await fetch(ec._systemEventsPath, {
     method: 'POST',
     headers: {

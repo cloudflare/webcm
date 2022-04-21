@@ -8,7 +8,9 @@
       },
       body: JSON.stringify({
         event: 'historyChange',
-        payload: { l: document.location.href, t: document.title },
+        payload: {
+          history: [{ url: document.location.href, title: document.title }],
+        },
       }),
     }).then(ec._processServerResponse)
     // TODO reset any client-stored variables?
