@@ -83,6 +83,7 @@ export class ClientGeneric {
     } else {
       this.pendingVariables[key] = value
     }
+    URL
   }
   get(key: string) {
     return (
