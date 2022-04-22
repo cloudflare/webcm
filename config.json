@@ -1,8 +1,5 @@
 {
-  "components": [
-    "demoComponent",
-    { "google-analytics": { "tid": "UA-123456" } }
-  ],
+  "components": ["demo-component"],
   "target": "http://example.com",
   "hostname": "localhost",
   "trackPath": "/cm-web/track",

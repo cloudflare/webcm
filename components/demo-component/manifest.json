@@ -1,0 +1,19 @@
+{
+  "name": "Demo Component",
+  "description": "Demo Component",
+  "namespace": "demo-component",
+  "icon": "",
+  "categories": ["Cheese"],
+  "provides": ["events"],
+  "fields": {
+    "property": {}
+  },
+  "allowCustomFields": true,
+  "permissions": [
+    {
+      "permission": "kitchenSink",
+      "explanation": "Demo Component uses all the things",
+      "required": false
+    }
+  ]
+}
