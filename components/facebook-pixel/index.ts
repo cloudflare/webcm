@@ -3,22 +3,19 @@ import { sha256, flattenKeys } from '../../lib/utils'
 
 export default async function (manager: Manager, settings: ComponentSettings) {
   // ====== Subscribe to User-Configured Events ======
-  manager.addEventListener(
-    'event',
-    async event => await sendFbEvent(event, settings)
-  )
+  manager.addEventListener('event', async (event: Event) => {
+    await sendFbEvent(event, settings)
+  })
 
   // ====== Subscribe to Pageview Events ======
-  manager.addEventListener(
-    'pageview',
-    async event => await sendFbEvent(event, settings)
-  )
+  manager.addEventListener('pageview', async (event: Event) => {
+    await sendFbEvent(event, settings)
+  })
 
   // ====== Subscribe to Ecommerce Events ======
-  manager.addEventListener(
-    'ecommerce',
-    async event => await sendFbEvent(event, settings, true)
-  )
+  manager.addEventListener('ecommerce', async event => {
+    await sendFbEvent(event, settings, true)
+  })
 }
 
 const USER_DATA: { [k: string]: any } = {
@@ -88,7 +85,7 @@ const sendFbEvent = async (
     event_name: payload.ev,
     event_id: eventId,
     action_source: 'website',
-    event_time: client.misc.timestamp, // TODO also this misc.timestamp, do we even really need it here?
+    event_time: client.misc?.timestamp, // TODO also this misc.timestamp, do we even really need it here?
     event_source_url: client.page.url.href,
     data_processing_options: [],
     user_data: {
@@ -119,8 +116,7 @@ const sendFbEvent = async (
   }
 
   delete payload.ev
-  const property = payload.property
-  delete payload.property
+  const property = settings.property
 
   request.custom_data = payload
 
@@ -179,10 +175,10 @@ const sendFbEvent = async (
   // TODO how do we handle secrets here? or the settings.testKey???
   const requestBody = {
     data: [request],
-    // access_token: event.secrets.accessToken,
-    // ...(event.settings.testKey && {
-    //   test_event_code: event.settings.testKey,
-    // }),
+    access_token: settings.accessToken,
+    ...(settings.testKey && {
+      test_event_code: settings.testKey,
+    }),
   }
 
   const graphEndpoint = `https://graph.facebook.com/v11.0/${property}/events`
