@@ -5,7 +5,8 @@
   ],
   "target": "http://example.com",
   "hostname": "localhost",
-  "trackPath": "/ecweb/track",
-  "systemEventsPath": "/ecweb/system",
-  "port": 1337
+  "trackPath": "/cm-web/track",
+  "systemEventsPath": "/cm-web/system",
+  "port": 1337,
+  "CM_CLIENT_TOKEN_NAME": "cm_client_token"
 }

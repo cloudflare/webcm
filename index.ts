@@ -20,11 +20,17 @@ const {
   trackPath,
   systemEventsPath,
   components,
+  CM_CLIENT_TOKEN_NAME,
 } = config
 
 const target = process.env.CM_TARGET_URL || configTarget
 
-const manager = new Manager({ components, trackPath, systemEventsPath })
+const manager = new Manager({
+  components,
+  trackPath,
+  systemEventsPath,
+  CM_CLIENT_TOKEN_NAME,
+})
 
 const handleTrack: RequestHandler = (req, res) => {
   req.fullUrl = target + req.url
@@ -61,6 +67,17 @@ const handlePageView = (req: Request, client: MCClient) => {
   manager.dispatchEvent(event)
 }
 
+const handleNewClients = (req: Request, client: MCClient) => {
+  if (client.get(manager.CM_CLIENT_TOKEN_NAME)) {
+    return
+  }
+  client.set(manager.CM_CLIENT_TOKEN_NAME, true) // TODO - set more data at this stage?
+  const event = new Event('clientCreated')
+  event.payload = req.body.payload
+  event.client = client
+  manager.dispatchEvent(event)
+}
+
 const app = express()
   .use(express.json())
   .post(trackPath, handleTrack)
@@ -83,6 +100,7 @@ const app = express()
               ?.toLowerCase()
               .includes('text/html')
           ) {
+            handleNewClients(req as Request, client)
             handlePageView(req as Request, client)
             let response = responseBuffer.toString('utf8')
             response = await manager.processEmbeds(response, client)

@@ -1,6 +1,13 @@
 import { Manager } from '../../lib/index'
 
 export default async function (manager: Manager) {
+  manager.addEventListener('clientCreated', async event => {
+    console.info(
+      '🐣 New client:',
+      event.client.get(manager.CM_CLIENT_TOKEN_NAME)
+    )
+  })
+
   manager.addEventListener('mousedown', async event => {
     // Save mouse coordinates as a cookie
     const { client, payload } = event

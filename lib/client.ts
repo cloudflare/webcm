@@ -19,8 +19,8 @@ export interface MCClient {
   type: string
   eval: (code: string) => void
   return: (value: unknown) => void
-  fetch: (resource: string, settings: any) => void
-  set: (key: string, value: any) => void
+  fetch: (resource: string, settings: unknown) => void
+  set: (key: string, value: unknown) => void
   get: (key: string) => any
 }
 
@@ -38,10 +38,10 @@ export const buildClient = (req: Request, res: Response): MCClient => {
     return: (value: unknown) => {
       res.payload.return = value
     },
-    fetch: (resource: string, settings: any) => {
+    fetch: (resource: string, settings: unknown) => {
       res.payload.fetch.push([resource, settings])
     },
-    set: (key: string, value: any) => {
+    set: (key: string, value: unknown) => {
       res.append('set-cookie', `${key}=${value}`)
     },
     get: (key: string) => {

@@ -23,6 +23,7 @@ type ComponentConfig = string | ComponentSettings
 const EXTS = ['.ts', '.mts', '.mjs', '.js']
 export class Manager extends EventTarget {
   components: ComponentConfig[]
+  CM_CLIENT_TOKEN_NAME: string
   trackPath: string
   systemEventsPath: string
   sourcedScript: string
@@ -39,6 +40,7 @@ export class Manager extends EventTarget {
     set?: (key: string, value: any) => boolean
     get?: (key: string) => any
     components: ComponentConfig[]
+    CM_CLIENT_TOKEN_NAME: string
     trackPath: string
     systemEventsPath: string
     // eslint-disable-next-line @typescript-eslint/ban-types
@@ -48,6 +50,7 @@ export class Manager extends EventTarget {
     this.sourcedScript = "console.log('ecweb script is sourced again')"
     this.requiredSnippets = ['track']
     this.registeredEmbeds = {}
+    this.CM_CLIENT_TOKEN_NAME = Context.CM_CLIENT_TOKEN_NAME
     this.trackPath = Context.trackPath
     this.systemEventsPath = Context.systemEventsPath
     this.set = Context.set || set
