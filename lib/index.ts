@@ -4,11 +4,13 @@ import { get, set } from '../storage/kv-storage'
 import { useCache } from '../cache/index'
 import { JSDOM } from 'jsdom'
 import { MCClient } from './client'
+import { ManagedComponent } from './managedComponent'
 
 declare global {
   interface Event {
+    client: MCClient
     payload?: any
-    client?: any
+    mcId?: string
   }
 }
 
@@ -22,6 +24,7 @@ type ComponentConfig = string | ComponentSettings
 
 const EXTS = ['.ts', '.mts', '.mjs', '.js']
 export class Manager extends EventTarget {
+  componentInstances: ManagedComponent[] = []
   components: ComponentConfig[]
   CM_CLIENT_TOKEN_NAME: string
   trackPath: string
@@ -100,7 +103,13 @@ export class Manager extends EventTarget {
       if (component) {
         try {
           console.info('loading component', componentName)
-          await component.default(this, componentSettings)
+          const componentInstance = new component(
+            this,
+            componentName,
+            componentSettings
+          )
+          componentInstance.clientCreated()
+          this.componentInstances.push(componentInstance)
         } catch (error) {
           console.error(
             'Error loading component',
