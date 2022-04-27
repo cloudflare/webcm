@@ -1,21 +1,62 @@
-import { Manager } from '../../lib/index'
+import { Client } from '../../lib/client'
+import { ComponentSettings, Manager } from '../../lib/manager'
 
-export default async function (manager: Manager) {
-  manager.addEventListener('mousedown', async event => {
-    // Save mouse coordinates as a cookie
-    const { client, payload } = event
-    console.info('🐁 ⬇️ Mousedown payload:', payload)
-    const [firstClick] = payload.mousedown
-    client.set('lastClickX', firstClick.clientX)
-    client.set('lastClickY', firstClick.clientY)
-  })
+export default async function (manager: Manager, settings: ComponentSettings) {
+  const prefs = {
+    // You can use fetch to get some remote preferences here based on `settings`
+  }
 
-  manager.addEventListener('mousemove', async event => {
-    const { payload } = event
-    console.info('🐁 🪤 Mousemove:', payload)
-  })
+  manager.addEventListener(
+    'clientcreated',
+    ({ client }: { client: Client }) => {
+      // We have new client
+      const clientNumber = client.get('clientNumber')
+      if (!clientNumber) {
+        const num = Math.random()
+        client.set('clientNumber', num)
+      }
 
-  manager.addEventListener('event', async event => {
+      if (clientNumber > 0.5) {
+        client.addEventListener('mousemove', async (event: Event) => {
+          const { payload } = event
+          console.info('🐁 🪤 Mousemove:', payload)
+        })
+      }
+
+      client.addEventListener('mousedown', async (event: Event) => {
+        // Save mouse coordinates as a cookie
+        const { client, payload } = event
+        console.info('🐁 ⬇️ Mousedown payload:', payload)
+        const [firstClick] = payload.mousedown
+        client.set('lastClickX', firstClick.clientX)
+        client.set('lastClickY', firstClick.clientY)
+      })
+
+      client.addEventListener('historyChange', async (event: Event) => {
+        console.info('Ch Ch Ch Chaaanges to history detected!', event.payload)
+      })
+
+      client.addEventListener('resize', async (event: Event) => {
+        console.info('New window size!', event.payload)
+      })
+
+      client.addEventListener('scroll', async (event: Event) => {
+        console.info('They see me scrollin...they hatin...', event.payload)
+      })
+
+      client.addEventListener(
+        'resourcePerformanceEntry',
+        async (event: Event) => {
+          console.info(
+            'Witness the fitness - fresh resourcePerformanceEntry',
+            event.payload
+          )
+        }
+      )
+    }
+  )
+
+  manager.addEventListener('event', async (event: Event) => {
     // Forward events to vendor
     const { client, payload } = event
     payload.user_id = client.get('user_id')
@@ -26,7 +67,7 @@ export default async function (manager: Manager) {
     }
   })
 
-  manager.addEventListener('pageview', async event => {
+  manager.addEventListener('pageview', async (event: Event) => {
     // Set a user_id based on a query param
     const { client } = event
 
@@ -34,25 +75,6 @@ export default async function (manager: Manager) {
     client.set('user_id', user_id, {
       scope: 'infinite',
     })
-  })
-
-  manager.addEventListener('historyChange', async event => {
-    console.info('Ch Ch Ch Chaaanges to history detected!', event.payload)
-  })
-
-  manager.addEventListener('resize', async event => {
-    console.info('New window size!', event.payload)
-  })
-
-  manager.addEventListener('scroll', async event => {
-    console.info('They see me scrollin...they hatin...', event.payload)
-  })
-
-  manager.addEventListener('resourcePerformanceEntry', async event => {
-    console.info(
-      'Witness the fitness - fresh resourcePerformanceEntry',
-      event.payload
-    )
   })
 
   manager.registerEmbed(
