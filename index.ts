@@ -4,8 +4,8 @@ import {
   responseInterceptor,
 } from 'http-proxy-middleware'
 import config from './config.json'
-import { Manager } from './lib'
-import { buildClient, MCClient } from './lib/client'
+import { ManagerGeneric } from './lib/manager'
+import { Client, ClientGeneric } from './lib/client'
 
 if (process.env.NODE_ENV === 'production') {
   process.on('unhandledRejection', reason => {
@@ -24,13 +24,12 @@ const {
 
 const target = process.env.CM_TARGET_URL || configTarget
 
-const manager = new Manager({ components, trackPath, systemEventsPath })
+const manager = new ManagerGeneric({ components, trackPath, systemEventsPath })
 
 const handleTrack: RequestHandler = (req, res) => {
-  req.fullUrl = target + req.url
+  const clientGeneric = new ClientGeneric(req, res, manager)
   const event = new Event('event')
   event.payload = req.body.payload
-  event.client = buildClient(req, res)
   res.payload = {
     fetch: [],
     eval: [],
@@ -41,10 +40,21 @@ const handleTrack: RequestHandler = (req, res) => {
 }
 
 const handleSystemEvent: RequestHandler = (req, res) => {
-  req.fullUrl = target + req.url
+  const clientGeneric = new ClientGeneric(req, res, manager)
   const event = new Event(req.body.event)
   event.payload = req.body.payload
-  event.client = buildClient(req, res)
+  for (const component of Object.entries(clientGeneric.webcmPrefs.listeners)
+    .filter((x: any) => x[1].includes(req.body.event))
+    .map(x => x[0])) {
+    event.client = new Client(component, clientGeneric)
+    try {
+      manager.clientListeners[req.body.event + '__' + component](event)
+    } catch {
+      console.error(
+        `Dispatching ${req.body.event} to component ${component} but it isn't registered`
+      )
+    }
+  }
   res.payload = {
     fetch: [],
     eval: [],
@@ -54,11 +64,23 @@ const handleSystemEvent: RequestHandler = (req, res) => {
   res.end(JSON.stringify(res.payload))
 }
 
-const handlePageView = (req: Request, client: MCClient) => {
-  const event = new Event('pageview')
-  event.payload = req.body.payload
-  event.client = client
-  manager.dispatchEvent(event)
+const handlePageView = (
+  req: Request,
+  res: any,
+  clientGeneric: ClientGeneric
+) => {
+  const pageview = new Event('pageview')
+  pageview.payload = req.body.payload
+  // pageview.client = client
+  if (!clientGeneric.cookies.get('webcm_prefs')) {
+    const clientcreated = new Event('clientcreated')
+    for (const componentName of manager.components) {
+      const event = new Event(componentName + '__clientcreated')
+      event.client = new Client(componentName as string, clientGeneric)
+      manager.dispatchEvent(event)
+    }
+  }
+  manager.dispatchEvent(pageview)
 }
 
 const app = express()
@@ -70,8 +92,8 @@ const app = express()
     res.end(manager.sourcedScript)
   })
   .use('**', (req, res, next) => {
-    req.fullUrl = target + req.url
-    const client = buildClient(req, res)
+    // req.fullUrl = target + req.url
+    const clientGeneric = new ClientGeneric(req, res, manager)
     const proxySettings = {
       target,
       changeOrigin: true,
@@ -83,12 +105,14 @@ const app = express()
               ?.toLowerCase()
               .includes('text/html')
           ) {
-            handlePageView(req as Request, client)
+            handlePageView(req as Request, res, clientGeneric)
             let response = responseBuffer.toString('utf8')
-            response = await manager.processEmbeds(response, client)
+            response = await manager.processEmbeds(response, clientGeneric)
             return response.replace(
               '<head>',
-              `<head><script>${manager.getInjectedScript()}</script>`
+              `<head><script>${manager.getInjectedScript(
+                clientGeneric
+              )}</script>`
             )
           }
           return responseBuffer
