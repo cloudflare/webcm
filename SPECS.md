@@ -74,6 +74,17 @@ The following table describes the permissions that a tool can ask for when being
 
 ## API Overview
 
+
+### Structure
+
+A Managed Component needs to export one default function that takes the Component Manager as an argument. The function is executed when the component is loaded. The component uses this function to listen to events and to register UI elements.
+
+```js
+export default async function (manager, settings) {
+  // the Managed Component logic goes here
+}
+```
+
 ### Server functionality
 
 External Components provides a couple of methods that allow a tool to introduce server-side functionality:
@@ -124,7 +135,7 @@ manager.route("/ping", (request) => {
 
 The above will map respond with a 204 code to all requests under `domain.com/cdn-cgi/zaraz/example/ping`.
 
-### Events
+### Manager Events
 
 #### Pageview
 
@@ -144,27 +155,6 @@ manager.addEventListener("pageview", async (event) => {
 ```
 
 The above will send a server-side request to `example.com/collect` whenever the a new page loads, with the URL and the page title as payload.
-
-#### Single Page Application navigation
-
-The `historyChange` event is called whenever the page changes in a Single Page Application, by mean of `history.pushState` or `history.replaceState`. Tools can automatically trigger an action when this event occurs using an Event Listener.
-
-```js
-manager.addEventListener("historyChange", async (event) => {
-  const { context, client, page } = event;
-
-  // Send server-side request
-  fetch("https://example.com/collect", {
-    method: "POST",
-    data: {
-      url: context.system.page.url.href,
-      title: context.system.page.title,
-    },
-  });
-});
-```
-
-The above will send a server-side request to `example.com/collect` whenever the page changes in a Single Page Application, with the URL and the page title as payload.
 
 #### User-configured events
 
@@ -193,7 +183,75 @@ manager.addEventListener("event", async ({ context, client }) => {
 
 In the above example, when the tool receives an event it will do multiple things: (1) Make a server-side post request to /collect endpoint, with the visitor IP and the event name. If the visitor is using a normal web browser (e.g. not using the mobile SDK), the tool will also set a client key (e.g. cookie) named `example-uuid` to a random UUIDv4 string, and it ask the browser to make a client-side fetch request with the page title.
 
-#### DOM Change
+
+
+### Client Events
+
+#### Single Page Application navigation
+
+The `historyChange` event is called whenever the page changes in a Single Page Application, by mean of `history.pushState` or `history.replaceState`. Tools can automatically trigger an action when this event occurs using an Event Listener.
+
+```js
+client.addEventListener("historyChange", async (event) => {
+  const { context, client, page } = event;
+
+  // Send server-side request
+  fetch("https://example.com/collect", {
+    method: "POST",
+    data: {
+      url: context.system.page.url.href,
+      title: context.system.page.title,
+    },
+  });
+});
+```
+
+The above will send a server-side request to `example.com/collect` whenever the page changes in a Single Page Application, with the URL and the page title as payload.
+
+#### Scroll
+
+```js
+client.addEventListener('scroll', async (event: Event) => {
+  console.info('They see me scrollin...they hatin...', event.payload)
+})
+```
+
+#### Mouse move
+
+```js
+client.addEventListener('mousemove', async (event: Event) => {
+  const { payload } = event
+  console.info('🐁 🪤 Mousemove:', payload)
+})
+```
+
+#### Mouse down
+
+```js
+client.addEventListener('mousedown', async (event: Event) => {
+  // Save mouse coordinates as a cookie
+  const { client, payload } = event
+  console.info('🐁 ⬇️ Mousedown payload:', payload)
+  const [firstClick] = payload.mousedown
+  client.set('lastClickX', firstClick.clientX)
+  client.set('lastClickY', firstClick.clientY)
+})
+```
+#### Resize
+
+```js
+client.addEventListener('resize', async (event: Event) => {
+  console.info('New window size!', event.payload)
+})
+```
+
+#### Performance entries
+
+```js
+client.addEventListener('performance', async (event: Event) => {
+  console.info('New performance entry!', event.payload)
+})
+```
 
 ### Embeds and Widgets
 
@@ -271,7 +329,7 @@ manager.set("message", "hello world");
 Get a variable from KV storage.
 
 ```js
-manager.get("message", "hello world");
+const message = manager.get("message");
 ```
 
 ### Caching
