@@ -23,14 +23,14 @@ const getMousePosition = async event => {
       },
     ],
   }
-  const res = await fetch(ec._systemEventsPath, {
+  const res = await fetch(webcm._systemEventsPath, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ event: 'mousemove', payload }),
   })
-  ec._processServerResponse(res)
+  webcm._processServerResponse(res)
 }
 
 window.addEventListener('mousemove', event => {

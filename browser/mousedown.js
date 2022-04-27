@@ -36,17 +36,17 @@ const getUniqueSelector = el => {
 
 window.addEventListener('mousedown', async event => {
   const snapshot = { target: getUniqueSelector(event.target) }
-  for (const key of ec._syncedAttributes) {
+  for (const key of webcm._syncedAttributes) {
     if (['number', 'string', 'boolean'].includes(typeof event[key]))
       snapshot[key] = event[key]
   }
   const payload = { mousedown: [snapshot] }
-  const res = await fetch(ec._systemEventsPath, {
+  const res = await fetch(webcm._systemEventsPath, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ event: 'mousedown', payload }),
   })
-  ec._processServerResponse(res)
+  webcm._processServerResponse(res)
 })

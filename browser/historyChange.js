@@ -1,7 +1,7 @@
 ;['pushState', 'replaceState'].forEach(changeState => {
   window.history[changeState] = (...args) => {
     History.prototype[changeState].apply(history, args)
-    fetch(ec._systemEventsPath, {
+    fetch(webcm._systemEventsPath, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -12,7 +12,7 @@
           history: [{ url: document.location.href, title: document.title }],
         },
       }),
-    }).then(ec._processServerResponse)
+    }).then(webcm._processServerResponse)
     // TODO reset any client-stored variables?
   }
 })

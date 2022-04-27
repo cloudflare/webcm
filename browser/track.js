@@ -1,4 +1,4 @@
-const ec = {
+const webcm = {
   _processServerResponse: async res => {
     const data = await res.json()
 
@@ -14,7 +14,7 @@ const ec = {
       },
       body: JSON.stringify(payload),
     })
-    return ec._processServerResponse(res)
+    return webcm._processServerResponse(res)
   },
   _systemEventsPath: 'SYSTEM_EVENTS_PATH',
   _syncedAttributes: ['altKey', 'clientX', 'clientY'],

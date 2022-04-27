@@ -55,14 +55,14 @@ const sendPE = async entries => {
   const resources = prepEntries(entries)
   if (!resources.length) return
   const payload = { resources }
-  const res = await fetch(ec._systemEventsPath, {
+  const res = await fetch(webcm._systemEventsPath, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ event: 'resourcePerformanceEntry', payload }),
   })
-  ec._processServerResponse(res)
+  webcm._processServerResponse(res)
 }
 
 const resCacheData = sessionStorage.getItem(PE_CACHE_KEY)
