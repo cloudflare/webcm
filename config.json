@@ -1,11 +1,11 @@
 {
   "components": [
-    "demoComponent",
-    { "google-analytics": { "tid": "UA-123456" } }
+    "demoComponent"
   ],
   "target": "http://example.com",
   "hostname": "localhost",
   "trackPath": "/ecweb/track",
   "systemEventsPath": "/ecweb/system",
-  "port": 1337
+  "port": 1337,
+  "cookiesKey": "something-very-secret"
 }
