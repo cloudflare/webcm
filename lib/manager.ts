@@ -3,7 +3,9 @@ import path from 'path'
 import { get, set } from '../storage/kv-storage'
 import { useCache } from '../cache/index'
 import { JSDOM } from 'jsdom'
-import { MCClient } from './client'
+import { ClientGeneric } from './client'
+
+console.info('\nWebCM, version', process.env.npm_package_version)
 
 declare global {
   interface Event {
@@ -16,28 +18,27 @@ export interface ComponentSettings {
   [key: string]: any
 }
 
-type EmbedCallback = (contex: { parameters: { [k: string]: unknown } }) => any
+type EmbedCallback = (contex: {
+  parameters: { [k: string]: unknown }
+  client: ClientGeneric
+}) => any
 
 type ComponentConfig = string | ComponentSettings
 
 const EXTS = ['.ts', '.mts', '.mjs', '.js']
-export class Manager extends EventTarget {
+
+export class ManagerGeneric extends EventTarget {
   components: ComponentConfig[]
   trackPath: string
+  name: string
   systemEventsPath: string
   sourcedScript: string
   requiredSnippets: string[]
+  clientListeners: any
   registeredEmbeds: {
     [k: string]: EmbedCallback
   }
-  set: (key: string, value: any) => boolean
-  get: (key: string) => any
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  useCache: (key: string, callback: Function, expiry?: number) => any
-
   constructor(Context: {
-    set?: (key: string, value: any) => boolean
-    get?: (key: string) => any
     components: ComponentConfig[]
     trackPath: string
     systemEventsPath: string
@@ -45,19 +46,20 @@ export class Manager extends EventTarget {
     useCache?: (key: string, callback: Function, expiry?: number) => any
   }) {
     super()
-    this.sourcedScript = "console.log('ecweb script is sourced again')"
+    this.sourcedScript = "console.log('WebCM script is sourced again')"
     this.requiredSnippets = ['track']
     this.registeredEmbeds = {}
+    this.clientListeners = {}
+    this.name = 'WebCM'
     this.trackPath = Context.trackPath
     this.systemEventsPath = Context.systemEventsPath
-    this.set = Context.set || set
-    this.get = Context.get || get
     this.components = Context.components
-    this.useCache = Context.useCache || useCache
     this.initScript()
   }
 
+  // @ts-ignore
   addEventListener(
+    component: string,
     type: string,
     callback: EventListenerOrEventListenerObject | null,
     options?: boolean | AddEventListenerOptions
@@ -65,7 +67,7 @@ export class Manager extends EventTarget {
     if (!this.requiredSnippets.includes(type)) {
       this.requiredSnippets.push(type)
     }
-    super.addEventListener(type, callback, options)
+    super.addEventListener(component + '__' + type, callback, options)
   }
 
   async initScript() {
@@ -96,11 +98,14 @@ export class Manager extends EventTarget {
 
       if (component) {
         try {
-          console.info('loading component', componentName)
-          await component.default(this, componentSettings)
+          console.info(':: Loading component', componentName)
+          await component.default(
+            new Manager(componentName, this),
+            componentSettings
+          )
         } catch (error) {
           console.error(
-            'Error loading component',
+            ':: Error loading component',
             componentPath,
             component,
             error
@@ -110,9 +115,15 @@ export class Manager extends EventTarget {
     }
   }
 
-  getInjectedScript() {
+  getInjectedScript(clientGeneric: ClientGeneric) {
     let injectedScript = ''
-    for (const snippet of this.requiredSnippets) {
+
+    const clientListeners: Set<any> = new Set(
+      Object.entries(clientGeneric.webcmPrefs.listeners)
+        .map(x => x[1])
+        .flat()
+    )
+    for (const snippet of [...this.requiredSnippets, ...clientListeners]) {
       const snippetPath = `browser/${snippet}.js`
       if (existsSync(snippetPath)) {
         injectedScript += readFileSync(snippetPath)
@@ -124,7 +135,7 @@ export class Manager extends EventTarget {
     return injectedScript
   }
 
-  async processEmbeds(response: string, client: MCClient) {
+  async processEmbeds(response: string, client: ClientGeneric) {
     const dom = new JSDOM(response)
     for (const div of dom.window.document.querySelectorAll(
       'div[data-component-embed]'
@@ -143,8 +154,37 @@ export class Manager extends EventTarget {
 
     return dom.serialize()
   }
+}
+
+export class Manager {
+  #generic: ManagerGeneric
+  #component: string
+  name: string
+
+  constructor(component: string, generic: ManagerGeneric) {
+    this.#generic = generic
+    this.#component = component
+    this.name = this.#generic.name
+  }
+
+  addEventListener(...args: any) {
+    // @ts-ignore
+    this.#generic.addEventListener(this.#component, ...args)
+  }
+
+  get(key: string) {
+    get(this.#component + '__' + key)
+  }
+
+  set(key: string, value: any) {
+    set(this.#component + '__' + key, value)
+  }
+
+  async useCache(key: string, callback: Function, expiry?: number) {
+    await useCache(this.#component + '__' + key, callback, expiry)
+  }
 
   registerEmbed(name: string, callback: EmbedCallback) {
-    this.registeredEmbeds[name] = callback
+    this.#generic.registeredEmbeds[this.#component + '__' + name] = callback
   }
 }
