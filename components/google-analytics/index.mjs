@@ -13,13 +13,7 @@ export default async function (manager, settings) {
 
   // ====== Subscribe to Ecommerce Events ======
   manager.addEventListener('ecommerce', async event => {
-    const requestPayload = getToolRequest(event)
-    const ecommerceParams = getEcommerceParams(event)
-    const finalURL = getFullURL({ ...requestPayload, ...ecommerceParams })
-
-    fetch(finalURL)
-
-    //TODO  Do we need the Advertising features also here ??
+    sendGA3Event(event, settings, true)
   })
 }
 
@@ -32,11 +26,17 @@ const getFullURL = requestPayload => {
  * Google Analytics has the same behaviour for both Pageviews and User-Configured Events
  * This function will be used to handle both types of events
  * */
-const sendGA3Event = function (event, settings) {
+const sendGA3Event = function (event, settings, ecommerce = false) {
   const requestPayload = getToolRequest(event)
-  const finalURL = getFullURL(requestPayload)
+
+  const ecommerceParams = {}
+  ecommerce && (ecommerceParams = getEcommerceParams(event))
+
+  const finalURL = getFullURL({ ...requestPayload, ...ecommerceParams })
   fetch(finalURL)
 
+  // TODO should this be send before handling ecommerce? I think I had this question before
+  // and the answer was yes :-?
   if (settings['ga-audiences'] || settings['ga-doubleclick']) {
     gaDoubleClick(event, finalURL)
   }
