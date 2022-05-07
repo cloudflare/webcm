@@ -83,45 +83,65 @@ const handlePageView = (
   manager.dispatchEvent(pageview)
 }
 
-const app = express()
-  .use(express.json())
+const app = express().use(express.json())
+
+// Mount WebCM endpoitn
+app
   .post(trackPath, handleTrack)
   .post(systemEventsPath, handleSystemEvent)
   // s.js TODO
   .get('/sourcedScript', (_req, res) => {
     res.end(manager.sourcedScript)
   })
-  .use('**', (req, res, next) => {
-    // req.fullUrl = target + req.url
-    const clientGeneric = new ClientGeneric(req, res, manager)
-    const proxySettings = {
-      target,
-      changeOrigin: true,
-      selfHandleResponse: true,
-      onProxyRes: responseInterceptor(
-        async (responseBuffer, proxyRes, req, _res) => {
-          if (
-            proxyRes.headers['content-type']
-              ?.toLowerCase()
-              .includes('text/html')
-          ) {
-            handlePageView(req as Request, res, clientGeneric)
-            let response = responseBuffer.toString('utf8')
-            response = await manager.processEmbeds(response, clientGeneric)
-            return response.replace(
-              '<head>',
-              `<head><script>${manager.getInjectedScript(
-                clientGeneric
-              )}</script>`
-            )
-          }
-          return responseBuffer
-        }
-      ),
+
+// Mount components endpoints
+for (const route of Object.keys(manager.mappedEndpoints)) {
+  app.all(route, async (req, res) => {
+    const response = manager.mappedEndpoints[route](req)
+    for (const [headerName, headerValue] of response.headers.entries()) {
+      res.set(headerName, headerValue)
     }
-    const proxy = createProxyMiddleware(proxySettings)
-    proxy(req, res, next)
+    res.status(response.status)
+    // response.body.pipeTo(res)
+    let isDone = false
+    const reader = response.body.getReader()
+    while (!isDone) {
+      const { value, done } = await reader.read()
+      if (value) res.send(Buffer.from(value))
+      isDone = done
+    }
+    res.end()
   })
+}
+
+// Listen to all normal requests
+app.use('**', (req, res, next) => {
+  // req.fullUrl = target + req.url
+  const clientGeneric = new ClientGeneric(req, res, manager)
+  const proxySettings = {
+    target,
+    changeOrigin: true,
+    selfHandleResponse: true,
+    onProxyRes: responseInterceptor(
+      async (responseBuffer, proxyRes, req, _res) => {
+        if (
+          proxyRes.headers['content-type']?.toLowerCase().includes('text/html')
+        ) {
+          handlePageView(req as Request, res, clientGeneric)
+          let response = responseBuffer.toString('utf8')
+          response = await manager.processEmbeds(response, clientGeneric)
+          return response.replace(
+            '<head>',
+            `<head><script>${manager.getInjectedScript(clientGeneric)}</script>`
+          )
+        }
+        return responseBuffer
+      }
+    ),
+  }
+  const proxy = createProxyMiddleware(proxySettings)
+  proxy(req, res, next)
+})
 
 app.listen(port, hostname)
 console.info(

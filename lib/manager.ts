@@ -34,6 +34,9 @@ export class ManagerGeneric extends EventTarget {
   systemEventsPath: string
   sourcedScript: string
   requiredSnippets: string[]
+  mappedEndpoints: {
+    [k: string]: (request: Request) => Response
+  }
   clientListeners: any
   registeredEmbeds: {
     [k: string]: EmbedCallback
@@ -50,11 +53,22 @@ export class ManagerGeneric extends EventTarget {
     this.requiredSnippets = ['track']
     this.registeredEmbeds = {}
     this.clientListeners = {}
+    this.mappedEndpoints = {}
     this.name = 'WebCM'
     this.trackPath = Context.trackPath
     this.systemEventsPath = Context.systemEventsPath
     this.components = Context.components
     this.initScript()
+  }
+
+  route(
+    component: string,
+    path: string,
+    callback: (request: Request) => Response
+  ): string {
+    const fullPath = '/webcm/' + component + path
+    this.mappedEndpoints[fullPath] = callback
+    return fullPath
   }
 
   // @ts-ignore
@@ -178,6 +192,10 @@ export class Manager {
 
   set(key: string, value: any) {
     set(this.#component + '__' + key, value)
+  }
+
+  route(path: string, callback: (request: Request) => Response) {
+    return this.#generic.route(this.#component, path, callback)
   }
 
   async useCache(key: string, callback: Function, expiry?: number) {

@@ -6,6 +6,11 @@ export default async function (manager: Manager, settings: ComponentSettings) {
     // You can use fetch to get some remote preferences here based on `settings`
   }
 
+  const myRoute = manager.route('/hello', (request: Request) => {
+    return new Response(`You made a ${request.method} request`)
+  })
+  console.log('demoComponent exposes and endpoint at', myRoute)
+
   manager.addEventListener(
     'clientcreated',
     ({ client }: { client: Client }) => {
