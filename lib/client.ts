@@ -1,5 +1,4 @@
 import { Request, Response } from 'express'
-// import parseCookies from '../utils/parseCookies'
 import Cookies from 'cookies'
 import config from '../config.json'
 import { ManagerGeneric } from './manager'
@@ -47,7 +46,6 @@ export class ClientGeneric {
   }
   addEventListener(component: string, event: string, handler: Function) {
     console.log('called for ', event)
-    // console.log(this.webcmPrefs)
     if (!this.webcmPrefs.listeners[component]) {
       this.webcmPrefs.listeners[component] = [event]
     } else {

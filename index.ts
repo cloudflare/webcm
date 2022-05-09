@@ -27,7 +27,6 @@ const target = process.env.CM_TARGET_URL || configTarget
 const manager = new ManagerGeneric({ components, trackPath, systemEventsPath })
 
 const handleTrack: RequestHandler = (req, res) => {
-  const clientGeneric = new ClientGeneric(req, res, manager)
   const event = new Event('event')
   event.payload = req.body.payload
   res.payload = {
@@ -50,6 +49,7 @@ const handleSystemEvent: RequestHandler = (req, res) => {
     try {
       manager.clientListeners[req.body.event + '__' + component](event)
     } catch {
+      console.log('manager.clientListeners:', manager.clientListeners)
       console.error(
         `Dispatching ${req.body.event} to component ${component} but it isn't registered`
       )
@@ -71,9 +71,7 @@ const handlePageView = (
 ) => {
   const pageview = new Event('pageview')
   pageview.payload = req.body.payload
-  // pageview.client = client
   if (!clientGeneric.cookies.get('webcm_prefs')) {
-    const clientcreated = new Event('clientcreated')
     for (const componentName of manager.components) {
       const event = new Event(componentName + '__clientcreated')
       event.client = new Client(componentName as string, clientGeneric)
@@ -102,10 +100,9 @@ for (const route of Object.keys(manager.mappedEndpoints)) {
       res.set(headerName, headerValue)
     }
     res.status(response.status)
-    // response.body.pipeTo(res)
     let isDone = false
-    const reader = response.body.getReader()
-    while (!isDone) {
+    const reader = response.body?.getReader()
+    while (!isDone && reader) {
       const { value, done } = await reader.read()
       if (value) res.send(Buffer.from(value))
       isDone = done
@@ -116,7 +113,6 @@ for (const route of Object.keys(manager.mappedEndpoints)) {
 
 // Listen to all normal requests
 app.use('**', (req, res, next) => {
-  // req.fullUrl = target + req.url
   const clientGeneric = new ClientGeneric(req, res, manager)
   const proxySettings = {
     target,

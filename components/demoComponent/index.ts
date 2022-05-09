@@ -1,10 +1,10 @@
 import { Client } from '../../lib/client'
 import { ComponentSettings, Manager } from '../../lib/manager'
 
-export default async function (manager: Manager, settings: ComponentSettings) {
-  const prefs = {
-    // You can use fetch to get some remote preferences here based on `settings`
-  }
+export default async function (manager: Manager, _settings: ComponentSettings) {
+  // FYI - You can use fetch to get some remote preferences here based on `settings`
+  // const prefs = {
+  // }
 
   const myRoute = manager.route('/hello', (request: Request) => {
     return new Response(`You made a ${request.method} request`)

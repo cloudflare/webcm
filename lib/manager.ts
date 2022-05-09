@@ -4,6 +4,7 @@ import { get, set } from '../storage/kv-storage'
 import { useCache } from '../cache/index'
 import { JSDOM } from 'jsdom'
 import { ClientGeneric } from './client'
+import { Request } from 'express'
 
 console.info('\nWebCM, version', process.env.npm_package_version)
 
