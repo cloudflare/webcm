@@ -30,7 +30,7 @@ module.exports = {
     {
       files: ['*js'],
       globals: {
-        ec: 'writable',
+        webcm: 'writable',
       },
     },
   ],
