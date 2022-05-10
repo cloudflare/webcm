@@ -211,7 +211,7 @@ The above will send a server-side request to `example.com/collect` whenever the 
 #### Scroll
 
 ```js
-client.addEventListener('scroll', async (event: Event) => {
+client.addEventListener('scroll', async (event: MCEvent) => {
   console.info('They see me scrollin...they hatin...', event.payload)
 })
 ```
@@ -219,7 +219,7 @@ client.addEventListener('scroll', async (event: Event) => {
 #### Mouse move
 
 ```js
-client.addEventListener('mousemove', async (event: Event) => {
+client.addEventListener('mousemove', async (event: MCEvent) => {
   const { payload } = event
   console.info('🐁 🪤 Mousemove:', payload)
 })
@@ -228,7 +228,7 @@ client.addEventListener('mousemove', async (event: Event) => {
 #### Mouse down
 
 ```js
-client.addEventListener('mousedown', async (event: Event) => {
+client.addEventListener('mousedown', async (event: MCEvent) => {
   // Save mouse coordinates as a cookie
   const { client, payload } = event
   console.info('🐁 ⬇️ Mousedown payload:', payload)
@@ -240,7 +240,7 @@ client.addEventListener('mousedown', async (event: Event) => {
 #### Resize
 
 ```js
-client.addEventListener('resize', async (event: Event) => {
+client.addEventListener('resize', async (event: MCEvent) => {
   console.info('New window size!', event.payload)
 })
 ```
@@ -248,7 +248,7 @@ client.addEventListener('resize', async (event: Event) => {
 #### Performance entries
 
 ```js
-client.addEventListener('performance', async (event: Event) => {
+client.addEventListener('performance', async (event: MCEvent) => {
   console.info('New performance entry!', event.payload)
 })
 ```
