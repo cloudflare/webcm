@@ -1,5 +1,7 @@
 import { ComponentSettings, Manager, MCEvent } from '../../lib/manager'
 
+const TRACK_URL = 'https://bat.bing.com/action/0'
+
 const getECParams = (event: MCEvent) => {
   const { payload, name } = event
   const data: any = {
@@ -53,19 +55,21 @@ const getStandardParams = (event: MCEvent) => {
     Ver: '2',
     p: event.client.url.href,
     tl: event.client.page.title,
+    lg: (event.client.request.headers['accept-language'] || '')
+      .split(',')[0]
+      .trim(),
+    rn: +(Math.random() * 1000000),
+    mid: crypto.randomUUID(),
     // TODO - how do we want to handle these?
-    // rn: system.misc.random,
     // sw: system.device.width,
     // sh: system.device.height,
-    // lg: system.device.language, // request.headers.accept-language
     // sc: system.device.colors,
-    // mid: utils.uuidv4(),
   }
 }
 
 export default async function (manager: Manager, settings: ComponentSettings) {
   if (settings.ecommerce) {
-    manager.addEventListener('ecommerce', async (event: MCEvent) => {
+    manager.addEventListener('ecommerce', async event => {
       const payload = {
         ...getStandardParams(event),
         ...getECParams(event),
@@ -73,17 +77,17 @@ export default async function (manager: Manager, settings: ComponentSettings) {
 
       if (Object.keys(payload).length) {
         const params = new URLSearchParams(payload).toString()
-        event.client.fetch(`https://bat.bing.com/action/0?${params}`)
+        event.client.fetch(`${TRACK_URL}?${params}`)
       }
     })
   }
 
-  manager.addEventListener('event', async (event: MCEvent) => {
+  manager.addEventListener('event', async event => {
     const payload = getStandardParams(event)
 
     if (Object.keys(payload).length) {
       const params = new URLSearchParams(payload).toString()
-      event.client.fetch(`https://bat.bing.com/action/0?${params}`)
+      event.client.fetch(`${TRACK_URL}?${params}`)
     }
   })
 }
