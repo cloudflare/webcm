@@ -13,7 +13,7 @@ export class MCEvent extends Event {
 
   constructor(type: string, req?: Request) {
     super(type)
-    this.payload = req?.body.event.payload
+    this.payload = req?.body.payload
   }
 }
 
