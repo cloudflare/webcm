@@ -20,11 +20,15 @@ const {
   trackPath,
   systemEventsPath,
   components,
-} = config
+} = config as any
 
 const target = process.env.CM_TARGET_URL || configTarget
 
-const manager = new ManagerGeneric({ components, trackPath, systemEventsPath })
+const manager = new ManagerGeneric({
+  components,
+  trackPath,
+  systemEventsPath,
+})
 
 const handleTrack: RequestHandler = (req, res) => {
   const event = new MCEvent('event', req)
