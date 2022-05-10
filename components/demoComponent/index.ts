@@ -1,15 +1,21 @@
 import { Request } from 'express'
 import { ComponentSettings, Manager } from '../../lib/manager'
 
-export default async function (manager: Manager, _settings: ComponentSettings) {
+export default async function (manager: Manager, settings: ComponentSettings) {
   // FYI - You can use fetch to get some remote preferences here based on `settings`
-  // const prefs = {
-  // }
 
   const myRoute = manager.route('/hello', (request: Request) => {
     return new Response(`You made a ${request.method} request`)
   })
   console.log('demoComponent exposes and endpoint at', myRoute)
+
+  if (settings.ecommerce) {
+    manager.addEventListener('ecommerce', event => {
+      if (event.name === 'Purchase') {
+        console.info('Ka-ching! 💰', event.payload)
+      }
+    })
+  }
 
   manager.addEventListener('clientcreated', ({ client }) => {
     // We have new client
