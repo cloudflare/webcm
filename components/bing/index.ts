@@ -55,8 +55,10 @@ const getStandardParams = (event: MCEvent) => {
     Ver: '2',
     p: event.client.url.href,
     tl: event.client.page.title,
-    lg: (event.client.headers['accept-language'] || '').split(',')[0].trim(),
-    rn: (+(Math.random() * 1000000)).toString(),
+    lg: (event.client.request.headers['accept-language'] || '')
+      .split(',')[0]
+      .trim(),
+    rn: +(Math.random() * 1000000),
     mid: crypto.randomUUID(),
     // TODO - how do we want to handle these?
     // sw: system.device.width,
@@ -65,21 +67,23 @@ const getStandardParams = (event: MCEvent) => {
   }
 }
 
-export default async function (manager: Manager, _settings: ComponentSettings) {
+export default async function (manager: Manager, settings: ComponentSettings) {
+  if (settings.ecommerce) {
+    manager.addEventListener('ecommerce', async event => {
+      const payload = {
+        ...getStandardParams(event),
+        ...getECParams(event),
+      }
+
+      if (Object.keys(payload).length) {
+        const params = new URLSearchParams(payload).toString()
+        event.client.fetch(`${TRACK_URL}?${params}`)
+      }
+    })
+  }
+
   manager.addEventListener('event', async event => {
     const payload = getStandardParams(event)
-
-    if (Object.keys(payload).length) {
-      const params = new URLSearchParams(payload).toString()
-      event.client.fetch(`${TRACK_URL}?${params}`)
-    }
-  })
-
-  manager.addEventListener('ecommerce', async event => {
-    const payload = {
-      ...getStandardParams(event),
-      ...getECParams(event),
-    }
 
     if (Object.keys(payload).length) {
       const params = new URLSearchParams(payload).toString()
