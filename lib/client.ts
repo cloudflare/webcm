@@ -1,7 +1,7 @@
 import Cookies from 'cookies'
 import { Request, Response } from 'express'
 import config from '../config.json'
-import { ManagerGeneric, MCEventListener } from './manager'
+import { ManagerGeneric } from './manager'
 
 export class ClientGeneric {
   type: string
@@ -48,19 +48,12 @@ export class ClientGeneric {
   get(key: string) {
     return this.cookies.get(key, { signed: !!config.cookiesKey })
   }
-  addEventListener(
-    component: string,
-    event: string,
-    handler: MCEventListener | null
-  ) {
-    console.log('called for ', event)
+  attachEvent(component: string, event: string) {
     if (!this.webcmPrefs.listeners[component]) {
       this.webcmPrefs.listeners[component] = [event]
     } else {
       this.webcmPrefs.listeners[component].push(event)
     }
-    this.manager.clientListeners[`${event}__${component}`] = handler
-
     this.cookies.set('webcm_prefs', JSON.stringify(this.webcmPrefs), {
       signed: true,
     })
@@ -113,8 +106,7 @@ export class Client {
   set(key: string, value: any, _opts?: ClientSetOptions) {
     this.#generic.set(this.#component + '__' + key, value)
   }
-
-  addEventListener(type: string, callback: MCEventListener | null) {
-    this.#generic.addEventListener(this.#component, type, callback)
+  attachEvent(type: string) {
+    this.#generic.attachEvent(this.#component, type)
   }
 }
