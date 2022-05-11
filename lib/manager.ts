@@ -142,21 +142,16 @@ export class ManagerGeneric extends EventTarget {
     }
   }
 
-  getInjectedScript(clientGeneric: ClientGeneric) {
+  getInjectedScript() {
     let injectedScript = ''
 
-    const clientListeners: Set<any> = new Set(
-      Object.entries(clientGeneric.webcmPrefs.listeners)
-        .map(x => x[1])
-        .flat()
-    )
     for (const snippet of [...this.requiredSnippets]) {
       const snippetPath = `browser/${snippet}.js`
       if (existsSync(snippetPath)) {
         injectedScript += readFileSync(snippetPath)
           .toString()
           .replace('TRACK_PATH', this.trackPath)
-          .replace('SYSTEM_EVENTS_PATH', this.systemEventsPath)
+          .replaceAll('SYSTEM_EVENTS_PATH', this.systemEventsPath)
       }
     }
     return injectedScript

@@ -52,9 +52,10 @@ const handleSystemEvent: RequestHandler = (req, res) => {
     event.client = new Client(component, clientGeneric)
     try {
       manager.clientListeners[req.body.event + '__' + component](event)
+      console.info(`Dispatched ${req.body.event} to component ${component}`)
     } catch {
       console.error(
-        `Dispatching ${req.body.event} to component ${component} but it isn't registered`
+        `Error dispatching ${req.body.event} to component ${component}: it isn't registered`
       )
     }
   }
@@ -126,7 +127,7 @@ app.use('**', (req, res, next) => {
           response = await manager.processEmbeds(response, clientGeneric)
           return response.replace(
             '<head>',
-            `<head><script>${manager.getInjectedScript(clientGeneric)}</script>`
+            `<head><script>${manager.getInjectedScript()}</script>`
           )
         }
         return responseBuffer

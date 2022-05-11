@@ -7,7 +7,7 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   const myRoute = manager.route('/hello', (request: Request) => {
     return new Response(`You made a ${request.method} request`)
   })
-  console.log('demoComponent exposes and endpoint at', myRoute)
+  console.log('demoComponent exposes an endpoint at', myRoute)
 
   if (settings.ecommerce) {
     manager.addEventListener('ecommerce', event => {
@@ -51,7 +51,6 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   })
 
   manager.addEventListener('clientcreated', ({ client }) => {
-    // We have new client
     const clientNumber = client.get('clientNumber')
     if (!clientNumber) {
       const num = Math.random()
