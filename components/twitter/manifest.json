@@ -1,0 +1,24 @@
+{
+  "name": "Twitter Pixel",
+  "description": "Twitter Pixel",
+  "namespace": "twitter",
+  "icon": "assets/twitter.png",
+  "categories": ["Advertising"],
+  "allowCustomFields": false,
+  "permissions": [
+    {
+      "permission": "fetch",
+      "explanation": "reports attribution data back to Twitter servers",
+      "required": true
+    }
+  ],
+  "fields": {
+    "txn_id": {
+      "displayName": "Twitter Pixel ID",
+      "helpText": "The Twitter Pixel ID is the unique identifier of your Twitter Pixel. You can find it inside the Twitter snippet, as `twq('init','twitter_pixel_id');`. [Learn more](https://business.twitter.com/en/help/campaign-measurement-and-analytics/conversion-tracking-for-websites.html)",
+      "placeholder": "XXXXXXXXX",
+      "displayWidget": "text",
+      "validations": [{ "required": true }, { "type": "number" }]
+    }
+  }
+}
