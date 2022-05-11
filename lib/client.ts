@@ -106,7 +106,7 @@ export class Client {
   set(key: string, value: any, _opts?: ClientSetOptions) {
     this.#generic.set(this.#component + '__' + key, value)
   }
-  attachEvent(type: string) {
-    this.#generic.attachEvent(this.#component, type)
+  attachEvent(event: string) {
+    this.#generic.attachEvent(this.#component, event)
   }
 }
