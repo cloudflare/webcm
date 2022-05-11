@@ -4,12 +4,12 @@ import {
   responseInterceptor,
 } from 'http-proxy-middleware'
 import config from './config.json'
-import { ManagerGeneric } from './lib/manager'
 import { Client, ClientGeneric } from './lib/client'
+import { ManagerGeneric, MCEvent } from './lib/manager'
 
 if (process.env.NODE_ENV === 'production') {
-  process.on('unhandledRejection', reason => {
-    console.log('Unhandled Rejection at:', (reason as any).stack || reason)
+  process.on('unhandledRejection', (reason: Error) => {
+    console.log('Unhandled Rejection at:', reason.stack || reason)
   })
 }
 
@@ -27,29 +27,28 @@ const target = process.env.CM_TARGET_URL || configTarget
 const manager = new ManagerGeneric({ components, trackPath, systemEventsPath })
 
 const handleTrack: RequestHandler = (req, res) => {
-  const event = new Event('event')
-  event.payload = req.body.payload
+  const event = new MCEvent('event', req)
+  manager.dispatchEvent(event)
   res.payload = {
     fetch: [],
     eval: [],
     return: undefined,
   }
-  manager.dispatchEvent(event)
   return res.end(JSON.stringify(res.payload))
 }
 
 const handleSystemEvent: RequestHandler = (req, res) => {
   const clientGeneric = new ClientGeneric(req, res, manager)
-  const event = new Event(req.body.event)
-  event.payload = req.body.payload
-  for (const component of Object.entries(clientGeneric.webcmPrefs.listeners)
-    .filter((x: any) => x[1].includes(req.body.event))
-    .map(x => x[0])) {
+  const event = new MCEvent(req.body.event, req)
+  const componentNames = Object.entries(clientGeneric.webcmPrefs.listeners)
+    .filter(([, events]) => events.includes(req.body.event))
+    .map(([componentName]) => componentName)
+
+  for (const component of componentNames) {
     event.client = new Client(component, clientGeneric)
     try {
       manager.clientListeners[req.body.event + '__' + component](event)
     } catch {
-      console.log('manager.clientListeners:', manager.clientListeners)
       console.error(
         `Dispatching ${req.body.event} to component ${component} but it isn't registered`
       )
@@ -64,17 +63,12 @@ const handleSystemEvent: RequestHandler = (req, res) => {
   res.end(JSON.stringify(res.payload))
 }
 
-const handlePageView = (
-  req: Request,
-  res: any,
-  clientGeneric: ClientGeneric
-) => {
-  const pageview = new Event('pageview')
-  pageview.payload = req.body.payload
-  if (!clientGeneric.cookies.get('webcm_prefs')) {
+const handlePageView = (req: Request, client: ClientGeneric) => {
+  const pageview = new MCEvent('pageview', req)
+  if (!client.cookies.get('webcm_prefs')) {
     for (const componentName of manager.components) {
-      const event = new Event(componentName + '__clientcreated')
-      event.client = new Client(componentName as string, clientGeneric)
+      const event = new MCEvent(componentName + '__clientcreated')
+      event.client = new Client(componentName as string, client)
       manager.dispatchEvent(event)
     }
   }
@@ -83,7 +77,7 @@ const handlePageView = (
 
 const app = express().use(express.json())
 
-// Mount WebCM endpoitn
+// Mount WebCM endpoint
 app
   .post(trackPath, handleTrack)
   .post(systemEventsPath, handleSystemEvent)
@@ -123,7 +117,7 @@ app.use('**', (req, res, next) => {
         if (
           proxyRes.headers['content-type']?.toLowerCase().includes('text/html')
         ) {
-          handlePageView(req as Request, res, clientGeneric)
+          handlePageView(req as Request, clientGeneric)
           let response = responseBuffer.toString('utf8')
           response = await manager.processEmbeds(response, clientGeneric)
           return response.replace(

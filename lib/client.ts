@@ -1,7 +1,7 @@
-import { Request, Response } from 'express'
 import Cookies from 'cookies'
+import { Request, Response } from 'express'
 import config from '../config.json'
-import { ManagerGeneric } from './manager'
+import { ManagerGeneric, MCEventListener } from './manager'
 
 export class ClientGeneric {
   type: string
@@ -9,9 +9,13 @@ export class ClientGeneric {
   request: Request
   response: Response
   manager: ManagerGeneric
-  url: any
+  url: URL
   cookies: any
-  webcmPrefs: any
+  webcmPrefs: {
+    listeners: {
+      [k: string]: string[]
+    }
+  }
 
   constructor(request: Request, response: Response, manager: ManagerGeneric) {
     this.type = 'browser'
@@ -44,7 +48,11 @@ export class ClientGeneric {
   get(key: string) {
     return this.cookies.get(key, { signed: !!config.cookiesKey })
   }
-  addEventListener(component: string, event: string, handler: Function) {
+  addEventListener(
+    component: string,
+    event: string,
+    handler: MCEventListener | null
+  ) {
     console.log('called for ', event)
     if (!this.webcmPrefs.listeners[component]) {
       this.webcmPrefs.listeners[component] = [event]
@@ -59,9 +67,21 @@ export class ClientGeneric {
   }
 }
 
+interface ClientSetOptions {
+  scope?: 'page' | 'session' | 'infinite'
+  expiry?: Date | number | null
+}
+
 export class Client {
   #generic: ClientGeneric
   #component: string
+  page: {
+    title: string
+    referrer: string
+    query: {
+      [k: string]: unknown
+    }
+  }
   url: URL
   emitter: string
 
@@ -69,6 +89,7 @@ export class Client {
     this.#generic = generic
     this.#component = component
     this.url = this.#generic.url
+    this.page = this.#generic.page
     this.emitter = 'browser'
   }
 
@@ -86,16 +107,14 @@ export class Client {
     this.#generic.fetch(this.#component, ...args)
   }
   get(key: string) {
-    //@ts-ignore
     return this.#generic.get(this.#component + '__' + key)
   }
-  set(key: string, value: any) {
-    //@ts-ignore
+  // TODO - actually respect the scopes specified in opts
+  set(key: string, value: any, _opts?: ClientSetOptions) {
     this.#generic.set(this.#component + '__' + key, value)
   }
 
-  addEventListener(...args: any) {
-    //@ts-ignore
-    this.#generic.addEventListener(this.#component, ...args)
+  addEventListener(type: string, callback: MCEventListener | null) {
+    this.#generic.addEventListener(this.#component, type, callback)
   }
 }

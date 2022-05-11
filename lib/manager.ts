@@ -1,17 +1,19 @@
-import { existsSync, readFileSync } from 'fs'
-import path from 'path'
-import { get, set } from '../storage/kv-storage'
-import { useCache } from '../cache/index'
-import { JSDOM } from 'jsdom'
-import { ClientGeneric } from './client'
 import { Request } from 'express'
+import { existsSync, readFileSync } from 'fs'
+import { JSDOM } from 'jsdom'
+import path from 'path'
+import { useCache } from '../cache/index'
+import { get, set } from '../storage/kv-storage'
+import { Client, ClientGeneric } from './client'
 
 console.info('\nWebCM, version', process.env.npm_package_version)
+export class MCEvent extends Event {
+  payload?: any
+  client!: Client
 
-declare global {
-  interface Event {
-    payload?: any
-    client?: any
+  constructor(type: string, req?: Request) {
+    super(type)
+    this.payload = req?.body.payload
   }
 }
 
@@ -27,6 +29,10 @@ type EmbedCallback = (contex: {
 type ComponentConfig = string | ComponentSettings
 
 const EXTS = ['.ts', '.mts', '.mjs', '.js']
+
+export interface MCEventListener {
+  (event: MCEvent): void
+}
 
 export class ManagerGeneric extends EventTarget {
   components: ComponentConfig[]
@@ -72,17 +78,23 @@ export class ManagerGeneric extends EventTarget {
     return fullPath
   }
 
+  // We're calling the super() below anyway so ts should stop complaining
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   addEventListener(
     component: string,
     type: string,
-    callback: EventListenerOrEventListenerObject | null,
+    callback: MCEventListener | null,
     options?: boolean | AddEventListenerOptions
   ): void {
     if (!this.requiredSnippets.includes(type)) {
       this.requiredSnippets.push(type)
     }
-    super.addEventListener(component + '__' + type, callback, options)
+    super.addEventListener(
+      component + '__' + type,
+      callback as EventListener,
+      options
+    )
   }
 
   async initScript() {
@@ -182,9 +194,12 @@ export class Manager {
     this.name = this.#generic.name
   }
 
-  addEventListener(...args: any) {
-    // @ts-ignore
-    this.#generic.addEventListener(this.#component, ...args)
+  addEventListener(
+    type: string,
+    callback: MCEventListener | null,
+    options?: boolean | AddEventListenerOptions
+  ) {
+    this.#generic.addEventListener(this.#component, type, callback, options)
   }
 
   get(key: string) {
