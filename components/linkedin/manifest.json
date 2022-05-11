@@ -1,0 +1,31 @@
+{
+  "name": "LinkedIn Insight",
+  "description": "LinkedIn Insight",
+  "namespace": "linkedin",
+  "icon": "assets/linkedininsights.png",
+  "categories": ["Advertising"],
+  "allowCustomFields": false,
+  "permissions": [
+    {
+      "permission": "client_fetch",
+      "explanation": "reports attribution data back to LinkedIn servers",
+      "required": true
+    }
+  ],
+  "fields": {
+    "pid": {
+      "displayName": "Partner ID",
+      "helpText": "The LinkedIn Partner ID is the unique identifier of your LinkedIn Insights tag. [Learn more](https://www.linkedin.com/help/lms/answer/a417869/access-your-linkedin-partner-id?lang=en) on how to find your Partner ID.",
+      "placeholder": "XXXXXXXXX",
+      "displayWidget": "text",
+      "validations": [{ "required": true }, { "type": "number" }]
+    },
+    "conversionId": {
+      "displayName": "Conversion ID",
+      "helpText": "The LinkedIn Conversion ID is the unique identifier of your conversion.",
+      "placeholder": "XXXXXXXXX",
+      "displayWidget": "text",
+      "validations": [{ "type": "number" }]
+    }
+  }
+}
