@@ -8,6 +8,7 @@ import { Client, ClientGeneric } from './client'
 
 console.info('\nWebCM, version', process.env.npm_package_version)
 export class MCEvent extends Event {
+  name?: string
   payload?: any
   client!: Client
 
@@ -21,12 +22,12 @@ export interface ComponentSettings {
   [key: string]: any
 }
 
+type ComponentConfig = [string, ComponentSettings]
+
 type EmbedCallback = (contex: {
   parameters: { [k: string]: unknown }
   client: ClientGeneric
 }) => any
-
-type ComponentConfig = string | ComponentSettings
 
 const EXTS = ['.ts', '.mts', '.mjs', '.js']
 
@@ -35,7 +36,7 @@ export interface MCEventListener {
 }
 
 export class ManagerGeneric extends EventTarget {
-  components: ComponentConfig[]
+  components: (string | ComponentConfig)[]
   trackPath: string
   name: string
   systemEventsPath: string
@@ -49,7 +50,7 @@ export class ManagerGeneric extends EventTarget {
     [k: string]: EmbedCallback
   }
   constructor(Context: {
-    components: ComponentConfig[]
+    components: (string | ComponentConfig)[]
     trackPath: string
     systemEventsPath: string
     // eslint-disable-next-line @typescript-eslint/ban-types
@@ -103,9 +104,8 @@ export class ManagerGeneric extends EventTarget {
       let componentPath = ''
       let componentName = ''
       let componentSettings = {}
-      if (typeof compConfig === 'object') {
-        ;[componentName] = Object.keys(compConfig)
-        componentSettings = compConfig[componentName]
+      if (Array.isArray(compConfig)) {
+        ;[componentName, componentSettings] = compConfig
       } else {
         componentName = compConfig
       }

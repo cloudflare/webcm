@@ -6,8 +6,9 @@ const webcm = {
     for (const e of data.eval) eval(e)
     return data.return
   },
-  track: async payload => {
-    const res = await fetch('TRACK_PATH', {
+  track: async (payload, system = false) => {
+    const path = system ? 'SYSTEM_EVENTS_PATH' : 'TRACK_PATH'
+    const res = await fetch(path, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
