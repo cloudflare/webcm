@@ -22,3 +22,7 @@ export const flattenKeys = (obj: { [k: string]: any } = {}, prefix = '') =>
     }
     return acc
   }, {})
+
+export const isNumber = (value: any) => {
+  return 'number' === typeof value && !isNaN(value)
+}
