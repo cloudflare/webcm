@@ -1,0 +1,80 @@
+{
+  "name": "Bing",
+  "description": "Bing",
+  "namespace": "bing",
+  "icon": "assets/bing.png",
+  "categories": ["Advertising"],
+  "allowCustomFields": false,
+  "permissions": [
+    {
+      "permission": "client_fetch",
+      "explanation": "reports attribution data back to Bing servers",
+      "required": true
+    }
+  ],
+  "fields": {
+    "ti": {
+      "displayName": "UET Tag ID",
+      "helpText": "The UET Tag ID is the unique identifier of your UET tag. [Learn more](https://help.ads.microsoft.com/apex/index/3/en/56705)",
+      "placeholder": "XXXXXXXXX",
+      "displayWidget": "text",
+      "validations": [{ "required": true }, { "type": "number" }]
+    },
+    "evt": {
+      "displayName": "Event Type",
+      "helpText": "Choose between tracking a page load or a custom event",
+      "displayWidget": "text",
+      "validations": [{ "required": true }, { "type": "string" }]
+    },
+    "ea": {
+      "displayName": "Event Action",
+      "helpText": "The type of user interaction you want to track. For example, `play` or `pause`. [Learn more](https://help.ads.microsoft.com/#apex/ads/en/56717/2-500)",
+      "placeholder": "e.g. Purchase",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "ec": {
+      "displayName": "Event Category",
+      "helpText": "The category of event you want to track. For example, `video`.",
+      "placeholder": "e.g. Purchase",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "ev": {
+      "displayName": "Event Value",
+      "helpText": "A numerical value associated with that event. For example, the length of the video played.",
+      "placeholder": "e.g. 200",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "el": {
+      "displayName": "Event Label",
+      "helpText": "The name of the element that caused the action. For example, `trailer` or `behindthescenes`",
+      "placeholder": "e.g. Purchase",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "gv": {
+      "displayName": "Revenue Value",
+      "helpText": "Enter the revenue value of the event you want to track.",
+      "placeholder": "e.g. 200",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "gvc": {
+      "displayName": "Currency",
+      "helpText": "Enter the currency of the event you want to track.",
+      "placeholder": "e.g. USD",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "__setting_ecommerce": {
+      "displayName": "E-commerce tracking",
+      "helpText": "Enable forwarding of E-commerce API events to Bing UET as part of the enhanced e-commerce tracking feature. [Learn more](https://about.ads.microsoft.com/en-au/blog/post/april-2015/e-commerce-revenue-tracking-with-universal-event-tracking)",
+      "displayWidget": "toggle",
+      "validations": [{ "type": "boolean" }],
+      "settingsOnly": true,
+      "defaultValue": false
+    }
+  }
+}
