@@ -82,13 +82,13 @@ export class Client {
     }
   }
   url: URL
-  request: Request
+  headers: Request['headers']
   emitter: string
 
   constructor(component: string, generic: ClientGeneric) {
     this.#generic = generic
     this.#component = component
-    this.request = this.#generic.request
+    this.headers = this.#generic.request.headers
     this.url = this.#generic.url
     this.page = this.#generic.page
     this.device = this.#generic.device
