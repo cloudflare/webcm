@@ -54,7 +54,7 @@ const handleSystemEvent: RequestHandler = (req, res) => {
       manager.clientListeners[req.body.event + '__' + component](event)
     } catch {
       console.error(
-        `Dispatching ${req.body.event} to component ${component} but it isn't registered`
+        `Error dispatching ${req.body.event} to ${component}: it isn't registered`
       )
     }
   }
@@ -70,7 +70,11 @@ const handleSystemEvent: RequestHandler = (req, res) => {
 const handlePageView = (req: Request, client: ClientGeneric) => {
   const pageview = new MCEvent('pageview', req)
   if (!client.cookies.get('webcm_prefs')) {
-    for (const componentName of manager.components) {
+    for (const compConfig of manager.components) {
+      let componentName = compConfig
+      if (Array.isArray(compConfig)) {
+        ;[componentName] = compConfig
+      }
       const event = new MCEvent(componentName + '__clientcreated')
       event.client = new Client(componentName as string, client)
       manager.dispatchEvent(event)
@@ -126,7 +130,7 @@ app.use('**', (req, res, next) => {
           response = await manager.processEmbeds(response, clientGeneric)
           return response.replace(
             '<head>',
-            `<head><script>${manager.getInjectedScript(clientGeneric)}</script>`
+            `<head><script>${manager.getInjectedScript()}</script>`
           )
         }
         return responseBuffer
