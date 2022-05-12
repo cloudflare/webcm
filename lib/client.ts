@@ -8,6 +8,7 @@ export class ClientGeneric {
   title?: string
   timestamp?: number
   offset?: number
+  device: string
   request: Request
   response: Response
   manager: ManagerGeneric
@@ -115,6 +116,7 @@ export class Client {
   language
   referer
   ip
+  device
   title?
   url
   fetch
@@ -127,6 +129,7 @@ export class Client {
     this.fetch = this.#generic.fetch.bind(generic)
     this.execute = this.#generic.execute.bind(generic)
     this.title = this.#generic.title
+    this.device = this.#generic.device
     this.emitter = 'browser'
     this.userAgent = this.#generic.request.headers['user-agent'] || ''
     this.language = this.#generic.request.headers['accept-language'] || ''
