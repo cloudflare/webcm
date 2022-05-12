@@ -5,7 +5,10 @@ import { ManagerGeneric, MCEventListener } from './manager'
 
 export class ClientGeneric {
   type: string
+  // TODO where do we set the page properties? We should also set
+  // the device properties in the same way if we want device data to live here
   page: any
+  device: any
   request: Request
   response: Response
   manager: ManagerGeneric
@@ -75,6 +78,9 @@ interface ClientSetOptions {
 export class Client {
   #generic: ClientGeneric
   #component: string
+  device: {
+    [k: string]: any
+  }
   page: {
     title: string
     referrer: string
@@ -90,6 +96,7 @@ export class Client {
     this.#component = component
     this.url = this.#generic.url
     this.page = this.#generic.page
+    this.device = this.#generic.device
     this.emitter = 'browser'
   }
 
