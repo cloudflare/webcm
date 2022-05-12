@@ -35,7 +35,7 @@ const onEvent =
       const params = new URLSearchParams(payload).toString()
       fetch(`${url}?${params}`, {
         headers: {
-          'User-Agent': event.client.request.headers.get('user-agent'),
+          'User-Agent': event.client.headers.get('user-agent'),
           // 'X-Forwarded-For': system.device.ip, // TODO - get IP from client?
         },
       })
