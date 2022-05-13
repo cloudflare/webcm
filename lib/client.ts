@@ -5,7 +5,7 @@ import { ManagerGeneric } from './manager'
 
 export class ClientGeneric {
   type: string
-  page: any
+  title?: string
   request: Request
   response: Response
   manager: ManagerGeneric
@@ -22,7 +22,9 @@ export class ClientGeneric {
     this.manager = manager
     this.request = request
     this.response = response
-    this.url = new URL(config.target + request.url)
+    this.title = request.body.title // TODO - or it's in the response somewhere (ie. in the title html element)
+    this.url =
+      request.body?.location || new URL(config.target + request.url || '')
     this.cookies = new Cookies(request, response, { keys: [config.cookiesKey] })
     if (this.cookies.get('webcm_prefs', { signed: !!config.cookiesKey })) {
       this.webcmPrefs = JSON.parse(
@@ -68,13 +70,7 @@ interface ClientSetOptions {
 export class Client {
   #generic: ClientGeneric
   #component: string
-  page: {
-    title: string
-    referrer: string
-    query: {
-      [k: string]: unknown
-    }
-  }
+  title?: string
   url: URL
   headers: Request['headers']
   emitter: string
@@ -82,9 +78,9 @@ export class Client {
   constructor(component: string, generic: ClientGeneric) {
     this.#generic = generic
     this.#component = component
-    this.headers = this.#generic.request.headers
+    this.headers = this.#generic.request.headers // TODO - make this less comprehensive (e.g. language, etc. NOT cookies)
     this.url = this.#generic.url
-    this.page = this.#generic.page
+    this.title = this.#generic.title
     this.emitter = 'browser'
   }
 

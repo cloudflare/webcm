@@ -17,33 +17,34 @@ export default async function (manager: Manager, settings: ComponentSettings) {
     })
   }
 
-  manager.addEventListener('mousemove', async event => {
+  manager.createEventListener('mousemove', async event => {
     const { payload } = event
     console.info('🐁 🪤 Mousemove:', payload)
   })
 
-  manager.addEventListener('mousedown', async event => {
+  manager.createEventListener('mousedown', async event => {
     // Save mouse coordinates as a cookie
     const { client, payload } = event
+    console.info('🐁 ⬇️ Mousedown client:', client)
     console.info('🐁 ⬇️ Mousedown payload:', payload)
     const [firstClick] = payload.mousedown
     client.set('lastClickX', firstClick.clientX)
     client.set('lastClickY', firstClick.clientY)
   })
 
-  manager.addEventListener('historyChange', async event => {
-    console.info('Ch Ch Ch Chaaanges to history detected!', event.payload)
+  manager.createEventListener('historyChange', async event => {
+    console.info('📣 Ch Ch Ch Chaaanges to history detected!', event.payload)
   })
 
-  manager.addEventListener('resize', async event => {
-    console.info('New window size!', event.payload)
+  manager.createEventListener('resize', async event => {
+    console.info('🪟 New window size!', event.payload)
   })
 
-  manager.addEventListener('scroll', async event => {
-    console.info('They see me scrollin...they hatin...', event.payload)
+  manager.createEventListener('scroll', async event => {
+    console.info('🛞🛞🛞 They see me scrollin...they hatin...', event.payload)
   })
 
-  manager.addEventListener('resourcePerformanceEntry', async event => {
+  manager.createEventListener('resourcePerformanceEntry', async event => {
     console.info(
       'Witness the fitness - fresh resourcePerformanceEntry',
       event.payload
@@ -51,6 +52,7 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   })
 
   manager.addEventListener('clientcreated', ({ client }) => {
+    console.log('clientcreated!: 🐣')
     const clientNumber = client.get('clientNumber')
     if (!clientNumber) {
       const num = Math.random()
@@ -69,10 +71,13 @@ export default async function (manager: Manager, settings: ComponentSettings) {
 
   manager.addEventListener('event', async event => {
     // Forward events to vendor
-    const { client, payload } = event
+    const { client, payload, name } = event
+    if (name === 'cheese') {
+      console.info('🧀🧀  cheese event! 🧀🧀')
+    }
     payload.user_id = client.get('user_id')
 
-    if (Object.keys(payload).length) {
+    if (Object.keys(payload || {}).length) {
       const params = new URLSearchParams(payload).toString()
       fetch(`https://www.example.com/?${params}`)
     }
@@ -81,8 +86,8 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   manager.addEventListener('pageview', async event => {
     // Set a user_id based on a query param
     const { client } = event
-
-    const user_id = client.page.query.user_id
+    console.info('📄 Pageview received!')
+    const user_id = client.url.searchParams.get('user_id')
     client.set('user_id', user_id, {
       scope: 'infinite',
     })

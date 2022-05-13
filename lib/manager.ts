@@ -11,10 +11,13 @@ export class MCEvent extends Event {
   name?: string
   payload?: any
   client!: Client
+  type: string
 
   constructor(type: string, req?: Request) {
     super(type)
+    this.type = type
     this.payload = req?.body.payload
+    this.name = req?.body.name
   }
 }
 
@@ -35,16 +38,17 @@ export interface MCEventListener {
   (event: MCEvent): void
 }
 
-export class ManagerGeneric extends EventTarget {
+export class ManagerGeneric {
   components: (string | ComponentConfig)[]
   trackPath: string
   name: string
-  systemEventsPath: string
+  clientEventsPath: string
   sourcedScript: string
   requiredSnippets: string[]
   mappedEndpoints: {
     [k: string]: (request: Request) => Response
   }
+  listeners: any
   clientListeners: any
   registeredEmbeds: {
     [k: string]: EmbedCallback
@@ -52,19 +56,19 @@ export class ManagerGeneric extends EventTarget {
   constructor(Context: {
     components: (string | ComponentConfig)[]
     trackPath: string
-    systemEventsPath: string
+    clientEventsPath: string
     // eslint-disable-next-line @typescript-eslint/ban-types
     useCache?: (key: string, callback: Function, expiry?: number) => any
   }) {
-    super()
     this.sourcedScript = "console.log('WebCM script is sourced again')"
     this.requiredSnippets = ['track']
     this.registeredEmbeds = {}
+    this.listeners = {}
     this.clientListeners = {}
     this.mappedEndpoints = {}
     this.name = 'WebCM'
     this.trackPath = Context.trackPath
-    this.systemEventsPath = Context.systemEventsPath
+    this.clientEventsPath = Context.clientEventsPath
     this.components = Context.components
     this.initScript()
   }
@@ -83,19 +87,17 @@ export class ManagerGeneric extends EventTarget {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   addEventListener(
+    // for our 3 special manager-only, events (event, pageview, etc.)
     component: string,
     type: string,
-    callback: MCEventListener | null,
-    options?: boolean | AddEventListenerOptions
+    callback: MCEventListener | null
   ): void {
     if (!this.requiredSnippets.includes(type)) {
       this.requiredSnippets.push(type)
     }
-    super.addEventListener(
-      component + '__' + type,
-      callback as EventListener,
-      options
-    )
+    this.listeners[type] ||= {}
+    this.listeners[type][component] ||= []
+    this.listeners[type][component].push(callback)
   }
 
   async initScript() {
@@ -142,16 +144,20 @@ export class ManagerGeneric extends EventTarget {
     }
   }
 
-  getInjectedScript() {
+  getInjectedScript(clientGeneric: ClientGeneric) {
     let injectedScript = ''
 
-    for (const snippet of [...this.requiredSnippets]) {
+    const clientListeners: Set<any> = new Set(
+      Object.values(clientGeneric.webcmPrefs.listeners).flat()
+    )
+
+    for (const snippet of [...this.requiredSnippets, ...clientListeners]) {
       const snippetPath = `browser/${snippet}.js`
       if (existsSync(snippetPath)) {
         injectedScript += readFileSync(snippetPath)
           .toString()
           .replace('TRACK_PATH', this.trackPath)
-          .replaceAll('SYSTEM_EVENTS_PATH', this.systemEventsPath)
+          .replaceAll('CLIENT_EVENTS_PATH', this.clientEventsPath)
       }
     }
     return injectedScript
@@ -189,14 +195,12 @@ export class Manager {
     this.name = this.#generic.name
   }
 
-  addEventListener(
-    type: string,
-    callback: MCEventListener | null,
-    options?: boolean | AddEventListenerOptions
-  ) {
-    this.#generic.addEventListener(this.#component, type, callback, options)
-    if (type && callback)
-      this.#generic.clientListeners[`${type}__${this.#component}`] = callback
+  addEventListener(type: string, callback: MCEventListener | null) {
+    this.#generic.addEventListener(this.#component, type, callback)
+  }
+
+  createEventListener(type: string, callback: MCEventListener | null) {
+    this.#generic.clientListeners[`${type}__${this.#component}`] = callback
   }
 
   get(key: string) {
