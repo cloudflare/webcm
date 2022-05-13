@@ -41,12 +41,6 @@ window.addEventListener('mousedown', async event => {
       snapshot[key] = event[key]
   }
   const payload = { mousedown: [snapshot] }
-  const res = await fetch(webcm._systemEventsPath, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ event: 'mousedown', payload }),
-  })
+  const res = await webcm.track({ event: 'mousedown', payload }, true)
   webcm._processServerResponse(res)
 })

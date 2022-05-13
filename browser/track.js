@@ -6,17 +6,17 @@ const webcm = {
     for (const e of data.eval) eval(e)
     return data.return
   },
-  track: async (payload, system = false) => {
-    const path = system ? 'SYSTEM_EVENTS_PATH' : 'TRACK_PATH'
+  track: async (payload, clientPath = false) => {
+    const data = { location: window.location, title: document.title, payload }
+    const path = clientPath ? 'CLIENT_EVENTS_PATH' : 'TRACK_PATH'
     const res = await fetch(path, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(data),
     })
     return webcm._processServerResponse(res)
   },
-  _systemEventsPath: 'SYSTEM_EVENTS_PATH',
   _syncedAttributes: ['altKey', 'clientX', 'clientY'],
 }

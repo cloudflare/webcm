@@ -13,13 +13,7 @@ const getDimensions = async () => {
       },
     ],
   }
-  const res = await fetch(webcm._systemEventsPath, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ event: 'resize', payload }),
-  })
+  const res = await webcm.track({ event: 'resize', payload }, true)
   webcm._processServerResponse(res)
 }
 
