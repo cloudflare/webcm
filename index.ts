@@ -101,7 +101,7 @@ const handlePageView = (req: Request, clientGeneric: ClientGeneric) => {
     )) {
       const event = new MCEvent('clientcreated', req)
       event.client = new Client(componentName as string, clientGeneric)
-      manager.listeners['clientcreated'][componentName].forEach(
+      manager.listeners['clientcreated'][componentName]?.forEach(
         (fn: MCEventListener) => fn(event)
       )
     }
