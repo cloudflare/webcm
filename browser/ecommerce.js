@@ -1,3 +1,3 @@
 webcm.ecommerce =
   webcm.ecommerce ||
-  ((name, payload) => webcm._track({ event: 'ecommerce', name, payload }, true))
+  ((name, payload) => webcm.track({ event: 'ecommerce', name, payload }, true))

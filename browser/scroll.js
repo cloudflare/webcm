@@ -13,7 +13,7 @@ const getScrollPosition = event => async () => {
       },
     ],
   }
-  const res = await webcm._track({ event: 'scroll', payload }, true)
+  const res = await webcm.track({ event: 'scroll', payload }, true)
   webcm._processServerResponse(res)
 }
 

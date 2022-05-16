@@ -71,15 +71,15 @@ export default async function (manager: Manager, settings: ComponentSettings) {
 
   manager.addEventListener('event', async event => {
     // Forward events to vendor
-    const { client, payload, name } = event
-    if (name === 'cheese') {
+    const { client, payload } = event
+    if (payload.name === 'cheese') {
       console.info('🧀🧀  cheese event! 🧀🧀')
     }
     payload.user_id = client.get('user_id')
 
     if (Object.keys(payload || {}).length) {
       const params = new URLSearchParams(payload).toString()
-      fetch(`https://www.example.com/?${params}`)
+      fetch(`http://www.example.com/?${params}`)
     }
   })
 

@@ -55,7 +55,7 @@ const sendPE = async entries => {
   const resources = prepEntries(entries)
   if (!resources.length) return
   const payload = { resources }
-  const res = await webcm._track(
+  const res = await webcm.track(
     { event: 'resourcePerformanceEntry', payload },
     true
   )
