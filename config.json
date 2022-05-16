@@ -1,5 +1,16 @@
 {
-  "components": [["demoComponent", { "ecommerce": true }]],
+  "components": [
+    ["demoComponent", { "ecommerce": true }],
+    [
+      "google-analytics-v4",
+      {
+        "ecommerce": true,
+        "ga-doubleclick": true,
+        "ga-audiences": true,
+        "tid": "G-CWV1WNG41W"
+      }
+    ]
+  ],
   "target": "http://127.0.0.1:8000",
   "hostname": "localhost",
   "trackPath": "/ecweb/track",
