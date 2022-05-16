@@ -66,8 +66,8 @@ const sendEvent = async (
   }
 
   // Check if we can extract it from the URL
-  if (client.page.query.fbclid) {
-    fbc = fbCookieBase() + client.page.query.fbclid
+  if (client.url.searchParams.get('fbclid')) {
+    fbc = fbCookieBase() + client.url.searchParams.get('fbclid')
     client.set('_fbc', fbc)
   }
 
