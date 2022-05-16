@@ -9,11 +9,5 @@
     "property": {}
   },
   "allowCustomFields": true,
-  "permissions": [
-    {
-      "permission": "clientFetch",
-      "explanation": "Facebook Pixel uses client fetch to attribute sessions more accurately",
-      "required": false
-    }
-  ]
+  "permissions": []
 }
