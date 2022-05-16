@@ -5,7 +5,7 @@ import {
 } from 'http-proxy-middleware'
 import config from './config.json'
 import { Client, ClientGeneric } from './lib/client'
-import { ManagerGeneric, MCEvent } from './lib/manager'
+import { ManagerGeneric, MCEvent, MCEventListener } from './lib/manager'
 
 if (process.env.NODE_ENV === 'production') {
   process.on('unhandledRejection', (reason: Error) => {
@@ -40,7 +40,7 @@ const handleTrack: RequestHandler = (req, res) => {
   const clientGeneric = new ClientGeneric(req, res, manager)
   for (const componentName of Object.keys(manager.listeners['event'])) {
     event.client = new Client(componentName, clientGeneric)
-    manager.listeners['event'][componentName].forEach((fn: Function) =>
+    manager.listeners['event'][componentName].forEach((fn: MCEventListener) =>
       fn(event)
     )
   }
@@ -50,20 +50,20 @@ const handleTrack: RequestHandler = (req, res) => {
 // TODO handle ecommerce events separately
 
 const handleClientEvent: RequestHandler = (req, res) => {
-  const event = new MCEvent(req.body.event, req)
+  const event = new MCEvent(req.body.payload.event, req)
   const clientGeneric = new ClientGeneric(req, res, manager)
   const clientComponentNames = Object.entries(
     clientGeneric.webcmPrefs.listeners
   )
-    .filter(([, events]) => events.includes(req.body.event))
+    .filter(([, events]) => events.includes(req.body.payload.event))
     .map(([componentName]) => componentName)
   for (const component of clientComponentNames) {
     event.client = new Client(component, clientGeneric)
     try {
-      manager.clientListeners[req.body.event + '__' + component](event)
+      manager.clientListeners[req.body.payload.event + '__' + component](event)
     } catch {
       console.error(
-        `Error dispatching ${req.body.event} to ${component}: it isn't registered`
+        `Error dispatching ${req.body.payload.event} to ${component}: it isn't registered`
       )
     }
   }
@@ -77,10 +77,19 @@ const handleClientEvent: RequestHandler = (req, res) => {
 
 const handlePageView = (req: Request, clientGeneric: ClientGeneric) => {
   const pageview = new MCEvent('pageview', req)
+  if (!clientGeneric.cookies.get('webcm_prefs')) {
+    for (const componentName of Object.keys(manager.listeners['pageview'])) {
+      const event = new MCEvent('clientcreated', req)
+      event.client = new Client(componentName as string, clientGeneric)
+      manager.listeners['clientcreated'][componentName].forEach(
+        (fn: MCEventListener) => fn(event)
+      )
+    }
+  }
   for (const componentName of Object.keys(manager.listeners['pageview'])) {
     pageview.client = new Client(componentName, clientGeneric)
-    manager.listeners['pageview'][componentName].forEach((fn: Function) =>
-      fn(pageview)
+    manager.listeners['pageview'][componentName].forEach(
+      (fn: MCEventListener) => fn(pageview)
     )
   }
 }
