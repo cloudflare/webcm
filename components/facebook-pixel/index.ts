@@ -5,12 +5,13 @@ import { sha256, flattenKeys } from '../../lib/utils'
 export default async function (manager: Manager, settings: ComponentSettings) {
   // ====== Subscribe to User-Configured Events ======
   manager.addEventListener('event', async (event: MCEvent) => {
-    await sendEvent(event, settings)
+    sendEvent(event, settings)
   })
 
   // ====== Subscribe to Pageview Events ======
   manager.addEventListener('pageview', async (event: MCEvent) => {
-    await sendEvent(event, settings)
+    event.payload = { name: 'pageview' }
+    sendEvent(event, settings)
   })
 
   // ====== Subscribe to Ecommerce Events ======
@@ -66,8 +67,8 @@ const sendEvent = async (
   }
 
   // Check if we can extract it from the URL
-  if (client.url.searchParams.get('fbclid')) {
-    fbc = fbCookieBase() + client.url.searchParams.get('fbclid')
+  if (client.url.searchParams?.get('fbclid')) {
+    fbc = fbCookieBase() + client.url.searchParams?.get('fbclid')
     client.set('_fbc', fbc)
   }
 
@@ -83,7 +84,7 @@ const sendEvent = async (
 
   // ====== starting FB cloud load ======
   const request: { [k: string]: any } = {
-    event_name: payload.ev,
+    event_name: payload.name,
     event_id: eventId,
     action_source: 'website',
     // event_time: client.misc?.timestamp, // TODO also this misc.timestamp, do we even really need it here?
@@ -189,7 +190,5 @@ const sendEvent = async (
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(requestBody),
-  }).then(res => {
-    console.log(res)
   })
 }
