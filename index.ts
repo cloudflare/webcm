@@ -18,7 +18,7 @@ const {
   hostname,
   port,
   trackPath,
-  systemEventsPath,
+  clientEventsPath,
   components,
 } = config as any
 
@@ -27,28 +27,37 @@ const target = process.env.CM_TARGET_URL || configTarget
 const manager = new ManagerGeneric({
   components,
   trackPath,
-  systemEventsPath,
+  clientEventsPath,
 })
 
 const handleTrack: RequestHandler = (req, res) => {
-  const event = new MCEvent('event', req)
-  manager.dispatchEvent(event)
   res.payload = {
     fetch: [],
     eval: [],
     return: undefined,
   }
+  const event = new MCEvent('event', req)
+  const clientGeneric = new ClientGeneric(req, res, manager)
+  for (const componentName of Object.keys(manager.listeners['event'])) {
+    event.client = new Client(componentName, clientGeneric)
+    manager.listeners['event'][componentName].forEach((fn: Function) =>
+      fn(event)
+    )
+  }
   return res.end(JSON.stringify(res.payload))
 }
 
-const handleSystemEvent: RequestHandler = (req, res) => {
-  const clientGeneric = new ClientGeneric(req, res, manager)
+// TODO handle ecommerce events separately
+
+const handleClientEvent: RequestHandler = (req, res) => {
   const event = new MCEvent(req.body.event, req)
-  const componentNames = Object.entries(clientGeneric.webcmPrefs.listeners)
+  const clientGeneric = new ClientGeneric(req, res, manager)
+  const clientComponentNames = Object.entries(
+    clientGeneric.webcmPrefs.listeners
+  )
     .filter(([, events]) => events.includes(req.body.event))
     .map(([componentName]) => componentName)
-
-  for (const component of componentNames) {
+  for (const component of clientComponentNames) {
     event.client = new Client(component, clientGeneric)
     try {
       manager.clientListeners[req.body.event + '__' + component](event)
@@ -63,24 +72,17 @@ const handleSystemEvent: RequestHandler = (req, res) => {
     eval: [],
     return: undefined,
   }
-  manager.dispatchEvent(event)
   res.end(JSON.stringify(res.payload))
 }
 
-const handlePageView = (req: Request, client: ClientGeneric) => {
+const handlePageView = (req: Request, clientGeneric: ClientGeneric) => {
   const pageview = new MCEvent('pageview', req)
-  if (!client.cookies.get('webcm_prefs')) {
-    for (const compConfig of manager.components) {
-      let componentName = compConfig
-      if (Array.isArray(compConfig)) {
-        ;[componentName] = compConfig
-      }
-      const event = new MCEvent(componentName + '__clientcreated')
-      event.client = new Client(componentName as string, client)
-      manager.dispatchEvent(event)
-    }
+  for (const componentName of Object.keys(manager.listeners['pageview'])) {
+    pageview.client = new Client(componentName, clientGeneric)
+    manager.listeners['pageview'][componentName].forEach((fn: Function) =>
+      fn(pageview)
+    )
   }
-  manager.dispatchEvent(pageview)
 }
 
 const app = express().use(express.json())
@@ -88,7 +90,7 @@ const app = express().use(express.json())
 // Mount WebCM endpoint
 app
   .post(trackPath, handleTrack)
-  .post(systemEventsPath, handleSystemEvent)
+  .post(clientEventsPath, handleClientEvent)
   // s.js TODO
   .get('/sourcedScript', (_req, res) => {
     res.end(manager.sourcedScript)
@@ -130,7 +132,7 @@ app.use('**', (req, res, next) => {
           response = await manager.processEmbeds(response, clientGeneric)
           return response.replace(
             '<head>',
-            `<head><script>${manager.getInjectedScript()}</script>`
+            `<head><script>${manager.getInjectedScript(clientGeneric)}</script>`
           )
         }
         return responseBuffer

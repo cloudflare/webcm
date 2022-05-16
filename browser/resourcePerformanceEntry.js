@@ -55,13 +55,10 @@ const sendPE = async entries => {
   const resources = prepEntries(entries)
   if (!resources.length) return
   const payload = { resources }
-  const res = await fetch(webcm._systemEventsPath, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ event: 'resourcePerformanceEntry', payload }),
-  })
+  const res = await webcm.track(
+    { event: 'resourcePerformanceEntry', payload },
+    true
+  )
   webcm._processServerResponse(res)
 }
 

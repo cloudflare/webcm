@@ -13,13 +13,7 @@ const getScrollPosition = event => async () => {
       },
     ],
   }
-  const res = await fetch(webcm._systemEventsPath, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ event: 'scroll', payload }),
-  })
+  const res = await webcm.track({ event: 'scroll', payload }, true)
   webcm._processServerResponse(res)
 }
 
