@@ -23,8 +23,7 @@ const getMousePosition = async event => {
       },
     ],
   }
-  const res = await webcm.track({ event: 'mousemove', payload }, true)
-  webcm._processServerResponse(res)
+  webcm.track({ event: 'mousemove', payload }, true)
 }
 
 window.addEventListener('mousemove', event => {

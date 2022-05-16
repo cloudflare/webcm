@@ -25,7 +25,6 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   manager.createEventListener('mousedown', async event => {
     // Save mouse coordinates as a cookie
     const { client, payload } = event
-    console.info('🐁 ⬇️ Mousedown client:', client)
     console.info('🐁 ⬇️ Mousedown payload:', payload)
     const [firstClick] = payload.mousedown
     client.set('lastClickX', firstClick.clientX)
@@ -71,15 +70,15 @@ export default async function (manager: Manager, settings: ComponentSettings) {
 
   manager.addEventListener('event', async event => {
     // Forward events to vendor
-    const { client, payload, name } = event
-    if (name === 'cheese') {
+    const { client, payload } = event
+    if (payload.name === 'cheese') {
       console.info('🧀🧀  cheese event! 🧀🧀')
     }
     payload.user_id = client.get('user_id')
 
     if (Object.keys(payload || {}).length) {
       const params = new URLSearchParams(payload).toString()
-      fetch(`https://www.example.com/?${params}`)
+      fetch(`http://www.example.com/?${params}`)
     }
   })
 

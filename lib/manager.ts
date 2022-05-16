@@ -9,15 +9,15 @@ import { Client, ClientGeneric } from './client'
 console.info('\nWebCM, version', process.env.npm_package_version)
 export class MCEvent extends Event {
   name?: string
-  payload?: any
+  payload: any
   client!: Client
   type: string
 
-  constructor(type: string, req?: Request) {
+  constructor(type: string, req: Request) {
     super(type)
     this.type = type
-    this.payload = req?.body.payload
-    this.name = req?.body.name
+    this.payload = req.body.payload
+    this.name = type === 'ecommerce' ? this.payload.name : undefined
   }
 }
 
