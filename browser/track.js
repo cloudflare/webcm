@@ -6,7 +6,7 @@ const webcm = {
     for (const e of data.eval) eval(e)
     return data.return
   },
-  track: async (payload, clientPath = false) => {
+  _track: async (payload, clientPath = false) => {
     const data = { location: window.location, title: document.title, payload }
     const path = clientPath ? 'CLIENT_EVENTS_PATH' : 'TRACK_PATH'
     const res = await fetch(path, {
@@ -18,5 +18,6 @@ const webcm = {
     })
     return webcm._processServerResponse(res)
   },
+  track: (name, payload) => webcm._track({ event: 'event', name, payload }),
   _syncedAttributes: ['altKey', 'clientX', 'clientY'],
 }
