@@ -1,20 +1,21 @@
 import { ComponentSettings, Manager } from '../../lib/index'
+import { MCEvent } from '../../lib/manager'
 import { sha256, flattenKeys } from '../../lib/utils'
 
 export default async function (manager: Manager, settings: ComponentSettings) {
   // ====== Subscribe to User-Configured Events ======
-  manager.addEventListener('event', async (event: Event) => {
-    await sendFbEvent(event, settings)
+  manager.addEventListener('event', async (event: MCEvent) => {
+    await sendEvent(event, settings)
   })
 
   // ====== Subscribe to Pageview Events ======
-  manager.addEventListener('pageview', async (event: Event) => {
-    await sendFbEvent(event, settings)
+  manager.addEventListener('pageview', async (event: MCEvent) => {
+    await sendEvent(event, settings)
   })
 
   // ====== Subscribe to Ecommerce Events ======
-  manager.addEventListener('ecommerce', async event => {
-    await sendFbEvent(event, settings, true)
+  manager.addEventListener('ecommerce', (event: MCEvent) => {
+    sendEvent(event, settings, true)
   })
 }
 
@@ -35,10 +36,10 @@ const USER_DATA: { [k: string]: any } = {
   lead_id: {},
 }
 
-const sendFbEvent = async (
-  event: Event,
+const sendEvent = async (
+  event: MCEvent,
   settings: ComponentSettings,
-  ecommerce: boolean = false
+  ecommerce = false
 ) => {
   const { client, payload } = event
 
@@ -172,7 +173,6 @@ const sendFbEvent = async (
     request.custom_data = { ...additionalData, ...request.custom_data }
   }
 
-  // TODO how do we handle secrets here? or the settings.testKey???
   const requestBody = {
     data: [request],
     access_token: settings.accessToken,
@@ -181,7 +181,7 @@ const sendFbEvent = async (
     }),
   }
 
-  const graphEndpoint = `https://graph.facebook.com/v11.0/${property}/events`
+  const graphEndpoint = `https://graph.facebook.com/v13.0/${property}/events`
   fetch(graphEndpoint, {
     method: 'POST',
     headers: {
