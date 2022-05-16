@@ -1,4 +1,4 @@
-import { ComponentSettings, Manager } from '../../lib/index'
+import { ComponentSettings, Manager } from '../../lib/manager'
 import { MCEvent } from '../../lib/manager'
 import { sha256, flattenKeys } from '../../lib/utils'
 
@@ -49,9 +49,9 @@ const sendEvent = async (
   function fbCookieBase() {
     return (
       'fb.' +
-      (client.page.url.hostname
-        ? client.page.url.hostname.split('.').length - 1
-        : client.page.url.href.split('/')[2].split('.').length - 1) +
+      (client.url.hostname
+        ? client.url.hostname.split('.').length - 1
+        : client.url.href.split('/')[2].split('.').length - 1) +
       '.' +
       new Date().valueOf() +
       '.'
@@ -61,8 +61,8 @@ const sendEvent = async (
   // Try fetching the FBC and FBP cookies
   // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/fbp-and-fbc/
   let fbc = ''
-  if (client.get['_fbc']) {
-    fbc = client.get['_fbc']
+  if (client.get('_fbc')) {
+    fbc = client.get('_fbc')
   }
 
   // Check if we can extract it from the URL
@@ -72,9 +72,9 @@ const sendEvent = async (
   }
 
   let fbp = ''
-  if (client.get['_fbp']) {
+  if (client.get('_fbp')) {
     // If it exists, great - we use it!
-    fbp = client.get['_fbp']
+    fbp = client.get('_fbp')
   } else {
     // If _fbp is missing, we are generating it, saving it as cookie, and sending one request from the client side too
     fbp = fbCookieBase() + String(Math.round(2147483647 * Math.random())) // This is taken from the FB pixel code
@@ -86,17 +86,18 @@ const sendEvent = async (
     event_name: payload.ev,
     event_id: eventId,
     action_source: 'website',
-    event_time: client.misc?.timestamp, // TODO also this misc.timestamp, do we even really need it here?
-    event_source_url: client.page.url.href,
+    // event_time: client.misc?.timestamp, // TODO also this misc.timestamp, do we even really need it here?
+    event_source_url: client.url.href,
     data_processing_options: [],
     user_data: {
       fbp: fbp,
-      ...(settings.hideOriginalIP && {
-        // From https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters :
-        // If you send client_ip_address or client_user_agent, you must send both keys.
-        client_user_agent: client.device.userAgent.ua,
-        client_ip_address: client.device.ip,
-      }),
+      ...(settings.hideOriginalIP &&
+        {
+          // From https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters :
+          // If you send client_ip_address or client_user_agent, you must send both keys.
+          // client_user_agent: client.device.userAgent.ua, // TODO extract device information somehow
+          // client_ip_address: client.device.ip,
+        }),
     },
     custom_data: {},
   }
@@ -122,25 +123,25 @@ const sendEvent = async (
   request.custom_data = payload
 
   if (ecommerce === true) {
-    request.custom_data.currency = client.currency
+    request.custom_data.currency = payload.currency
     request.custom_data.content_ids = [
-      ...(client.products?.map((p: any) => p.sku || p.product_id) || []),
-      ...(((client.sku || client.product_id) && [
-        client.sku || client.product_id,
+      ...(payload.products?.map((p: any) => p.sku || p.product_id) || []),
+      ...(((payload.sku || payload.product_id) && [
+        payload.sku || payload.product_id,
       ]) ||
         []),
     ]
 
     request.custom_data.content_name = [
-      ...(client.products?.map((p: any) => p.name) || []),
-      ...((client.name && [client.name]) || []),
+      ...(payload.products?.map((p: any) => p.name) || []),
+      ...((payload.name && [payload.name]) || []),
     ]
       .filter(n => n)
       .join()
 
-    request.custom_data.content_category = client.category
+    request.custom_data.content_category = payload.category
     request.custom_data.value =
-      client.value || client.price || client.total || client.revenue
+      payload.value || payload.price || payload.total || payload.revenue
 
     switch (payload.eventName) {
       case 'Order Completed':
@@ -152,7 +153,7 @@ const sendEvent = async (
       case 'Checkout Started':
         request.event_name = 'INITIATE_CHECKOUT'
         request.custom_data.num_items = (
-          client.products?.length || 1
+          payload.products?.length || 1
         ).toString()
         break
       case 'Payment Info Entered':
@@ -165,7 +166,7 @@ const sendEvent = async (
         request.event_name = 'VIEW_CONTENT'
         break
       default:
-        request.event_name = client.__zarazTrack
+      // request.event_name = client.__zarazTrack // TODO what is the default event_name supposed to be?
     }
 
     const additionalData = flattenKeys(payload)
@@ -188,5 +189,7 @@ const sendEvent = async (
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(requestBody),
+  }).then(res => {
+    console.log(res)
   })
 }
