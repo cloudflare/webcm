@@ -11,7 +11,6 @@ export default async function (manager: Manager, settings: ComponentSettings) {
 
   // ====== Subscribe to Pageview Events ======
   manager.addEventListener('pageview', async (event: MCEvent) => {
-    event.payload = { name: 'pageview' }
     sendEvent(event, settings)
   })
 
