@@ -12,7 +12,7 @@ const getRandomInt = () => Math.floor(2147483647 * Math.random())
 
 const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   const { client, payload } = event
-  const requestBody = {
+  const requestBody: any = {
     v: 2,
     gtm: '2oe5j0', // gtm version hash?
     tid: settings.tid,
@@ -24,14 +24,15 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
     _p: getRandomInt(),
     // TODO what is this _s and these params.executed ???
     // _s: (params.executed && (params.executed as []).length) || 1,
-    ...(settings.hideOriginalIP && {
-      _uip: client.device.ip,
-    }),
+    // ...(settings.hideOriginalIP && {
+    //   _uip: client.device.ip,
+    // }), // TODO
   }
 
-  if (client.page.referrer) {
-    requestBody.dr = client.page.referrer
-  }
+  // TODO get referrer
+  // if (client.page.referrer) {
+  //   requestBody.dr = client.page.referrer
+  // }
 
   // Check if this is a new session
   if (client.get('_ga4s')) {
@@ -61,9 +62,9 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   }
 
   /* Start of gclid treating, taken from our Google Conversion Pixel implementation */
-  if (client.page.query._gl) {
+  if (client.url.searchParams?.get('_gl')) {
     try {
-      const _gl = client.page.query._gl as string
+      const _gl = client.url.searchParams?.get('_gl') as string
       const gclaw = atob(
         // because it's in a try-catch already
         _gl.split('*').pop()?.replaceAll('.', '') || ''
@@ -90,17 +91,25 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   }
 
   // TODO will we be able to get the query params from client ???
-  if (client.page.query.utma) {
-    client.set('_utma', client.page.query.utma, { scope: 'infinite' })
+  if (client.url.searchParams?.get('utma')) {
+    client.set('_utma', client.url.searchParams?.get('utma'), {
+      scope: 'infinite',
+    })
   }
-  if (client.page.query.utmz) {
-    client.set('_utmz', client.page.query.utmz, { scope: 'infinite' })
+  if (client.url.searchParams?.get('utmz')) {
+    client.set('_utmz', client.url.searchParams?.get('utmz'), {
+      scope: 'infinite',
+    })
   }
-  if (client.page.query.dpd) {
-    client.set('_dpd', client.page.query.dpd, { scope: 'infinite' })
+  if (client.url.searchParams?.get('dpd')) {
+    client.set('_dpd', client.url.searchParams?.get('dpd'), {
+      scope: 'infinite',
+    })
   }
-  if (client.page.query.utm_wtk) {
-    client.set('utm_wtk', client.page.query.utm_wtk, { scope: 'infinite' })
+  if (client.url.searchParams?.get('utm_wtk')) {
+    client.set('utm_wtk', client.url.searchParams?.get('utm_wtk'), {
+      scope: 'infinite',
+    })
   }
 
   if (requestBody._s > 1) {
