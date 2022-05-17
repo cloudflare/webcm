@@ -48,6 +48,9 @@ export class ManagerGeneric {
   mappedEndpoints: {
     [k: string]: (request: Request) => Response
   }
+  proxiedEndpoints: {
+    [k: string]: string
+  }
   listeners: any
   clientListeners: any
   registeredEmbeds: {
@@ -66,6 +69,7 @@ export class ManagerGeneric {
     this.listeners = {}
     this.clientListeners = {}
     this.mappedEndpoints = {}
+    this.proxiedEndpoints = {}
     this.name = 'WebCM'
     this.trackPath = Context.trackPath
     this.clientEventsPath = Context.clientEventsPath
@@ -77,9 +81,15 @@ export class ManagerGeneric {
     component: string,
     path: string,
     callback: (request: Request) => Response
-  ): string {
+  ) {
     const fullPath = '/webcm/' + component + path
     this.mappedEndpoints[fullPath] = callback
+    return fullPath
+  }
+
+  proxy(component: string, path: string, target: string) {
+    const fullPath = '/webcm/' + component + path
+    this.proxiedEndpoints[fullPath] = target
     return fullPath
   }
 
@@ -91,7 +101,7 @@ export class ManagerGeneric {
     component: string,
     type: string,
     callback: MCEventListener | null
-  ): void {
+  ) {
     if (!this.requiredSnippets.includes(type)) {
       this.requiredSnippets.push(type)
     }
@@ -213,6 +223,10 @@ export class Manager {
 
   route(path: string, callback: (request: Request) => Response) {
     return this.#generic.route(this.#component, path, callback)
+  }
+
+  proxy(path: string, target: string) {
+    return this.#generic.proxy(this.#component, path, target)
   }
 
   async useCache(key: string, callback: Function, expiry?: number) {

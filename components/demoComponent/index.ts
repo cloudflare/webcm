@@ -9,6 +9,9 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   })
   console.log('demoComponent exposes an endpoint at', myRoute)
 
+  const myProxiedRoute = manager.proxy('/cheese', 'http://cheese.com')
+  console.log(`demoComponent proxies ${myProxiedRoute} to http://cheese.com`)
+
   if (settings.ecommerce) {
     manager.addEventListener('ecommerce', event => {
       if (event.name === 'Purchase') {

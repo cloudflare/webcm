@@ -124,6 +124,14 @@ for (const route of Object.keys(manager.mappedEndpoints)) {
   })
 }
 
+// Mount components proxied endpoints
+for (const [path, proxyTarget] of Object.entries(manager.proxiedEndpoints)) {
+  app.all(path, async (req, res, next) => {
+    const proxy = createProxyMiddleware({ target: proxyTarget })
+    proxy(req, res, next)
+  })
+}
+
 // Listen to all normal requests
 app.use('**', (req, res, next) => {
   const clientGeneric = new ClientGeneric(req, res, manager)
