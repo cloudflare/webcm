@@ -1,20 +1,3 @@
-export const sha256 = async (value: string) => {
-  const text = new TextEncoder().encode(value)
-  const hashBuffer = await crypto.subtle.digest(
-    {
-      name: 'SHA-256',
-    },
-    text // The data you want to hash as an ArrayBuffer
-  )
-
-  // convert ArrayBuffer to Array
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-
-  // convert bytes to hex string
-  const hashHex = hashArray.map(b => ('00' + b.toString(16)).slice(-2)).join('')
-  return hashHex
-}
-
 export const flattenKeys = (obj: { [k: string]: any } = {}, prefix = '') =>
   Object.keys(obj).reduce((acc: { [k: string]: any }, k) => {
     const pre = prefix.length ? `${prefix}.` : ''

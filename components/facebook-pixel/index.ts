@@ -1,6 +1,7 @@
 import { ComponentSettings, Manager } from '../../lib/manager'
 import { MCEvent } from '../../lib/manager'
-import { sha256, flattenKeys } from '../../lib/utils'
+import { flattenKeys } from './utils'
+import * as crypto from 'crypto'
 
 export default async function (manager: Manager, settings: ComponentSettings) {
   // ====== Subscribe to User-Configured Events ======
@@ -103,11 +104,13 @@ const sendEvent = async (
     custom_data: {},
   }
 
+  const encoder = new TextEncoder()
   for (const [key, options] of Object.entries(USER_DATA)) {
     let value = payload[key]
     if (value) {
       if (options.hashed) {
-        value = await sha256(value.trim().toLowerCase())
+        const data = encoder.encode(value.trim().toLowerCase())
+        value = await crypto.createHash('sha256').update(data).digest('hex')
       }
       request.user_data[key] = value
       delete payload[key]
