@@ -29,10 +29,9 @@ const sendEvent = async (
   const { client } = event
   const { finalURL, requestBody } = getFinalURL(event, settings, ecommerce)
   fetch(finalURL, {
-    headers: { 'User-Agent': client.device.userAgent.ua },
+    // headers: { 'User-Agent': client.device.userAgent.ua }, TODO how to get user agent?
   })
 
-  // TODO same here, is it ok to load ga-audiences and ga-doubleclick settings from the settings object?
   if (settings['ga-audiences'] || settings['ga-doubleclick']) {
     // Build the DoubleClick request first, because it's also needed for GAv4-Audiences
     const baseDoubleClick = 'https://stats.g.doubleclick.net/g/collect?'
@@ -42,7 +41,7 @@ const sendEvent = async (
       _r: 3,
       v: 1,
       _v: 'j86',
-      tid: settings.tid, // TODO is this even ok?
+      tid: settings.tid,
       cid: requestBody['cid'],
       _u: 'KGDAAEADQAAAAC~',
       z: Math.floor(2147483647 * Math.random()),
