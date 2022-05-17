@@ -1,9 +1,8 @@
 import crypto from 'crypto'
-import { ComponentSettings, MCEvent } from '../../lib/manager'
 const getRandomInt = () => Math.floor(2147483647 * Math.random())
 
-export const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
-  const { client } = event
+export const getToolRequest = event => {
+  const { client, payload } = event
   // TODO - create a requestBody type just for GA?
   const requestBody = {
     t: 'pageview',
