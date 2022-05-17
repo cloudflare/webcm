@@ -125,11 +125,19 @@ for (const route of Object.keys(manager.mappedEndpoints)) {
 }
 
 // Mount components proxied endpoints
-for (const [path, proxyTarget] of Object.entries(manager.proxiedEndpoints)) {
-  app.all(path, async (req, res, next) => {
-    const proxy = createProxyMiddleware({ target: proxyTarget })
-    proxy(req, res, next)
-  })
+for (const component of Object.keys(manager.proxiedEndpoints)) {
+  for (const [path, proxyTarget] of Object.entries(
+    manager.proxiedEndpoints[component]
+  )) {
+    const proxyEndpoint = '/webcm/' + component + path
+    app.all(proxyEndpoint, async (req, res, next) => {
+      const proxy = createProxyMiddleware({
+        target: proxyTarget + req.path.slice(proxyEndpoint.length - 2),
+        ignorePath: true,
+      })
+      proxy(req, res, next)
+    })
+  }
 }
 
 // Listen to all normal requests

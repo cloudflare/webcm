@@ -49,7 +49,9 @@ export class ManagerGeneric {
     [k: string]: (request: Request) => Response
   }
   proxiedEndpoints: {
-    [k: string]: string
+    [k: string]: {
+      [k: string]: string
+    }
   }
   listeners: any
   clientListeners: any
@@ -88,9 +90,9 @@ export class ManagerGeneric {
   }
 
   proxy(component: string, path: string, target: string) {
-    const fullPath = '/webcm/' + component + path
-    this.proxiedEndpoints[fullPath] = target
-    return fullPath
+    this.proxiedEndpoints[component] ||= {}
+    this.proxiedEndpoints[component][path] = target
+    return '/webcm/' + component + path
   }
 
   // We're calling the super() below anyway so ts should stop complaining
