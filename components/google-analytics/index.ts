@@ -1,12 +1,15 @@
-import { getEcommerceParams } from './ecommerce.mjs'
-import { gaDoubleClick } from './gaDoubleClick.mjs'
-import { getToolRequest } from './requestBuilder.mjs'
+import { ComponentSettings, Manager, MCEvent } from '../../lib/manager'
+import { getEcommerceParams } from './ecommerce'
+import { gaDoubleClick } from './gaDoubleClick'
+import { getToolRequest } from './requestBuilder'
 
 const BASE_URL = 'https://www.google-analytics.com/collect?'
 
-export default async function (manager, settings) {
+export default async function (manager: Manager, settings: ComponentSettings) {
   // ====== Subscribe to User-Configured Events ======
-  manager.addEventListener('event', event => sendGA3Event(event, settings))
+  manager.addEventListener('event', async event =>
+    sendGA3Event(event, settings)
+  )
 
   // ====== Subscribe to Pageview Events ======
   manager.addEventListener('pageview', event => sendGA3Event(event, settings))
@@ -17,7 +20,7 @@ export default async function (manager, settings) {
   })
 }
 
-const getFullURL = requestPayload => {
+const getFullURL = (requestPayload: any) => {
   const params = new URLSearchParams(requestPayload).toString()
   return BASE_URL + params
 }
@@ -26,18 +29,23 @@ const getFullURL = requestPayload => {
  * Google Analytics has the same behaviour for both Pageviews and User-Configured Events
  * This function will be used to handle both types of events
  * */
-const sendGA3Event = function (event, settings, ecommerce = false) {
-  const requestPayload = getToolRequest(event)
+const sendGA3Event = function (
+  event: MCEvent,
+  settings: ComponentSettings,
+  ecommerce = false
+) {
+  const requestPayload = getToolRequest(event, settings)
 
-  const ecommerceParams = {}
+  let ecommerceParams = {}
   ecommerce && (ecommerceParams = getEcommerceParams(event))
 
   const finalURL = getFullURL({ ...requestPayload, ...ecommerceParams })
+  console.log('Final URL: ', finalURL)
   fetch(finalURL)
 
   // TODO should this be send before handling ecommerce? I think I had this question before
   // and the answer was yes :-?
   if (settings['ga-audiences'] || settings['ga-doubleclick']) {
-    gaDoubleClick(event, finalURL)
+    gaDoubleClick(event, settings, finalURL)
   }
 }
