@@ -1,7 +1,9 @@
 import crypto from 'crypto'
+import { ComponentSettings, MCEvent } from '../../lib/manager'
 const getRandomInt = () => Math.floor(2147483647 * Math.random())
 
-export const getToolRequest = ({ client, payload, settings }) => {
+export const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
+  const { client } = event
   // TODO - create a requestBody type just for GA?
   const requestBody = {
     t: 'pageview',
@@ -9,14 +11,13 @@ export const getToolRequest = ({ client, payload, settings }) => {
     jid: getRandomInt(),
     gjid: getRandomInt(),
     z: getRandomInt(),
-    sr: client.device?.resolution,
-    dt: client.page?.title,
-    ul: client.device?.language,
-    dl: client.page?.url?.href,
-    ua: client.device?.userAgent.ua,
-    ...(settings?.hideOriginalIP && {
-      uip: client.device.ip,
-    }),
+    // sr: client.device?.resolution, // TODO all the device stuff
+    // ul: client.device?.language,
+    dl: client.url.href,
+    // ua: client.device?.userAgent.ua,
+    // ...(settings?.hideOriginalIP && {
+    //   uip: client.device.ip,
+    // }), TODO - how to get IP?
   }
 
   if (!client.device?.viewport.includes('undefined')) {
