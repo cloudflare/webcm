@@ -53,6 +53,9 @@ export class ManagerGeneric {
       [k: string]: string
     }
   }
+  staticFiles: {
+    [k: string]: string
+  }
   listeners: any
   clientListeners: any
   registeredEmbeds: {
@@ -72,6 +75,7 @@ export class ManagerGeneric {
     this.clientListeners = {}
     this.mappedEndpoints = {}
     this.proxiedEndpoints = {}
+    this.staticFiles = {}
     this.name = 'WebCM'
     this.trackPath = Context.trackPath
     this.clientEventsPath = Context.clientEventsPath
@@ -93,6 +97,12 @@ export class ManagerGeneric {
     this.proxiedEndpoints[component] ||= {}
     this.proxiedEndpoints[component][path] = target
     return '/webcm/' + component + path
+  }
+
+  serve(component: string, path: string, target: string) {
+    const fullPath = '/webcm/' + component + path
+    this.staticFiles[fullPath] = component + '/' + target
+    return fullPath
   }
 
   // We're calling the super() below anyway so ts should stop complaining
@@ -229,6 +239,10 @@ export class Manager {
 
   proxy(path: string, target: string) {
     return this.#generic.proxy(this.#component, path, target)
+  }
+
+  serve(path: string, target: string) {
+    return this.#generic.serve(this.#component, path, target)
   }
 
   async useCache(key: string, callback: Function, expiry?: number) {
