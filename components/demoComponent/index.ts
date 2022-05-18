@@ -4,7 +4,8 @@ import { ComponentSettings, Manager } from '../../lib/manager'
 export default async function (manager: Manager, settings: ComponentSettings) {
   // FYI - You can use fetch to get some remote preferences here based on `settings`
 
-  const myRoute = manager.route('/hello', (request: Request) => {
+  const myRoute = manager.route('/resetCache', (request: Request) => {
+    manager.invalidateCache(request.params.key)
     return new Response(`You made a ${request.method} request`)
   })
   console.log('demoComponent exposes an endpoint at', myRoute)
