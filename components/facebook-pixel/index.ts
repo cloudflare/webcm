@@ -87,7 +87,7 @@ const sendEvent = async (
     event_name: payload.name,
     event_id: eventId,
     action_source: 'website',
-    // event_time: client.misc?.timestamp, // TODO also this misc.timestamp, do we even really need it here?
+    // event_time: client.misc?.timestamp, // TODO use event timestamp once we make it available
     event_source_url: client.url.href,
     data_processing_options: [],
     user_data: {
@@ -96,8 +96,8 @@ const sendEvent = async (
         {
           // From https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters :
           // If you send client_ip_address or client_user_agent, you must send both keys.
-          // client_user_agent: client.device.userAgent.ua, // TODO extract device information somehow
-          // client_ip_address: client.device.ip,
+          // client_user_agent: client.device.userAgent.ua, // TODO set user agent once we make it available
+          // client_ip_address: client.device.ip, // TODO set IP once we make it available
         }),
     },
     custom_data: {},
