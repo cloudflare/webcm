@@ -122,7 +122,6 @@ const sendEvent = async (
     request.user_data.fbc = fbc
   }
 
-  delete payload.ev
   const property = settings.property
 
   request.custom_data = payload
@@ -148,7 +147,7 @@ const sendEvent = async (
     request.custom_data.value =
       payload.value || payload.price || payload.total || payload.revenue
 
-    switch (payload.eventName) {
+    switch (event.name) {
       case 'Order Completed':
         request.event_name = 'PURCHASE'
         break
