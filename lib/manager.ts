@@ -194,10 +194,12 @@ export class ManagerGeneric {
           .map(attr => [attr.nodeName.replace('data-', ''), attr.nodeValue])
       )
       const name = parameters['component-embed']
-      div.innerHTML = await this.registeredEmbeds[name]({
+      const embed = await this.registeredEmbeds[name]({
         parameters,
         client,
       })
+      const iframe = `<iframe sandbox="allow-scripts" src="about:blank" style="border: 0"srcDoc="${embed}"></iframe>`
+      div.innerHTML = iframe
     }
 
     return dom.serialize()
