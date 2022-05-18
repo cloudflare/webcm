@@ -15,9 +15,11 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   })
 
   // ====== Subscribe to Ecommerce Events ======
-  manager.addEventListener('ecommerce', (event: MCEvent) => {
-    sendEvent(event, settings, true)
-  })
+  if (settings.ecommerce) {
+    manager.addEventListener('ecommerce', (event: MCEvent) => {
+      sendEvent(event, settings, true)
+    })
+  }
 }
 
 const USER_DATA: { [k: string]: any } = {
