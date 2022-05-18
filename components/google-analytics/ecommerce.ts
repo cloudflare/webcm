@@ -36,7 +36,6 @@ const EVERYTHING_ELSE_GA = {
 }
 
 const EEC_MAP: any = {
-  // 'View Item List': { ea: 'view_item_list' }, // TODO - handle item lists
   'View Promotion': {
     ea: 'view_promotion',
     promo1id: '__client.promotion_id',

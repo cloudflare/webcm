@@ -40,11 +40,8 @@ const sendGA3Event = function (
   ecommerce && (ecommerceParams = getEcommerceParams(event))
 
   const finalURL = getFullURL({ ...requestPayload, ...ecommerceParams })
-  console.log('Final URL: ', finalURL)
   fetch(finalURL)
 
-  // TODO should this be send before handling ecommerce? I think I had this question before
-  // and the answer was yes :-?
   if (settings['ga-audiences'] || settings['ga-doubleclick']) {
     gaDoubleClick(event, settings, finalURL)
   }
