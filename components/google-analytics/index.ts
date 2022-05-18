@@ -15,9 +15,11 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   manager.addEventListener('pageview', event => sendGA3Event(event, settings))
 
   // ====== Subscribe to Ecommerce Events ======
-  manager.addEventListener('ecommerce', async event => {
-    sendGA3Event(event, settings, true)
-  })
+  if (settings.ecommerce) {
+    manager.addEventListener('ecommerce', async event => {
+      sendGA3Event(event, settings, true)
+    })
+  }
 }
 
 const getFullURL = (requestPayload: any) => {
