@@ -13,7 +13,7 @@ const getDimensions = async () => {
       },
     ],
   }
-  webcm.track({ event: 'resize', payload }, true)
+  webcm.track({ event: 'resize', payload }, 1)
 }
 
 window.addEventListener('resize', _event => {

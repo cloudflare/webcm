@@ -55,7 +55,7 @@ const sendPE = async entries => {
   const resources = prepEntries(entries)
   if (!resources.length) return
   const payload = { resources }
-  webcm.track({ event: 'resourcePerformanceEntry', payload }, true)
+  webcm.track({ event: 'resourcePerformanceEntry', payload }, 1)
 }
 
 const resCacheData = sessionStorage.getItem(PE_CACHE_KEY)
