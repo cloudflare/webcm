@@ -252,7 +252,7 @@ export class Manager {
   }
 
   invalidateCache(key: string) {
-    invalidateCache(key)
+    invalidateCache(this.#component + '__' + key)
   }
 
   registerEmbed(name: string, callback: EmbedCallback) {
