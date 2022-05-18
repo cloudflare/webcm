@@ -244,7 +244,7 @@ export class Manager {
   }
 
   async useCache(key: string, callback: Function, expiry?: number) {
-    await useCache(this.#component + '__' + key, callback, expiry)
+    return await useCache(this.#component + '__' + key, callback, expiry)
   }
 
   invalidateCache(key: string) {

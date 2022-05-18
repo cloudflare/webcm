@@ -104,10 +104,15 @@ export default async function (manager: Manager, settings: ComponentSettings) {
     async ({ parameters }: { parameters: { [k: string]: unknown } }) => {
       const location = parameters['location']
       const widget = await manager.useCache('weather-' + location, async () => {
-        const response = await (
-          await fetch(`https://wttr.in/${location}?format=j1`)
-        ).json()
-        return `<p>Temperature in ${location} is: ${response.current_condition[0].temp_C} &#8451;</p>`
+        try {
+          const response = await fetch(`https://wttr.in/${location}?format=j1`)
+          const data = await response.json()
+          const [summary] = data.current_condition
+          const { temp_C } = summary
+          return `<p>Temperature in ${location} is: ${temp_C} &#8451;</p>`
+        } catch (error) {
+          console.error('error fetching weather:', error)
+        }
       })
       return widget
     }
