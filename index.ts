@@ -51,7 +51,6 @@ const handleTrack: RequestHandler = (req, res) => {
       )
     }
   }
-  console.log('res.payload for execute: ', res.payload)
   return res.end(JSON.stringify(res.payload))
 }
 
