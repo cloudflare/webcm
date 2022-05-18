@@ -3,6 +3,7 @@ import {
   createProxyMiddleware,
   responseInterceptor,
 } from 'http-proxy-middleware'
+import * as fs_path from 'path'
 import config from './config.json'
 import { Client, ClientGeneric } from './lib/client'
 import { ManagerGeneric, MCEvent, MCEventListener } from './lib/manager'
@@ -138,6 +139,14 @@ for (const component of Object.keys(manager.proxiedEndpoints)) {
       proxy(req, res, next)
     })
   }
+}
+
+// Mount static files
+for (const [path, fileTarget] of Object.entries(manager.staticFiles)) {
+  app.use(
+    path,
+    express.static(fs_path.join(__dirname, 'components', fileTarget))
+  )
 }
 
 // Listen to all normal requests

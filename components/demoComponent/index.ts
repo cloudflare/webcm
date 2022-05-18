@@ -9,8 +9,11 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   })
   console.log('demoComponent exposes an endpoint at', myRoute)
 
-  const myProxiedRoute = manager.proxy('/cheese/*', 'http://n-gate.com')
+  const myProxiedRoute = manager.proxy('/gate/*', 'http://n-gate.com')
   console.log(`demoComponent proxies ${myProxiedRoute} to http://n-gate.com`)
+
+  const myStaticFile = manager.serve('/cheese', './assets/Camembert.jpg')
+  console.log(`demoComponent serves a file at ${myStaticFile}`)
 
   if (settings.ecommerce) {
     manager.addEventListener('ecommerce', event => {

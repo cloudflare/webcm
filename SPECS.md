@@ -64,7 +64,7 @@ The following table describes the permissions that a tool can ask for when being
 | run_client_js        | `client.execute`                                                            |
 | client_fetch         | `client.fetch`                                                              |
 | run_scoped_client_js |                                                                             |
-| serve_static         | `serveStatic`                                                               |
+| serve_static         | `serve`                                                               |
 | server_functions     | `proxy`, `route`                                                            |
 | read_page            |                                                                             |
 | provide_embed        | `provideEmbed`                                                              |
@@ -113,12 +113,12 @@ The third argument is optional and defaults to:
 }
 ```
 
-#### `serveStatic`
+#### `serve`
 
 Serve static assets.
 
 ```js
-manager.serveStatic("public", "assets");
+manager.serve("public", "assets");
 ```
 
 The tool will provide a directory with it static assets under `public`, and it will be available under the same domain. In the above example, the tool's `public` directory will be exposed under `domain.com/cdn-cgi/zaraz/example/assets`.
