@@ -44,7 +44,6 @@ export class ManagerGeneric {
   name: string
   ecommerceEventsPath: string
   clientEventsPath: string
-  sourcedScript: string
   requiredSnippets: string[]
   mappedEndpoints: {
     [k: string]: (request: Request) => Response
@@ -68,7 +67,6 @@ export class ManagerGeneric {
     clientEventsPath: string
     ecommerceEventsPath: string
   }) {
-    this.sourcedScript = "console.log('WebCM script is sourced again')"
     this.requiredSnippets = ['track']
     this.registeredEmbeds = {}
     this.listeners = {}
