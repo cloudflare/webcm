@@ -9,9 +9,11 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   manager.addEventListener('pageview', event => sendEvent(event, settings))
 
   // ====== Subscribe to Ecommerce Events ======
-  manager.addEventListener('ecommerce', async event =>
-    sendEcommerceEvent(event, settings)
-  )
+  if (settings.ecommerce) {
+    manager.addEventListener('ecommerce', async event =>
+      sendEcommerceEvent(event, settings)
+    )
+  }
 }
 
 const sendEcommerceEvent = async (
