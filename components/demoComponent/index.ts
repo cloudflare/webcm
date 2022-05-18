@@ -83,7 +83,7 @@ export default async function (manager: Manager, settings: ComponentSettings) {
       console.info('🧀🧀  cheese event! 🧀🧀')
     }
     payload.user_id = client.get('user_id')
-    client.execute('console.log("ana are mere")')
+    client.execute('console.log("Custom event: ana are mere")')
 
     if (Object.keys(payload || {}).length) {
       const params = new URLSearchParams(payload).toString()
