@@ -43,15 +43,15 @@ Every Managed Component includes a `manifest.json`. The manifest file includes i
 }
 ```
 
-| Field               | Description                                                                                                   |
-| ------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `name`              | User facing name of the tool                                                                                  |
-| `description`       | User facing description of the tool                                                                           |
-| `namespace`         | A namespace string that the Components Manager should serve server-side endpoints for the tool                   |
-| `icon`              | Path to an SVG icon that will be displayed with the tool                                                      |
+| Field               | Description                                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `name`              | User facing name of the tool                                                                                 |
+| `description`       | User facing description of the tool                                                                          |
+| `namespace`         | A namespace string that the Components Manager should serve server-side endpoints for the tool               |
+| `icon`              | Path to an SVG icon that will be displayed with the tool                                                     |
 | `fields`            | An object describing the fields the Components Manager should ask for when configuring an event for the tool |
-| `allowCustomFields` | Whether or not users should be allowed to send custom fields to the tool                                      |
-| `permissions`       | Array of permissions the tool requires for its operation                                                      |
+| `allowCustomFields` | Whether or not users should be allowed to send custom fields to the tool                                     |
+| `permissions`       | Array of permissions the tool requires for its operation                                                     |
 
 ## Permissions
 
@@ -64,7 +64,7 @@ The following table describes the permissions that a tool can ask for when being
 | run_client_js        | `client.execute`                                                            |
 | client_fetch         | `client.fetch`                                                              |
 | run_scoped_client_js |                                                                             |
-| serve_static         | `serve`                                                               |
+| serve_static         | `serve`                                                                     |
 | server_functions     | `proxy`, `route`                                                            |
 | read_page            |                                                                             |
 | provide_embed        | `provideEmbed`                                                              |
@@ -73,7 +73,6 @@ The following table describes the permissions that a tool can ask for when being
 | hook_browser_events  | events: `pageview`, `historyChange`, `DOMChange`, `click`, `scroll`, `time` |
 
 ## API Overview
-
 
 ### Structure
 
@@ -94,7 +93,7 @@ External Components provides a couple of methods that allow a tool to introduce 
 Create a reverse proxy from some path to another server. It can be used in order to access the tool vendor servers without the browser needing to send a request to a different domain.
 
 ```js
-manager.proxy("/api", "api.example.com");
+manager.proxy('/api', 'api.example.com')
 ```
 
 For a tool that uses the namespace `example`, the above code will map `domain.com/cdn-cgi/zaraz/example/api/*` to `api.example.com`. For example, a request to `domain.com/cdn-cgi/zaraz/example/api/hello` will be proxied, server-side, to `api.example.com/hello`.
@@ -102,14 +101,14 @@ For a tool that uses the namespace `example`, the above code will map `domain.co
 In the case of proxying static assets, you can use the third optional argument to force caching:
 
 ```js
-manager.proxy("/assets", "assets.example.com", { cache: "always" });
+manager.proxy('/assets', 'assets.example.com', { cache: 'always' })
 ```
 
 The third argument is optional and defaults to:
 
 ```js
 {
-  cache: "auto"; // `never`, `always`, or `auto`. `auto` will cache based on the cache-control header of the responses.
+  cache: 'auto' // `never`, `always`, or `auto`. `auto` will cache based on the cache-control header of the responses.
 }
 ```
 
@@ -118,7 +117,7 @@ The third argument is optional and defaults to:
 Serve static assets.
 
 ```js
-manager.serve("public", "assets");
+manager.serve('public', 'assets')
 ```
 
 The tool will provide a directory with it static assets under `public`, and it will be available under the same domain. In the above example, the tool's `public` directory will be exposed under `domain.com/cdn-cgi/zaraz/example/assets`.
@@ -128,9 +127,9 @@ The tool will provide a directory with it static assets under `public`, and it w
 Define custom server-side logic. These will run without a proxy, making them faster and more reliable.
 
 ```js
-manager.route("/ping", (request) => {
-  return new Response(204);
-});
+manager.route('/ping', request => {
+  return new Response(204)
+})
 ```
 
 The above will map respond with a 204 code to all requests under `domain.com/cdn-cgi/zaraz/example/ping`.
@@ -140,18 +139,18 @@ The above will map respond with a 204 code to all requests under `domain.com/cdn
 #### Pageview
 
 ```js
-manager.addEventListener("pageview", async (event) => {
-  const { context, client, page } = event;
+manager.addEventListener('pageview', async event => {
+  const { context, client, page } = event
 
   // Send server-side request
-  fetch("https://example.com/collect", {
-    method: "POST",
+  fetch('https://example.com/collect', {
+    method: 'POST',
     data: {
       url: context.system.page.url.href,
       title: context.system.page.title,
     },
-  });
-});
+  })
+})
 ```
 
 The above will send a server-side request to `example.com/collect` whenever the a new page loads, with the URL and the page title as payload.
@@ -161,29 +160,27 @@ The above will send a server-side request to `example.com/collect` whenever the 
 Users can configure events using a site-wide [Events API](https://developers.cloudflare.com/zaraz/web-api), and then map these events to different tools. A tool can register to listen to events and then define the way it will be processed.
 
 ```js
-manager.addEventListener("event", async ({ context, client }) => {
+manager.addEventListener('event', async ({ context, client }) => {
   // Send server-side request
-  fetch("https://example.com/collect", {
-    method: "POST",
+  fetch('https://example.com/collect', {
+    method: 'POST',
     data: {
       ip: context.system.device.ip,
       eventName: context.eventName,
     },
-  });
+  })
 
   // Check that the client is a browser
-  if (client.type === "browser") {
-    client.set("example-uuid", uuidv4());
+  if (client.type === 'browser') {
+    client.set('example-uuid', uuidv4())
     client.fetch(
       `https://example.com/collectFromBrowser?dt=${system.page.title}`
-    );
+    )
   }
-});
+})
 ```
 
 In the above example, when the tool receives an event it will do multiple things: (1) Make a server-side post request to /collect endpoint, with the visitor IP and the event name. If the visitor is using a normal web browser (e.g. not using the mobile SDK), the tool will also set a client key (e.g. cookie) named `example-uuid` to a random UUIDv4 string, and it ask the browser to make a client-side fetch request with the page title.
-
-
 
 ### Client Events
 
@@ -192,18 +189,18 @@ In the above example, when the tool receives an event it will do multiple things
 The `historyChange` event is called whenever the page changes in a Single Page Application, by mean of `history.pushState` or `history.replaceState`. Tools can automatically trigger an action when this event occurs using an Event Listener.
 
 ```js
-client.addEventListener("historyChange", async (event) => {
-  const { context, client, page } = event;
+client.addEventListener('historyChange', async event => {
+  const { context, client, page } = event
 
   // Send server-side request
-  fetch("https://example.com/collect", {
-    method: "POST",
+  fetch('https://example.com/collect', {
+    method: 'POST',
     data: {
       url: context.system.page.url.href,
       title: context.system.page.title,
     },
-  });
-});
+  })
+})
 ```
 
 The above will send a server-side request to `example.com/collect` whenever the page changes in a Single Page Application, with the URL and the page title as payload.
@@ -237,6 +234,7 @@ client.addEventListener('mousedown', async (event: MCEvent) => {
   client.set('lastClickY', firstClick.clientY)
 })
 ```
+
 #### Resize
 
 ```js
@@ -321,7 +319,7 @@ In the above example, the tool defined a widget called `floatingTweet`. It reads
 Save a variable to a KV storage.
 
 ```js
-manager.set("message", "hello world");
+manager.set('message', 'hello world')
 ```
 
 #### `get`
@@ -329,7 +327,7 @@ manager.set("message", "hello world");
 Get a variable from KV storage.
 
 ```js
-const message = manager.get("message");
+const message = manager.get('message')
 ```
 
 ### Caching
@@ -341,9 +339,9 @@ The `useCache` method is used to provide tools with an abstract layer of caching
 ```js
 await manager.useCache(
   `widget-${tweet.id}`,
-  pug.compile("templates/floating-widget.pug", { tweet }),
+  pug.compile('templates/floating-widget.pug', { tweet }),
   60
-);
+)
 ```
 
 In the above example the template will only be rerendered using Pug if the cache doesn't already have the rendered template saved, or if it has been more than 60 seconds since the time it was cached.
@@ -353,10 +351,10 @@ In the above example the template will only be rerendered using Pug if the cache
 Used when a tool needs to forcefully remove a cached item.
 
 ```js
-manager.route("/invalidate", (request) => {
-  manager.invalidateCache("some_cached_item");
-  return new Response(204);
-});
+manager.route('/invalidate', request => {
+  manager.invalidateCache('some_cached_item')
+  return new Response(204)
+})
 ```
 
 The above example can be used by a tool to remotely wipe a cached item, for example when it wants the website to re-fetch data from the tool vendor API.
@@ -368,7 +366,7 @@ The above example can be used by a tool to remotely wipe a cached item, for exam
 Make a `fetch` request from the client.
 
 ```js
-client.fetch("https://example.com/collect");
+client.fetch('https://example.com/collect')
 ```
 
 The above will send a fetch request from the client to the resource specified.
@@ -378,7 +376,7 @@ The above will send a fetch request from the client to the resource specified.
 Save a value on the client. In a normal web browser, this would translate into a cookie, or a localStorage/sessionStorage item.
 
 ```js
-client.set("uuid", uuidv4(), { scope: "infinite" });
+client.set('uuid', uuidv4(), { scope: 'infinite' })
 ```
 
 The above will save a UUIDv4 string under a key called `uuid`, readable by this tool only. The Components Manager will attempt to make this key persist infintely.
@@ -397,13 +395,13 @@ The third argument is an optional object with these defaults:
 Get the value of a key that was set using `client.set`.
 
 ```js
-client.get("uuid");
+client.get('uuid')
 ```
 
 As keys are scoped to each tool, a tool can also explicitly ask for getting the value of a key from another tool:
 
 ```js
-client.get("uuid", "facebook-pixel");
+client.get('uuid', 'facebook-pixel')
 ```
 
 #### `client.return`
@@ -411,29 +409,28 @@ client.get("uuid", "facebook-pixel");
 Return a value to the client so that it can use it.
 
 ```js
-manager.addEventListener("event", async ({ context, payload, client }) => {
-  if (context.eventName === "multiply") {
-    client.return(context.x * context.y);
+manager.addEventListener('event', async ({ context, payload, client }) => {
+  if (context.eventName === 'multiply') {
+    client.return(context.x * context.y)
   }
-});
+})
 ```
 
 On the browser, the website can access this result using:
 
 ```js
-const value = await manager.track("multiply", { x: 21, y: 2 });
-const result = value.return["exampleTool"]; // = 42
+const value = await manager.track('multiply', { x: 21, y: 2 })
+const result = value.return['exampleTool'] // = 42
 ```
-
 
 #### `client.execute`
 
 Run client-side JS code in the client.
 
 ```js
-manager.addEventListener("event", async ({ context, payload, client }) => {
-  client.eval("console.log('Hello World');")
-});
+manager.addEventListener('event', async ({ context, payload, client }) => {
+  client.execute("console.log('Hello World');")
+})
 ```
 
 This would make the browser print "Hello World" to the console.
