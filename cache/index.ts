@@ -12,3 +12,7 @@ export const useCache = async (
   cache[key] = { value: await callback(), expiry: currentTime + expirySeconds }
   return cache[key].value
 }
+
+export const invalidateCache = (key: string) => {
+  delete cache[key]
+}
