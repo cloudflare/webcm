@@ -13,7 +13,7 @@
   "scripts": {
     "lint": "npx eslint --ext .ts,.js, .",
     "lint:fix": "npx eslint --ext .ts,.js, . --fix",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest --globals",
     "dev": "TS_NODE_FILES=true npx nodemon --exec 'node --experimental-fetch --loader ts-node/esm' index.ts"
   },
   "repository": {
@@ -35,6 +35,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.6.2",
     "ts-node": "^10.7.0",
-    "typescript": "^4.8.0-dev.20220511"
+    "typescript": "^4.8.0-dev.20220511",
+    "vitest": "^0.12.6"
   }
 }

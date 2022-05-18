@@ -2,7 +2,7 @@ import { Request } from 'express'
 import { existsSync, readFileSync } from 'fs'
 import { JSDOM } from 'jsdom'
 import path from 'path'
-import { useCache } from '../cache/index'
+import { invalidateCache, useCache } from '../cache/index'
 import { get, set } from '../storage/kv-storage'
 import { Client, ClientGeneric } from './client'
 
@@ -65,8 +65,6 @@ export class ManagerGeneric {
     components: (string | ComponentConfig)[]
     trackPath: string
     clientEventsPath: string
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    useCache?: (key: string, callback: Function, expiry?: number) => any
   }) {
     this.sourcedScript = "console.log('WebCM script is sourced again')"
     this.requiredSnippets = ['track']
@@ -247,6 +245,10 @@ export class Manager {
 
   async useCache(key: string, callback: Function, expiry?: number) {
     await useCache(this.#component + '__' + key, callback, expiry)
+  }
+
+  invalidateCache(key: string) {
+    invalidateCache(key)
   }
 
   registerEmbed(name: string, callback: EmbedCallback) {
