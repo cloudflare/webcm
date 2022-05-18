@@ -29,7 +29,7 @@ const sendEvent = async (
   const { client } = event
   const { finalURL, requestBody } = getFinalURL(event, settings, ecommerce)
   fetch(finalURL, {
-    // headers: { 'User-Agent': client.device.userAgent.ua }, TODO how to get user agent?
+    // headers: { 'User-Agent': client.device.userAgent.ua }, TODO - add user agent
   })
 
   if (settings['ga-audiences'] || settings['ga-doubleclick']) {
@@ -62,7 +62,7 @@ const sendEvent = async (
         slf_rd: 1,
         v: 1,
         _v: 'j86',
-        tid: settings.tid, // TODO change also here if we're getting tid from somewhere else
+        tid: settings.tid,
         cid: requestBody['cid'],
         _u: 'KGDAAEADQAAAAC~',
         z: Math.floor(2147483647 * Math.random()),
@@ -88,8 +88,7 @@ const sendEvent = async (
       client.eval(clientJSAudience)
     } else {
       // If no GAv4-Audiences, just trigger DoubleClick normally
-      // TODO how is this supposed to work? should this be a simple fetch? do we want to implement a deffer mechanism like in zaraz?
-      // clientJS += utils.defer(`zaraz.f("${finalDoubleClickURL}");`)
+      client.fetch(finalDoubleClickURL)
     }
   }
 }
