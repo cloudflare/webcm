@@ -42,6 +42,7 @@ export class ManagerGeneric {
   components: (string | ComponentConfig)[]
   trackPath: string
   name: string
+  ecommerceEventsPath: string
   clientEventsPath: string
   sourcedScript: string
   requiredSnippets: string[]
@@ -65,6 +66,7 @@ export class ManagerGeneric {
     components: (string | ComponentConfig)[]
     trackPath: string
     clientEventsPath: string
+    ecommerceEventsPath: string
   }) {
     this.sourcedScript = "console.log('WebCM script is sourced again')"
     this.requiredSnippets = ['track']
@@ -77,6 +79,7 @@ export class ManagerGeneric {
     this.name = 'WebCM'
     this.trackPath = Context.trackPath
     this.clientEventsPath = Context.clientEventsPath
+    this.ecommerceEventsPath = Context.ecommerceEventsPath
     this.components = Context.components
     this.initScript()
   }
@@ -178,6 +181,7 @@ export class ManagerGeneric {
           .toString()
           .replace('TRACK_PATH', this.trackPath)
           .replaceAll('CLIENT_EVENTS_PATH', this.clientEventsPath)
+          .replaceAll('EC_EVENTS_PATH', this.ecommerceEventsPath)
       }
     }
     return injectedScript

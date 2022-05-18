@@ -13,7 +13,7 @@ const getScrollPosition = event => async () => {
       },
     ],
   }
-  webcm.track({ event: 'scroll', payload }, true)
+  webcm.track({ event: 'scroll', payload }, 1)
 }
 
 document.addEventListener('scroll', event => {

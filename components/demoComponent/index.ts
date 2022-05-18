@@ -18,6 +18,7 @@ export default async function (manager: Manager, settings: ComponentSettings) {
 
   if (settings.ecommerce) {
     manager.addEventListener('ecommerce', event => {
+      console.log('event:', event)
       if (event.name === 'Purchase') {
         console.info('Ka-ching! 💰', event.payload)
       }

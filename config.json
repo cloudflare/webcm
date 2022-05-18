@@ -3,6 +3,7 @@
   "target": "http://127.0.0.1:8000",
   "hostname": "localhost",
   "trackPath": "/ecweb/track",
+  "ecommerceEventsPath": "/ecweb/ecommerce",
   "clientEventsPath": "/ecweb/system",
   "port": 1337,
   "cookiesKey": "something-very-secret"

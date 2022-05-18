@@ -18,6 +18,7 @@ const {
   target: configTarget,
   hostname,
   port,
+  ecommerceEventsPath,
   trackPath,
   clientEventsPath,
   components,
@@ -28,6 +29,7 @@ const target = process.env.CM_TARGET_URL || configTarget
 const manager = new ManagerGeneric({
   components,
   trackPath,
+  ecommerceEventsPath,
   clientEventsPath,
 })
 
@@ -48,7 +50,22 @@ const handleTrack: RequestHandler = (req, res) => {
   return res.end(JSON.stringify(res.payload))
 }
 
-// TODO handle ecommerce events separately
+const handleEcommerce: RequestHandler = (req, res) => {
+  res.payload = {
+    fetch: [],
+    eval: [],
+    return: undefined,
+  }
+  const event = new MCEvent('ecommerce', req)
+  const clientGeneric = new ClientGeneric(req, res, manager)
+  for (const componentName of Object.keys(manager.listeners['event'])) {
+    event.client = new Client(componentName, clientGeneric)
+    manager.listeners['ecommerce'][componentName].forEach(
+      (fn: MCEventListener) => fn(event)
+    )
+  }
+  return res.end(JSON.stringify(res.payload))
+}
 
 const handleClientEvent: RequestHandler = (req, res) => {
   const event = new MCEvent(req.body.payload.event, req)
@@ -100,6 +117,7 @@ const app = express().use(express.json())
 // Mount WebCM endpoint
 app
   .post(trackPath, handleTrack)
+  .post(ecommerceEventsPath, handleEcommerce)
   .post(clientEventsPath, handleClientEvent)
   // s.js TODO
   .get('/sourcedScript', (_req, res) => {
