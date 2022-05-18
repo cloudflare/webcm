@@ -156,7 +156,6 @@ const getFinalURL = (
       const prefix = isNumber(payload[key]) ? 'epn' : 'ep'
       payload[key] && (toolRequest[`${prefix}.${param}`] = payload[key])
     }
-    // toolRequest['ep.debug_mode'] = true
 
     if (payload.products) {
       // handle products list
