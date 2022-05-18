@@ -61,7 +61,6 @@ const PREFIX_PARAMS_MAPPING: { [k: string]: string } = {
 
 // ga4 ecommerce mappings
 const PRODUCT_DETAILS_MAPPING: { [k: string]: string } = {
-  // TODO sku or product id?
   product_id: 'id',
   sku: 'id',
   name: 'nm',

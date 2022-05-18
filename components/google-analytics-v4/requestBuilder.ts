@@ -14,22 +14,19 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   const { client, payload } = event
   const requestBody: any = {
     v: 2,
-    gtm: '2oe5j0', // gtm version hash?
+    gtm: '2oe5j0', // gtm version hash
     tid: settings.tid,
-    // TODO where do I get these from?
-    // sr: event.client.device.resolution,
-    // ul: client.device.language,
-    // dl: client.page.url.href,
-    // dt: client.page.title,
+    dl: client.url.href,
+    dt: client.title,
     _p: getRandomInt(),
-    // TODO what is this _s and these params.executed ???
+    // TODO use IP once we have it
     // _s: (params.executed && (params.executed as []).length) || 1,
     // ...(settings.hideOriginalIP && {
     //   _uip: client.device.ip,
-    // }), // TODO
+    // }),
   }
 
-  // TODO get referrer
+  // TODO use referrer once we have it
   // if (client.page.referrer) {
   //   requestBody.dr = client.page.referrer
   // }
@@ -90,7 +87,6 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
     requestBody.dl = url
   }
 
-  // TODO will we be able to get the query params from client ???
   if (client.url.searchParams?.get('utma')) {
     client.set('_utma', client.url.searchParams?.get('utma'), {
       scope: 'infinite',
@@ -112,9 +108,9 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
     })
   }
 
+  // TODO handle system.misc?
   if (requestBody._s > 1) {
     // const msSinceFirstEvent = system.misc.timestamp - client['zaraz.start']
-    // TODO how do we handle system.misc?
     // const msSinceLastEvent =
     //   system.misc.timestampMilliseconds - (params._let as any) // _let = "_lastEventTime"
     // requestBody._et = msSinceLastEvent
