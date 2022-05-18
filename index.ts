@@ -119,10 +119,6 @@ app
   .post(trackPath, handleTrack)
   .post(ecommerceEventsPath, handleEcommerce)
   .post(clientEventsPath, handleClientEvent)
-  // s.js TODO
-  .get('/sourcedScript', (_req, res) => {
-    res.end(manager.sourcedScript)
-  })
 
 // Mount components endpoints
 for (const route of Object.keys(manager.mappedEndpoints)) {
