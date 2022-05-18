@@ -3,7 +3,7 @@ const webcm = {
     const data = await res.json()
 
     for (const f of data.fetch) fetch(f[0], f[1])
-    for (const e of data.eval) eval(e)
+    for (const e of data.execute) eval(e)
     return data.return
   },
   track: async (payload, eventType = 0) => {

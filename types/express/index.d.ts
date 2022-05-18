@@ -5,7 +5,7 @@ declare namespace Express {
   interface Response {
     payload: {
       fetch: any[]
-      eval: any[]
+      execute: any[]
       return: any
     }
   }

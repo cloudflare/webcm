@@ -35,7 +35,7 @@ const manager = new ManagerGeneric({
 
 const defaultPayload = {
   fetch: [],
-  eval: [],
+  execute: [],
   return: undefined,
 }
 
@@ -51,6 +51,7 @@ const handleTrack: RequestHandler = (req, res) => {
       )
     }
   }
+  console.log('res.payload for execute: ', res.payload)
   return res.end(JSON.stringify(res.payload))
 }
 
