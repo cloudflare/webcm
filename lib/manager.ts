@@ -27,10 +27,12 @@ export interface ComponentSettings {
 
 type ComponentConfig = [string, ComponentSettings]
 
-type EmbedCallback = (contex: {
+type EmbedCallback = (context: {
   parameters: { [k: string]: unknown }
   client: ClientGeneric
 }) => any
+
+type WidgetCallback = (context: { client: ClientGeneric }) => any
 
 const EXTS = ['.ts', '.mts', '.mjs', '.js']
 
@@ -61,6 +63,8 @@ export class ManagerGeneric {
   registeredEmbeds: {
     [k: string]: EmbedCallback
   }
+  registeredWidgets: WidgetCallback[]
+
   constructor(Context: {
     components: (string | ComponentConfig)[]
     trackPath: string
@@ -68,6 +72,7 @@ export class ManagerGeneric {
     ecommerceEventsPath: string
   }) {
     this.requiredSnippets = ['track']
+    this.registeredWidgets = []
     this.registeredEmbeds = {}
     this.listeners = {}
     this.clientListeners = {}
@@ -206,6 +211,17 @@ export class ManagerGeneric {
 
     return dom.serialize()
   }
+
+  async processWidgets(response: string, client: ClientGeneric) {
+    const dom = new JSDOM(response)
+    for (const fn of this.registeredWidgets) {
+      const widget = await fn({ client })
+      const div = dom.window.document.createElement('div')
+      div.innerHTML = widget
+      dom.window.document.body.appendChild(div)
+    }
+    return dom.serialize()
+  }
 }
 
 export class Manager {
@@ -257,5 +273,9 @@ export class Manager {
 
   registerEmbed(name: string, callback: EmbedCallback) {
     this.#generic.registeredEmbeds[this.#component + '__' + name] = callback
+  }
+
+  registerWidget(callback: WidgetCallback) {
+    this.#generic.registeredWidgets.push(callback)
   }
 }

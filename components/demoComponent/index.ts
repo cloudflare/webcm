@@ -104,7 +104,7 @@ export default async function (manager: Manager, settings: ComponentSettings) {
     'weather-example',
     async ({ parameters }: { parameters: { [k: string]: unknown } }) => {
       const location = parameters['location']
-      const widget = await manager.useCache('weather-' + location, async () => {
+      const embed = await manager.useCache('weather-' + location, async () => {
         try {
           const response = await fetch(`https://wttr.in/${location}?format=j1`)
           const data = await response.json()
@@ -112,10 +112,26 @@ export default async function (manager: Manager, settings: ComponentSettings) {
           const { temp_C } = summary
           return `<p>Temperature in ${location} is: ${temp_C} &#8451;</p>`
         } catch (error) {
-          console.error('error fetching weather:', error)
+          console.error('error fetching weather for embed:', error)
         }
       })
-      return widget
+      return embed
     }
   )
+
+  manager.registerWidget(async () => {
+    const location = 'Colombia'
+    const widget = await manager.useCache('weather-' + location, async () => {
+      try {
+        const response = await fetch(`https://wttr.in/${location}?format=j1`)
+        const data = await response.json()
+        const [summary] = data.current_condition
+        const { temp_C } = summary
+        return `<p>Temperature in ${location} is: ${temp_C} &#8451;</p>`
+      } catch (error) {
+        console.error('error fetching weather for widget:', error)
+      }
+    })
+    return widget
+  })
 }

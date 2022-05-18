@@ -178,6 +178,7 @@ app.use('**', (req, res, next) => {
           handlePageView(req as Request, clientGeneric)
           let response = responseBuffer.toString('utf8')
           response = await manager.processEmbeds(response, clientGeneric)
+          response = await manager.processWidgets(response, clientGeneric)
           return response.replace(
             '<head>',
             `<head><script>${manager.getInjectedScript(clientGeneric)}</script>`
