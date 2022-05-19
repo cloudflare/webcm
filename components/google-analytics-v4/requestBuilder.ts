@@ -37,7 +37,7 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   } else {
     requestBody['seg'] = 0
     requestBody['_ss'] = 1 // Session start
-    client.set('_ga4s', 1, { scope: 'session' }) // We intetionally don't want this cookie to last beyond the session
+    client.set('_ga4s', 1, { scope: 'session' })
   }
 
   if (client.get('_ga4')) {
