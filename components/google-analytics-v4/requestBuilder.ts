@@ -119,8 +119,8 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   const builtInKeys = ['tid', 'uid', 'en', 'ni']
   const eventData = flattenKeys(payload)
 
-  // `up.X`s are User Properties and should stay with this perfix
-  // Otherwise, it's an Event Property. If numberical - perfixed with `epn.`,
+  // `up.X`s are User Properties and should stay with this prefix
+  // Otherwise, it's an Event Property. If numerical - prefixed with `epn.`,
   // and if a string, it's just `ep.`
   for (const key in eventData) {
     if (!builtInKeys.includes(key) && !key.startsWith('up.')) {
