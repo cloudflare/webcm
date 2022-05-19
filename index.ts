@@ -175,7 +175,10 @@ app.use('**', (req, res, next) => {
     onProxyRes: responseInterceptor(
       async (responseBuffer, proxyRes, proxyReq, _res) => {
         if (
-          proxyRes.headers['content-type']?.toLowerCase().includes('text/html')
+          proxyRes.headers['content-type']
+            ?.toLowerCase()
+            .includes('text/html') &&
+          !proxyReq.url?.endsWith('.ico')
         ) {
           handlePageView(proxyReq as Request, clientGeneric)
           let response = responseBuffer.toString('utf8')
