@@ -21,10 +21,6 @@ export const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
     // }),
   }
 
-  // TODO
-  // if (!client.device?.viewport.includes('undefined')) {
-  //   requestBody.vp = client.device?.viewport
-  // }
 
   // if (client.page?.referrer) {
   //   requestBody.dr = client.page?.referrer
