@@ -108,13 +108,6 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
     })
   }
 
-  // TODO handle system.misc?
-  if (requestBody._s > 1) {
-    // const msSinceFirstEvent = system.misc.timestamp - client['zaraz.start']
-    // const msSinceLastEvent =
-    //   system.misc.timestampMilliseconds - (params._let as any) // _let = "_lastEventTime"
-    // requestBody._et = msSinceLastEvent
-  }
 
   const builtInKeys = ['tid', 'uid', 'en', 'ni']
   const eventData = flattenKeys(payload)
