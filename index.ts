@@ -22,7 +22,7 @@ const {
   trackPath,
   clientEventsPath,
   components,
-} = config as any
+} = config
 
 const target = process.env.CM_TARGET_URL || configTarget
 
@@ -33,36 +33,38 @@ const manager = new ManagerGeneric({
   clientEventsPath,
 })
 
+const defaultPayload = {
+  fetch: [],
+  eval: [],
+  return: undefined,
+}
+
 const handleTrack: RequestHandler = (req, res) => {
-  res.payload = {
-    fetch: [],
-    eval: [],
-    return: undefined,
-  }
-  const event = new MCEvent('event', req)
-  const clientGeneric = new ClientGeneric(req, res, manager)
-  for (const componentName of Object.keys(manager.listeners['event'])) {
-    event.client = new Client(componentName, clientGeneric)
-    manager.listeners['event'][componentName].forEach((fn: MCEventListener) =>
-      fn(event)
-    )
+  res.payload = defaultPayload
+  if (manager.listeners['event']) {
+    const event = new MCEvent('event', req)
+    const clientGeneric = new ClientGeneric(req, res, manager)
+    for (const componentName of Object.keys(manager.listeners['event'])) {
+      event.client = new Client(componentName, clientGeneric)
+      manager.listeners['event'][componentName].forEach((fn: MCEventListener) =>
+        fn(event)
+      )
+    }
   }
   return res.end(JSON.stringify(res.payload))
 }
 
 const handleEcommerce: RequestHandler = (req, res) => {
-  res.payload = {
-    fetch: [],
-    eval: [],
-    return: undefined,
-  }
-  const event = new MCEvent('ecommerce', req)
-  const clientGeneric = new ClientGeneric(req, res, manager)
-  for (const componentName of Object.keys(manager.listeners['event'])) {
-    event.client = new Client(componentName, clientGeneric)
-    manager.listeners['ecommerce'][componentName].forEach(
-      (fn: MCEventListener) => fn(event)
-    )
+  res.payload = defaultPayload
+  if (manager.listeners['ecommerce']) {
+    const event = new MCEvent('ecommerce', req)
+    const clientGeneric = new ClientGeneric(req, res, manager)
+    for (const componentName of Object.keys(manager.listeners['ecommerce'])) {
+      event.client = new Client(componentName, clientGeneric)
+      manager.listeners['ecommerce'][componentName].forEach(
+        (fn: MCEventListener) => fn(event)
+      )
+    }
   }
   return res.end(JSON.stringify(res.payload))
 }
@@ -85,15 +87,12 @@ const handleClientEvent: RequestHandler = (req, res) => {
       )
     }
   }
-  res.payload = {
-    fetch: [],
-    eval: [],
-    return: undefined,
-  }
+  res.payload = defaultPayload
   res.end(JSON.stringify(res.payload))
 }
 
 const handlePageView = (req: Request, clientGeneric: ClientGeneric) => {
+  if (!manager.listeners['pageview']) return
   const pageview = new MCEvent('pageview', req)
   if (!clientGeneric.cookies.get('webcm_prefs')) {
     for (const componentName of Object.keys(manager.listeners['pageview'])) {

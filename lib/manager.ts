@@ -58,8 +58,14 @@ export class ManagerGeneric {
   staticFiles: {
     [k: string]: string
   }
-  listeners: any
-  clientListeners: any
+  listeners: {
+    [k: string]: {
+      [k: string]: MCEventListener[]
+    }
+  }
+  clientListeners: {
+    [k: string]: MCEventListener
+  }
   registeredEmbeds: {
     [k: string]: EmbedCallback
   }
@@ -109,15 +115,7 @@ export class ManagerGeneric {
     return fullPath
   }
 
-  // We're calling the super() below anyway so ts should stop complaining
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  addEventListener(
-    // for our 3 special manager-only, events (event, pageview, etc.)
-    component: string,
-    type: string,
-    callback: MCEventListener | null
-  ) {
+  addEventListener(component: string, type: string, callback: MCEventListener) {
     if (!this.requiredSnippets.includes(type)) {
       this.requiredSnippets.push(type)
     }
@@ -201,12 +199,14 @@ export class ManagerGeneric {
           .map(attr => [attr.nodeName.replace('data-', ''), attr.nodeValue])
       )
       const name = parameters['component-embed']
-      const embed = await this.registeredEmbeds[name]({
-        parameters,
-        client,
-      })
-      const iframe = `<iframe sandbox="allow-scripts" src="about:blank" style="border: 0"srcDoc="${embed}"></iframe>`
-      div.innerHTML = iframe
+      if (this.registeredEmbeds[name]) {
+        const embed = await this.registeredEmbeds[name]({
+          parameters,
+          client,
+        })
+        const iframe = `<iframe sandbox="allow-scripts" src="about:blank" style="border: 0"srcDoc="${embed}"></iframe>`
+        div.innerHTML = iframe
+      }
     }
 
     return dom.serialize()
@@ -235,11 +235,11 @@ export class Manager {
     this.name = this.#generic.name
   }
 
-  addEventListener(type: string, callback: MCEventListener | null) {
+  addEventListener(type: string, callback: MCEventListener) {
     this.#generic.addEventListener(this.#component, type, callback)
   }
 
-  createEventListener(type: string, callback: MCEventListener | null) {
+  createEventListener(type: string, callback: MCEventListener) {
     this.#generic.clientListeners[`${type}__${this.#component}`] = callback
   }
 
@@ -263,6 +263,7 @@ export class Manager {
     return this.#generic.serve(this.#component, path, target)
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
   async useCache(key: string, callback: Function, expiry?: number) {
     return await useCache(this.#component + '__' + key, callback, expiry)
   }
