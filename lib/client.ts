@@ -33,6 +33,9 @@ export class ClientGeneric {
     } else {
       this.webcmPrefs = { listeners: {} }
     }
+    this.cookies.set('webcm_prefs', JSON.stringify(this.webcmPrefs), {
+      signed: true,
+    })
   }
 
   eval(code: string) {
@@ -56,9 +59,6 @@ export class ClientGeneric {
     } else {
       this.webcmPrefs.listeners[component].push(event)
     }
-    this.cookies.set('webcm_prefs', JSON.stringify(this.webcmPrefs), {
-      signed: true,
-    })
   }
 }
 
