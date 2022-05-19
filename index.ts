@@ -95,7 +95,9 @@ const handlePageView = (req: Request, clientGeneric: ClientGeneric) => {
   if (!manager.listeners['pageview']) return
   const pageview = new MCEvent('pageview', req)
   if (!clientGeneric.cookies.get('webcm_prefs')) {
-    for (const componentName of Object.keys(manager.listeners['pageview'])) {
+    for (const componentName of Object.keys(
+      manager.listeners['clientcreated']
+    )) {
       const event = new MCEvent('clientcreated', req)
       event.client = new Client(componentName as string, clientGeneric)
       manager.listeners['clientcreated'][componentName].forEach(
@@ -170,11 +172,14 @@ app.use('**', (req, res, next) => {
     changeOrigin: true,
     selfHandleResponse: true,
     onProxyRes: responseInterceptor(
-      async (responseBuffer, proxyRes, req, _res) => {
+      async (responseBuffer, proxyRes, proxyReq, _res) => {
         if (
-          proxyRes.headers['content-type']?.toLowerCase().includes('text/html')
+          proxyRes.headers['content-type']
+            ?.toLowerCase()
+            .includes('text/html') &&
+          !proxyReq.url?.endsWith('.ico')
         ) {
-          handlePageView(req as Request, clientGeneric)
+          handlePageView(proxyReq as Request, clientGeneric)
           let response = responseBuffer.toString('utf8')
           response = await manager.processEmbeds(response, clientGeneric)
           response = await manager.processWidgets(response, clientGeneric)

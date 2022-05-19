@@ -10,7 +10,8 @@ export class ClientGeneric {
   response: Response
   manager: ManagerGeneric
   url: URL
-  cookies: any
+  cookies: Cookies
+  pendingCookies: { [k: string]: string }
   webcmPrefs: {
     listeners: {
       [k: string]: string[]
@@ -22,13 +23,14 @@ export class ClientGeneric {
     this.manager = manager
     this.request = request
     this.response = response
+    this.pendingCookies = {}
     this.title = request.body.title // TODO - or it's in the response somewhere (ie. in the title html element)
     this.url =
       request.body?.location || new URL(config.target + request.url || '')
     this.cookies = new Cookies(request, response, { keys: [config.cookiesKey] })
     if (this.cookies.get('webcm_prefs', { signed: !!config.cookiesKey })) {
       this.webcmPrefs = JSON.parse(
-        this.cookies.get('webcm_prefs', { signed: !!config.cookiesKey })
+        this.cookies.get('webcm_prefs', { signed: !!config.cookiesKey }) || ''
       )
     } else {
       this.webcmPrefs = { listeners: {} }
@@ -49,9 +51,13 @@ export class ClientGeneric {
   }
   set(key: string, value: any) {
     this.cookies.set(key, value, { signed: !!config.cookiesKey })
+    this.pendingCookies[key] = value
   }
   get(key: string) {
-    return this.cookies.get(key, { signed: !!config.cookiesKey })
+    return (
+      this.cookies.get(key, { signed: !!config.cookiesKey }) ||
+      this.pendingCookies[key]
+    )
   }
   attachEvent(component: string, event: string) {
     if (!this.webcmPrefs.listeners[component]) {
