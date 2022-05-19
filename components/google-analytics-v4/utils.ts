@@ -1,4 +1,3 @@
-// TODO do we even need this function ???
 export const flattenKeys = (obj: { [k: string]: any } = {}, prefix = '') =>
   Object.keys(obj).reduce((acc: { [k: string]: any }, k) => {
     const pre = prefix.length ? `${prefix}.` : ''
