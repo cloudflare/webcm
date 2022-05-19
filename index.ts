@@ -173,11 +173,11 @@ app.use('**', (req, res, next) => {
     changeOrigin: true,
     selfHandleResponse: true,
     onProxyRes: responseInterceptor(
-      async (responseBuffer, proxyRes, req, _res) => {
+      async (responseBuffer, proxyRes, proxyReq, _res) => {
         if (
           proxyRes.headers['content-type']?.toLowerCase().includes('text/html')
         ) {
-          handlePageView(req as Request, clientGeneric)
+          handlePageView(proxyReq as Request, clientGeneric)
           let response = responseBuffer.toString('utf8')
           response = await manager.processEmbeds(response, clientGeneric)
           return response.replace(
