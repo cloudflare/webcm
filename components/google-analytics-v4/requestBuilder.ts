@@ -63,7 +63,6 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
     try {
       const _gl = client.url.searchParams?.get('_gl') as string
       const gclaw = atob(
-        // because it's in a try-catch already
         _gl.split('*').pop()?.replaceAll('.', '') || ''
       )
       client.set('_gclaw', gclaw, { scope: 'infinite' })
