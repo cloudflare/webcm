@@ -96,7 +96,9 @@ const handleClientEvent: RequestHandler = (req, res) => {
 const handlePageView = (req: Request, clientGeneric: ClientGeneric) => {
   const pageview = new MCEvent('pageview', req)
   if (!clientGeneric.cookies.get('webcm_prefs')) {
-    for (const componentName of Object.keys(manager.listeners['pageview'])) {
+    for (const componentName of Object.keys(
+      manager.listeners['clientcreated']
+    )) {
       const event = new MCEvent('clientcreated', req)
       event.client = new Client(componentName as string, clientGeneric)
       manager.listeners['clientcreated'][componentName].forEach(
