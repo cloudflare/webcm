@@ -86,10 +86,10 @@ const sendEvent = async (
 
   // ====== starting FB cloud load ======
   const request: { [k: string]: any } = {
-    event_name: payload.name,
+    event_name: payload.name || payload.type,
     event_id: eventId,
     action_source: 'website',
-    event_time: client.timestamp,
+    // event_time: client.timestamp,
     event_source_url: client.url.href,
     data_processing_options: [],
     user_data: {
@@ -97,8 +97,8 @@ const sendEvent = async (
       ...(settings.hideOriginalIP && {
         // From https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters :
         // If you send client_ip_address or client_user_agent, you must send both keys.
-        client_user_agent: client.userAgent, // TODO set user agent once we make it available
-        client_ip_address: client.ip, // TODO set IP once we make it available
+        client_user_agent: client.userAgent,
+        client_ip_address: client.ip,
       }),
     },
     custom_data: {},
