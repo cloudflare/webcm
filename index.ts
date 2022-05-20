@@ -22,7 +22,7 @@ const {
   trackPath,
   clientEventsPath,
   components,
-} = config
+} = config as any
 
 const target = process.env.CM_TARGET_URL || configTarget
 
