@@ -91,7 +91,7 @@ export class Client {
   }
 
   execute(code: string) {
-    this.#generic.execute(...args)
+    this.#generic.execute(code)
   }
 
   return(...args: any) {
