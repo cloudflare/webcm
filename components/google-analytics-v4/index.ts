@@ -6,7 +6,10 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   manager.addEventListener('event', event => sendEvent(event, settings))
 
   // ====== Subscribe to Pageview Events ======
-  manager.addEventListener('pageview', event => sendEvent(event, settings))
+  manager.addEventListener('pageview', _event => {
+    // uncomment this when client.fetc is available for pageviews
+    //sendEvent(event, settings)
+  })
 
   // ====== Subscribe to Ecommerce Events ======
   if (settings.ecommerce) {
