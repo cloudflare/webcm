@@ -60,7 +60,7 @@ export const gaDoubleClick = ({ payload, client }, finalUrl, settings) => {
     clientJSAudience += `zaraz.f("${finalAudienceURL}".replace("www.google.com", "www.google."+domain.slice(2)));`;
     clientJSAudience += `}}`;
     clientJSAudience += `},x.send();`;
-    client.eval(clientJSAudience);
+    client.execute(clientJSAudience);
   } else {
     // If no GA-Audiences, just trigger DoubleClick normally
     client.fetch(finalDoubleClickURL);

@@ -40,8 +40,8 @@ export class ClientGeneric {
     })
   }
 
-  eval(code: string) {
-    this.response.payload.eval.push(code)
+  execute(code: string) {
+    this.response.payload.execute.push(code)
   }
   return(value: unknown) {
     this.response.payload.return = value
@@ -90,9 +90,8 @@ export class Client {
     this.emitter = 'browser'
   }
 
-  eval(...args: any) {
-    //@ts-ignore
-    this.#generic.eval(this.#component, ...args)
+  execute(code: string) {
+    this.#generic.execute(code)
   }
 
   return(...args: any) {
