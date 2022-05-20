@@ -169,7 +169,7 @@ const sendEvent = async (
         request.event_name = 'VIEW_CONTENT'
         break
       default:
-        request.event_name = 'Default Event'
+        request.event_name = event.name
     }
 
     const additionalData = flattenKeys(payload)
