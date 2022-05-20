@@ -70,18 +70,6 @@ const PRODUCT_DETAILS_MAPPING: { [k: string]: string } = {
   price: 'pr',
   quantity: 'qt',
   coupon: 'cp',
-  item_list_name: 'ln', // comments represent items that are not really mapped to our schema yet but can exist in ga4's items
-  item_list_id: 'li', //
-  wishlist_it: 'li',
-  wishlist_name: 'ln',
-  index: 'lp', //
-  discount: 'ds', //
-  affiliation: 'af',
-  promotion_id: 'pi', //
-  promotion_name: 'pn', //
-  creative_name: 'cn', //
-  creative_slot: 'cs', //
-  location_id: 'lo', //
 }
 const _listMapping: { [k: string]: string } = {
   id: 'id',
