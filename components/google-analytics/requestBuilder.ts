@@ -4,27 +4,21 @@ const getRandomInt = () => Math.floor(2147483647 * Math.random())
 
 export const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   const { client, payload } = event
-  // TODO - create a requestBody type just for GA?
   const requestBody: any = {
     t: 'pageview',
     v: 1,
     jid: getRandomInt(),
     gjid: getRandomInt(),
     z: getRandomInt(),
-    // sr: client.device?.resolution, // TODO solve all the device thingies
     dt: client.title,
-    // ul: client.device?.language,
+    ul: client.language,
     dl: client.url?.href,
-    // ua: client.device?.userAgent.ua,
-    // ...(settings?.hideOriginalIP && {
-    //   uip: client.device.ip,
-    // }),
+    ua: client.userAgent,
+    ...(settings?.hideOriginalIP && {
+      uip: client.ip,
+    }),
+    ...(client.referer && { dr: client.referer }),
   }
-
-
-  // if (client.page?.referrer) {
-  //   requestBody.dr = client.page?.referrer
-  // }
 
   if (client.get('_ga')) {
     // This will leave our UUID as it is, but extract the right value from tha _ga cookie
@@ -36,7 +30,6 @@ export const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   }
 
   if (client.get('_gid')) {
-    requestBody['gid'] = client.get('_gid').split('.').slice(-2).join('.')
     requestBody['_gid'] = client.get('_gid').split('.').slice(-2).join('.')
   }
 
@@ -89,7 +82,6 @@ export const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
     })
   }
 
-  const rawParams = { ...requestBody, ...payload } // TODO in old zaraz we appended event.data - I guess here we're appending the payload
-
+  const rawParams = { ...requestBody, ...payload }
   return rawParams
 }
