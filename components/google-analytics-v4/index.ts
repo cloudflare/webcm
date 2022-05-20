@@ -31,7 +31,7 @@ const sendEvent = async (
   const { client } = event
   const { finalURL, requestBody } = getFinalURL(event, settings, ecommerce)
   fetch(finalURL, {
-    // headers: { 'User-Agent': client.device.userAgent.ua }, TODO - add user agent
+    headers: { 'User-Agent': client.userAgent },
   })
 
   if (settings['ga-audiences'] || settings['ga-doubleclick']) {

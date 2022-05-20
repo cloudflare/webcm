@@ -1,4 +1,3 @@
-import crypto from 'crypto'
 import { flattenKeys, isNumber } from './utils'
 import { ComponentSettings, MCEvent } from '../../lib/manager'
 
@@ -12,6 +11,9 @@ const getRandomInt = () => Math.floor(2147483647 * Math.random())
 
 const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   const { client, payload } = event
+  client.get('counter')
+    ? client.set('counter', client.get('counter') + 1)
+    : client.set('counter', 1)
   const requestBody: any = {
     v: 2,
     gtm: '2oe5j0', // gtm version hash
@@ -19,17 +21,12 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
     dl: client.url.href,
     dt: client.title,
     _p: getRandomInt(),
-    // TODO use IP once we have it
-    // _s: (params.executed && (params.executed as []).length) || 1,
-    // ...(settings.hideOriginalIP && {
-    //   _uip: client.device.ip,
-    // }),
+    _s: client.get('counter'),
+    ...(settings.hideOriginalIP && {
+      _uip: client.ip,
+    }),
+    ...(client.referer && { dr: client.referer }),
   }
-
-  // TODO use referrer once we have it
-  // if (client.page.referrer) {
-  //   requestBody.dr = client.page.referrer
-  // }
 
   // Check if this is a new session
   if (client.get('_ga4s')) {
@@ -62,9 +59,7 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   if (client.url.searchParams?.get('_gl')) {
     try {
       const _gl = client.url.searchParams?.get('_gl') as string
-      const gclaw = atob(
-        _gl.split('*').pop()?.replaceAll('.', '') || ''
-      )
+      const gclaw = atob(_gl.split('*').pop()?.replaceAll('.', '') || '')
       client.set('_gclaw', gclaw, { scope: 'infinite' })
       requestBody.gclid = gclaw.split('.').pop()
     } catch (e) {
@@ -106,7 +101,6 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
       scope: 'infinite',
     })
   }
-
 
   const builtInKeys = ['tid', 'uid', 'en', 'ni']
   const eventData = flattenKeys(payload)
