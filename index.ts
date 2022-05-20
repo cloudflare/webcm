@@ -40,7 +40,7 @@ const defaultPayload = {
 }
 
 const handleTrack: RequestHandler = (req, res) => {
-  res.payload = defaultPayload
+  res.payload = { ...defaultPayload }
   if (manager.listeners['event']) {
     const event = new MCEvent('event', req)
     const clientGeneric = new ClientGeneric(req, res, manager)
@@ -55,7 +55,7 @@ const handleTrack: RequestHandler = (req, res) => {
 }
 
 const handleEcommerce: RequestHandler = (req, res) => {
-  res.payload = defaultPayload
+  res.payload = { ...defaultPayload }
   if (manager.listeners['ecommerce']) {
     const event = new MCEvent('ecommerce', req)
     const clientGeneric = new ClientGeneric(req, res, manager)
@@ -70,6 +70,7 @@ const handleEcommerce: RequestHandler = (req, res) => {
 }
 
 const handleClientEvent: RequestHandler = (req, res) => {
+  res.payload = { ...defaultPayload }
   const event = new MCEvent(req.body.payload.event, req)
   const clientGeneric = new ClientGeneric(req, res, manager)
   const clientComponentNames = Object.entries(
@@ -87,7 +88,6 @@ const handleClientEvent: RequestHandler = (req, res) => {
       )
     }
   }
-  res.payload = defaultPayload
   res.end(JSON.stringify(res.payload))
 }
 

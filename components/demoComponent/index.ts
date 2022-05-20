@@ -81,9 +81,9 @@ export default async function (manager: Manager, settings: ComponentSettings) {
     const { client, payload } = event
     if (payload.name === 'cheese') {
       console.info('🧀🧀  cheese event! 🧀🧀')
+      client.execute('console.log("🧀🧀  cheese event! 🧀🧀")')
     }
     payload.user_id = client.get('user_id')
-    client.execute('console.log("Custom event: ana are mere")')
 
     if (Object.keys(payload || {}).length) {
       const params = new URLSearchParams(payload).toString()
