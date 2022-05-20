@@ -89,18 +89,17 @@ const sendEvent = async (
     event_name: payload.name,
     event_id: eventId,
     action_source: 'website',
-    // event_time: client.misc?.timestamp, // TODO use event timestamp once we make it available
+    event_time: client.timestamp,
     event_source_url: client.url.href,
     data_processing_options: [],
     user_data: {
       fbp: fbp,
-      ...(settings.hideOriginalIP &&
-        {
-          // From https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters :
-          // If you send client_ip_address or client_user_agent, you must send both keys.
-          // client_user_agent: client.device.userAgent.ua, // TODO set user agent once we make it available
-          // client_ip_address: client.device.ip, // TODO set IP once we make it available
-        }),
+      ...(settings.hideOriginalIP && {
+        // From https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters :
+        // If you send client_ip_address or client_user_agent, you must send both keys.
+        client_user_agent: client.userAgent, // TODO set user agent once we make it available
+        client_ip_address: client.ip, // TODO set IP once we make it available
+      }),
     },
     custom_data: {},
   }
@@ -170,7 +169,7 @@ const sendEvent = async (
         request.event_name = 'VIEW_CONTENT'
         break
       default:
-      // request.event_name = client.__zarazTrack // TODO what is the default event_name supposed to be?
+        request.event_name = 'Default Event'
     }
 
     const additionalData = flattenKeys(payload)
