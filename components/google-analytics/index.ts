@@ -5,26 +5,6 @@ import { getToolRequest } from './requestBuilder'
 
 const BASE_URL = 'https://www.google-analytics.com/collect?'
 
-export default async function (manager: Manager, settings: ComponentSettings) {
-  // ====== Subscribe to User-Configured Events ======
-  manager.addEventListener('event', async event =>
-    sendGA3Event(event, settings)
-  )
-
-  // ====== Subscribe to Pageview Events ======
-  manager.addEventListener('pageview', _event => {
-    // disabled until client.fetch is available for pageviews
-    //sendGA3Event(event, settings)
-  })
-
-  // ====== Subscribe to Ecommerce Events ======
-  if (settings.ecommerce) {
-    manager.addEventListener('ecommerce', async event => {
-      sendGA3Event(event, settings, true)
-    })
-  }
-}
-
 const getFullURL = (requestPayload: any) => {
   const params = new URLSearchParams(requestPayload).toString()
   return BASE_URL + params
@@ -49,5 +29,25 @@ const sendGA3Event = function (
 
   if (settings['ga-audiences'] || settings['ga-doubleclick']) {
     gaDoubleClick(event, settings, finalURL)
+  }
+}
+
+export default async function (manager: Manager, settings: ComponentSettings) {
+  // ====== Subscribe to User-Configured Events ======
+  manager.addEventListener('event', async event =>
+    sendGA3Event(event, settings)
+  )
+
+  // ====== Subscribe to Pageview Events ======
+  manager.addEventListener('pageview', _event => {
+    // disabled until client.fetch is available for pageviews
+    //sendGA3Event(event, settings)
+  })
+
+  // ====== Subscribe to Ecommerce Events ======
+  if (settings.ecommerce) {
+    manager.addEventListener('ecommerce', async event => {
+      sendGA3Event(event, settings, true)
+    })
   }
 }
