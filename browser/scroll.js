@@ -8,6 +8,7 @@ const getScrollPosition = event => async () => {
       {
         scrollX,
         scrollY,
+        timestamp: new Date().getTime(),
         element:
           event.target === document ? document.scrollingElement : event.target,
       },

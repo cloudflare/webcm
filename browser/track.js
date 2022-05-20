@@ -8,7 +8,13 @@ const webcm = {
   },
   track: async (payload, eventType = 0) => {
     const paths = ['TRACK_PATH', 'CLIENT_EVENTS_PATH', 'EC_EVENTS_PATH']
-    const data = { location: window.location, title: document.title, payload }
+    const data = {
+      location: window.location,
+      title: document.title,
+      payload,
+      timestamp: new Date().getTime(),
+      offset: new Date().getTimezoneOffset(),
+    }
     const res = await fetch(paths[eventType], {
       method: 'POST',
       headers: {

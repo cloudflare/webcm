@@ -6,7 +6,13 @@
         {
           event: 'historyChange',
           payload: {
-            history: [{ url: document.location.href, title: document.title }],
+            history: [
+              {
+                url: document.location.href,
+                title: document.title,
+                timestamp: new Date().getTime(),
+              },
+            ],
           },
         },
         true

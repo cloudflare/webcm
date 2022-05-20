@@ -20,6 +20,7 @@ const getMousePosition = async event => {
         target,
         relativeX: round(((clientX - left) / width) * 100),
         relativeY: round(((clientY - top) / height) * 100),
+        timestamp: new Date().getTime(),
       },
     ],
   }

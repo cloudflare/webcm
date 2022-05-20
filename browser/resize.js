@@ -10,6 +10,7 @@ const getDimensions = async () => {
         innerHeight,
         availHeight: screen.availHeight,
         availWidth: screen.availWidth,
+        timestamp: new Date().getTime(),
       },
     ],
   }
