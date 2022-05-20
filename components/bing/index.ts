@@ -54,8 +54,8 @@ const getStandardParams = (event: MCEvent) => {
   return {
     Ver: '2',
     p: event.client.url.href,
-    tl: event.client.page.title,
-    lg: (event.client.headers['accept-language'] || '').split(',')[0].trim(),
+    tl: event.client.title || '',
+    lg: (event.client.language || '').split(',')[0].trim(),
     rn: (+(Math.random() * 1000000)).toString(),
     mid: crypto.randomUUID(),
     // TODO - how do we want to handle these?

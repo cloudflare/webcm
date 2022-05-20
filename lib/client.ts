@@ -78,16 +78,22 @@ export class Client {
   #component: string
   title?: string
   url: URL
-  headers: Request['headers']
   emitter: string
+  userAgent: string
+  language: string
+  referer: string
+  ip: string
 
   constructor(component: string, generic: ClientGeneric) {
     this.#generic = generic
     this.#component = component
-    this.headers = this.#generic.request.headers // TODO - make this less comprehensive (e.g. language, etc. NOT cookies)
     this.url = this.#generic.url
     this.title = this.#generic.title
     this.emitter = 'browser'
+    this.userAgent = this.#generic.request.headers['user-agent'] || ''
+    this.language = this.#generic.request.headers['accept-language'] || ''
+    this.referer = this.#generic.request.headers.referer || ''
+    this.ip = this.#generic.request.ip || ''
   }
 
   execute(code: string) {

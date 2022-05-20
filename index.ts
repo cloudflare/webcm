@@ -114,6 +114,7 @@ const handlePageView = (req: Request, clientGeneric: ClientGeneric) => {
 }
 
 const app = express().use(express.json())
+app.set('trust proxy', true)
 
 // Mount WebCM endpoint
 app
