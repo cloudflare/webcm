@@ -16,7 +16,7 @@ export class MCEvent extends Event {
   constructor(type: string, req: Request) {
     super(type)
     this.type = type
-    this.payload = req.body.payload
+    this.payload = req.body.payload || {}
     this.name = type === 'ecommerce' ? this.payload.name : undefined
   }
 }
