@@ -90,7 +90,7 @@ export class Client {
     this.emitter = 'browser'
   }
 
-  execute(...args: any) {
+  execute(code: string) {
     //@ts-ignore
     this.#generic.execute(...args)
   }
