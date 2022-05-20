@@ -91,7 +91,6 @@ export class Client {
   }
 
   execute(code: string) {
-    //@ts-ignore
     this.#generic.execute(...args)
   }
 
