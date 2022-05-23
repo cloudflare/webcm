@@ -45,9 +45,7 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   })
 
   // ====== Subscribe to Ecommerce Events ======
-  if (settings.ecommerce) {
-    manager.addEventListener('ecommerce', async event => {
-      sendGA3Event(event, settings, true)
-    })
-  }
+  manager.addEventListener('ecommerce', event => {
+    sendGA3Event(event, settings, true)
+  })
 }
