@@ -4,9 +4,9 @@ declare namespace Express {
   }
   interface Response {
     payload: {
-      fetch: any[]
+      fetch: [string, RequestInit][]
       execute: string[]
-      return: any
+      return?: { [k: string]: unknown }
     }
   }
 }

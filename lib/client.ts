@@ -4,7 +4,7 @@ import config from '../config.json'
 import { ManagerGeneric } from './manager'
 
 export class ClientGeneric {
-  type: string
+  type = 'browser'
   title?: string
   timestamp?: number
   offset?: number
@@ -21,7 +21,6 @@ export class ClientGeneric {
   }
 
   constructor(request: Request, response: Response, manager: ManagerGeneric) {
-    this.type = 'browser'
     this.manager = manager
     this.request = request
     this.response = response
@@ -47,15 +46,20 @@ export class ClientGeneric {
   execute(code: string) {
     this.response.payload.execute.push(code)
   }
-  return(value: unknown) {
-    this.response.payload.return = value
+  return(component: string, value: unknown) {
+    this.response.payload.return ||= {}
+    this.response.payload.return[component] = value
   }
-  fetch(resource: string, settings: any) {
-    this.response.payload.fetch.push([resource, settings])
+  fetch(resource: string, settings?: RequestInit) {
+    this.response.payload.fetch.push([resource, settings || {}])
   }
-  set(key: string, value: any) {
+  set(key: string, value?: string | null) {
     this.cookies.set(key, value, { signed: !!config.cookiesKey })
-    this.pendingCookies[key] = value
+    if (value === null || value === undefined) {
+      delete this.pendingCookies[key]
+    } else {
+      this.pendingCookies[key] = value
+    }
   }
   get(key: string) {
     return (
@@ -78,20 +82,22 @@ interface ClientSetOptions {
 }
 
 export class Client {
-  #generic: ClientGeneric
-  #component: string
-  title?: string
-  url: URL
-  emitter: string
-  userAgent: string
-  language: string
-  referer: string
-  ip: string
+  #generic
+  #component
+  emitter
+  userAgent
+  language
+  referer
+  ip
+  title?
+  url
+  fetch
 
   constructor(component: string, generic: ClientGeneric) {
     this.#generic = generic
     this.#component = component
     this.url = this.#generic.url
+    this.fetch = this.#generic.fetch
     this.title = this.#generic.title
     this.emitter = 'browser'
     this.userAgent = this.#generic.request.headers['user-agent'] || ''
@@ -99,24 +105,17 @@ export class Client {
     this.referer = this.#generic.request.headers.referer || ''
     this.ip = this.#generic.request.ip || ''
   }
-
   execute(code: string) {
     this.#generic.execute(code)
   }
-
-  return(...args: any) {
-    //@ts-ignore
-    this.#generic.return(this.#component, ...args)
-  }
-  fetch(...args: any) {
-    //@ts-ignore
-    this.#generic.fetch(this.#component, ...args)
+  return(value: unknown) {
+    this.#generic.return(this.#component, value)
   }
   get(key: string) {
     return this.#generic.get(this.#component + '__' + key)
   }
   // TODO - actually respect the scopes specified in opts
-  set(key: string, value: any, _opts?: ClientSetOptions) {
+  set(key: string, value?: string | null, _opts?: ClientSetOptions) {
     this.#generic.set(this.#component + '__' + key, value)
   }
   attachEvent(event: string) {

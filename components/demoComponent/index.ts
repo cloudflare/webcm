@@ -63,7 +63,7 @@ export default async function (manager: Manager, settings: ComponentSettings) {
     const clientNumber = client.get('clientNumber')
     if (!clientNumber) {
       const num = Math.random()
-      client.set('clientNumber', num)
+      client.set('clientNumber', num.toString())
     }
     if (parseFloat(clientNumber) > 0.5) {
       client.attachEvent('mousemove')
