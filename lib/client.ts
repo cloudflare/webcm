@@ -110,8 +110,9 @@ export class Client {
   return(value: unknown) {
     this.#generic.return(this.#component, value)
   }
-  get(key: string) {
-    return this.#generic.get(this.#component + '__' + key)
+  get(key: string, componentOverride?: string) {
+    const component = componentOverride || this.#component
+    return this.#generic.get(component + '__' + key)
   }
   // TODO - actually respect the scopes specified in opts
   set(key: string, value?: string | null, _opts?: ClientSetOptions) {
