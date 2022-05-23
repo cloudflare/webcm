@@ -99,6 +99,9 @@ export default async function (manager: Manager, settings: ComponentSettings) {
     client.set('user_id', user_id, {
       scope: 'infinite',
     })
+    client.return('Some very important value')
+    client.execute('console.info("Page view processed by Demo Component")')
+    client.fetch('https://example.com')
   })
 
   manager.registerEmbed(
