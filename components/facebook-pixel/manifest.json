@@ -2,7 +2,7 @@
   "name": "Facebook Pixel",
   "description": "Facebook Pixel",
   "namespace": "facebook-pixel",
-  "icon": "assets/facebook-pixel.svg",
+  "icon": "assets/facebook-logo.svg",
   "categories": ["Advertising"],
   "provides": ["events"],
   "fields": {
