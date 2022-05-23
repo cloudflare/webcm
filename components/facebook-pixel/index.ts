@@ -93,7 +93,7 @@ const sendEvent = async (
     event_source_url: client.url.href,
     data_processing_options: [],
     user_data: {
-      fbp: fbp,
+      fbp,
       ...(settings.hideOriginalIP && {
         // From https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters :
         // If you send client_ip_address or client_user_agent, you must send both keys.
