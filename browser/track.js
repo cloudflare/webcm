@@ -2,7 +2,7 @@ const webcm = {
   _processServerResponse: async res => {
     const data = await res.json()
 
-    for (const f of data.fetch) fetch(f[0], f[1])
+    for (const [url, opts] of data.fetch) fetch(url, opts)
     for (const e of data.execute) eval(e)
     return data.return
   },

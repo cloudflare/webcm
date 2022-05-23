@@ -63,7 +63,7 @@ export default async function (manager: Manager, settings: ComponentSettings) {
     const clientNumber = client.get('clientNumber')
     if (!clientNumber) {
       const num = Math.random()
-      client.set('clientNumber', num)
+      client.set('clientNumber', num.toString())
     }
     if (parseFloat(clientNumber) > 0.5) {
       client.attachEvent('mousemove')
@@ -99,6 +99,9 @@ export default async function (manager: Manager, settings: ComponentSettings) {
     client.set('user_id', user_id, {
       scope: 'infinite',
     })
+    client.return('Some very important value')
+    client.execute('console.info("Page view processed by Demo Component")')
+    client.fetch('https://example.com')
   })
 
   manager.registerEmbed(
