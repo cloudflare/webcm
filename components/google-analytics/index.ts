@@ -34,14 +34,11 @@ const sendGA3Event = function (
 
 export default async function (manager: Manager, settings: ComponentSettings) {
   // ====== Subscribe to User-Configured Events ======
-  manager.addEventListener('event', event =>
-    sendGA3Event(event, settings)
-  )
+  manager.addEventListener('event', event => sendGA3Event(event, settings))
 
   // ====== Subscribe to Pageview Events ======
-  manager.addEventListener('pageview', _event => {
-    // disabled until client.fetch is available for pageviews
-    //sendGA3Event(event, settings)
+  manager.addEventListener('pageview', event => {
+    sendGA3Event(event, settings)
   })
 
   // ====== Subscribe to Ecommerce Events ======
