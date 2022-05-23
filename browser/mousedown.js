@@ -35,7 +35,10 @@ const getUniqueSelector = el => {
 }
 
 window.addEventListener('mousedown', async event => {
-  const snapshot = { target: getUniqueSelector(event.target) }
+  const snapshot = {
+    target: getUniqueSelector(event.target),
+    timestamp: new Date().getTime(),
+  }
   for (const key of webcm._syncedAttributes) {
     if (['number', 'string', 'boolean'].includes(typeof event[key]))
       snapshot[key] = event[key]

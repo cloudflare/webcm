@@ -6,6 +6,8 @@ import { ManagerGeneric } from './manager'
 export class ClientGeneric {
   type: string
   title?: string
+  timestamp?: number
+  offset?: number
   request: Request
   response: Response
   manager: ManagerGeneric
@@ -25,6 +27,8 @@ export class ClientGeneric {
     this.response = response
     this.pendingCookies = {}
     this.title = request.body.title // TODO - or it's in the response somewhere (ie. in the title html element)
+    this.timestamp = request.body.timestamp
+    this.offset = request.body.offset
     this.url =
       request.body?.location || new URL(config.target + request.url || '')
     this.cookies = new Cookies(request, response, { keys: [config.cookiesKey] })
