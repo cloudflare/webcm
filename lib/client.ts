@@ -92,21 +92,20 @@ export class Client {
   title?
   url
   fetch
+  execute
 
   constructor(component: string, generic: ClientGeneric) {
     this.#generic = generic
     this.#component = component
     this.url = this.#generic.url
-    this.fetch = this.#generic.fetch
+    this.fetch = this.#generic.fetch.bind(generic)
+    this.execute = this.#generic.execute.bind(generic)
     this.title = this.#generic.title
     this.emitter = 'browser'
     this.userAgent = this.#generic.request.headers['user-agent'] || ''
     this.language = this.#generic.request.headers['accept-language'] || ''
     this.referer = this.#generic.request.headers.referer || ''
     this.ip = this.#generic.request.ip || ''
-  }
-  execute(code: string) {
-    this.#generic.execute(code)
   }
   return(value: unknown) {
     this.#generic.return(this.#component, value)

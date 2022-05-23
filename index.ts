@@ -167,6 +167,7 @@ for (const [path, fileTarget] of Object.entries(manager.staticFiles)) {
 
 // Listen to all normal requests
 app.use('**', (req, res, next) => {
+  res.payload = { ...defaultPayload }
   const clientGeneric = new ClientGeneric(req, res, manager)
   const proxySettings = {
     target,
@@ -180,13 +181,18 @@ app.use('**', (req, res, next) => {
             .includes('text/html') &&
           !proxyReq.url?.endsWith('.ico')
         ) {
+          console.log('🚀res.payload:', res.payload)
           handlePageView(proxyReq as Request, clientGeneric)
           let response = responseBuffer.toString('utf8')
           response = await manager.processEmbeds(response, clientGeneric)
           response = await manager.processWidgets(response, clientGeneric)
           return response.replace(
             '<head>',
-            `<head><script>${manager.getInjectedScript(clientGeneric)}</script>`
+            `<head><script>${manager.getInjectedScript(
+              clientGeneric
+            )};webcm._processServerResponse(JSON.parse(${JSON.stringify(
+              res.payload
+            )}))</script>`
           )
         }
         return responseBuffer
