@@ -34,7 +34,7 @@ const sendGA3Event = function (
 
 export default async function (manager: Manager, settings: ComponentSettings) {
   // ====== Subscribe to User-Configured Events ======
-  manager.addEventListener('event', async event =>
+  manager.addEventListener('event', event =>
     sendGA3Event(event, settings)
   )
 
