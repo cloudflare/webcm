@@ -53,8 +53,27 @@ export class ClientGeneric {
   fetch(resource: string, settings?: RequestInit) {
     this.response.payload.fetch.push([resource, settings || {}])
   }
-  set(key: string, value?: string | null) {
-    this.cookies.set(key, value, { signed: !!config.cookiesKey })
+  set(key: string, value?: string | null, opts?: ClientSetOptions) {
+    const cookieOpts: Cookies.SetOption = { signed: !!config.cookiesKey }
+    const { expiry, scope = 'infinite' } = opts || {}
+    switch (scope) {
+      case 'page':
+        if (typeof expiry === 'number') {
+          cookieOpts.maxAge = expiry
+        }
+        if (expiry instanceof Date) {
+          cookieOpts.expires = expiry
+        }
+        cookieOpts.path === this.url.pathname
+        this.cookies.set(key, value, cookieOpts)
+        break
+      case 'session':
+        this.response.payload.session.push([key, value])
+        break
+      default:
+        this.response.payload.local.push([key, value])
+        break
+    }
     if (value === null || value === undefined) {
       delete this.pendingCookies[key]
     } else {
@@ -114,9 +133,8 @@ export class Client {
     const component = componentOverride || this.#component
     return this.#generic.get(component + '__' + key)
   }
-  // TODO - actually respect the scopes specified in opts
-  set(key: string, value?: string | null, _opts?: ClientSetOptions) {
-    this.#generic.set(this.#component + '__' + key, value)
+  set(key: string, value?: string | null, opts?: ClientSetOptions) {
+    this.#generic.set(this.#component + '__' + key, value, opts)
   }
   attachEvent(event: string) {
     this.#generic.attachEvent(this.#component, event)
