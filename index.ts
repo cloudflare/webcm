@@ -181,7 +181,6 @@ app.use('**', (req, res, next) => {
             .includes('text/html') &&
           !proxyReq.url?.endsWith('.ico')
         ) {
-          console.log('🚀res.payload:', res.payload)
           handlePageView(proxyReq as Request, clientGeneric)
           let response = responseBuffer.toString('utf8')
           response = await manager.processEmbeds(response, clientGeneric)
