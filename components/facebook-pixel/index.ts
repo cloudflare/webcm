@@ -16,8 +16,6 @@ const sendEvent = async (payload: any, settings: ComponentSettings) => {
     }),
   }
 
-  console.log('Sending event:', JSON.stringify(requestBody))
-
   fetch(graphEndpoint, {
     method: 'POST',
     headers: {
