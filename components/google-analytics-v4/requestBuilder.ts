@@ -12,9 +12,9 @@ const getRandomInt = () => Math.floor(2147483647 * Math.random())
 const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   const { client, payload } = event
   client.get('counter')
-    ? client.set('counter', client.get('counter') + 1)
-    : client.set('counter', 1)
-  const requestBody: any = {
+    ? client.set('counter', (parseInt(client.get('counter')) + 1).toString())
+    : client.set('counter', '1')
+  const requestBody: Record<string, unknown> = {
     v: 2,
     gtm: '2oe5j0', // gtm version hash
     tid: settings.tid,
@@ -34,28 +34,28 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   } else {
     requestBody['seg'] = 0
     requestBody['_ss'] = 1 // Session start
-    client.set('_ga4s', 1, { scope: 'session' })
+    client.set('_ga4s', '1', { scope: 'session' })
   }
 
   if (client.get('_ga4')) {
-    // This will leave our UUID as it is, but extract the right value from tha _ga4 cookie
     requestBody['cid'] = client.get('_ga4').split('.').slice(-2).join('.')
   } else {
     const uid = crypto.randomUUID()
 
     requestBody['cid'] = uid
     client.set('_ga4', uid, { scope: 'infinite' })
-    // Also mark as "First Visit"
-    requestBody['_fv'] = 1
+    requestBody['_fv'] = 1 // first visit
   }
 
   requestBody['sid'] = client.get('_ga4sid')
   if (!requestBody['sid']) {
     requestBody['sid'] = getRandomInt()
-    client.set('_ga4sid', requestBody['sid'], { scope: 'infinite' })
+    client.set('_ga4sid', (requestBody['sid'] as number).toString(), {
+      scope: 'infinite',
+    })
   }
 
-  /* Start of gclid treating, taken from our Google Conversion Pixel implementation */
+  /* Start of gclid treating */
   if (client.url.searchParams?.get('_gl')) {
     try {
       const _gl = client.url.searchParams?.get('_gl') as string
@@ -75,32 +75,24 @@ const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   /* End of gclid treating */
 
   if (requestBody.gclid) {
-    const url = new URL(requestBody.dl)
+    const url = new URL(requestBody.dl as string)
     url.searchParams.get('gclid') ||
-      url.searchParams.append('gclid', requestBody.gclid) // If DL doesn't have gclid in it, add it
+      url.searchParams.append('gclid', requestBody.gclid as string)
     requestBody.dl = url
   }
 
-  if (client.url.searchParams?.get('utma')) {
-    client.set('_utma', client.url.searchParams?.get('utma'), {
-      scope: 'infinite',
-    })
-  }
-  if (client.url.searchParams?.get('utmz')) {
-    client.set('_utmz', client.url.searchParams?.get('utmz'), {
-      scope: 'infinite',
-    })
-  }
-  if (client.url.searchParams?.get('dpd')) {
-    client.set('_dpd', client.url.searchParams?.get('dpd'), {
-      scope: 'infinite',
-    })
-  }
-  if (client.url.searchParams?.get('utm_wtk')) {
-    client.set('utm_wtk', client.url.searchParams?.get('utm_wtk'), {
-      scope: 'infinite',
-    })
-  }
+  Object.entries({
+    utma: '_utma',
+    utmz: '_utmz',
+    dpd: '_dpd',
+    utm_wtk: 'utm_wtk',
+  }).forEach(([searchParam, cookieName]) => {
+    if (client.url.searchParams.get(searchParam)) {
+      client.set(cookieName, client.url.searchParams.get(searchParam), {
+        scope: 'infinite',
+      })
+    }
+  })
 
   const builtInKeys = ['tid', 'uid', 'en', 'ni']
   const eventData = flattenKeys(payload)
