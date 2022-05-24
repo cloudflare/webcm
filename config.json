@@ -1,15 +1,5 @@
 {
-  "components": [
-    ["demoComponent", { "ecommerce": true }],
-    [
-      "facebook-pixel",
-      {
-        "ecommerce": true,
-        "property": "399911012027168",
-        "accessToken": "EAAE850gMgbgBABuRlPYY6uEJDthtVQKLVvKL1b6KexZCyGvCGLpqJn1n5XDmNMlIaHTlnxE1YYzHGU3S3s2BcKCCwF3AFIIXTnwHct2Iq8DUxee2GHD8AESyBHZAXMMlJ6kmgiLKOnBL17sqShoIspR4hPcMf5Ech4vFDsz1LOIW5AKP0WiNNrpr1xlgAZD"
-      }
-    ]
-  ],
+  "components": [["demoComponent", { "ecommerce": true }]],
   "target": "http://127.0.0.1:8000",
   "hostname": "localhost",
   "trackPath": "/ecweb/track",
