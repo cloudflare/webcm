@@ -1,7 +1,7 @@
 const webcm = {
   pageVars: {},
   _processServerResponse: async res => {
-    const data = await res.json()
+    const data = res.json ? await res.json() : res
     for (const [url, opts] of data.fetch) fetch(url, opts)
     for (const [key, val] of data.pageVars) webcm.pageVars[key] = val
     for (const e of data.execute) eval(e)
