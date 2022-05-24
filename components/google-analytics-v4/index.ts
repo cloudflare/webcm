@@ -57,7 +57,7 @@ const sendEvent = async (
       const finalAudienceURL = baseAudienceURL + audienceParams
       let clientJSAudience = ''
       // Call GAv4-Audiences on Google.com
-      clientJSAudience += `zaraz.f("${finalAudienceURL}");`
+      clientJSAudience += `fetch("${finalAudienceURL}");`
       clientJSAudience += client.set('_z_ga_audiences', requestBody['cid'], {
         scope: 'infinite',
       })
@@ -67,7 +67,7 @@ const sendEvent = async (
       clientJSAudience += `const domain = x.responseText.trim();`
       clientJSAudience += `if (domain.startsWith("1g") && domain.length > 2) {`
       // Trigger the request to the local Google domain too
-      clientJSAudience += `zaraz.f("${finalAudienceURL}".replace("www.google.com", "www.google."+domain.slice(2)));`
+      clientJSAudience += `fetch("${finalAudienceURL}".replace("www.google.com", "www.google."+domain.slice(2)));`
       clientJSAudience += `}}`
       clientJSAudience += `},x.send();`
       client.execute(clientJSAudience)

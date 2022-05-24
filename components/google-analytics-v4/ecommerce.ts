@@ -115,7 +115,7 @@ const buildProductRequest = (item: { [k: string]: any }) => {
   return resultList.join('~')
 }
 
-// product comes in Zaraz's standard format
+// product comes in standard format
 // returns GA4's standard item
 const mapProductToItem = (product: any) => {
   const eventProductDescription = PRODUCT_DETAILS
