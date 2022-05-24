@@ -77,7 +77,6 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   })
 
   manager.addEventListener('event', async event => {
-    // Forward events to vendor
     const { client, payload } = event
     if (payload.name === 'cheese') {
       console.info('🧀🧀  cheese event! 🧀🧀')
@@ -92,16 +91,27 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   })
 
   manager.addEventListener('pageview', async event => {
-    // Set a user_id based on a query param
     const { client } = event
-    console.info('📄 Pageview received!')
+    console.info(
+      '📄 Pageview received!',
+      client.get('user_id'),
+      client.get('last_page_title'),
+      client.get('session_id')
+    )
     const user_id = client.url.searchParams.get('user_id')
     client.set('user_id', user_id, {
       scope: 'infinite',
     })
+    client.title &&
+      client.set('last_page_title', client.title, {
+        scope: 'page',
+      })
+    client.set('session_id', 'session_date_' + new Date().toUTCString(), {
+      scope: 'session',
+    })
     client.return('Some very important value')
     client.execute('console.info("Page view processed by Demo Component")')
-    client.fetch('https://example.com')
+    client.fetch('http://example.com', { mode: 'no-cors' })
   })
 
   manager.registerEmbed(

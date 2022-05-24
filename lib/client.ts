@@ -13,7 +13,8 @@ export class ClientGeneric {
   manager: ManagerGeneric
   url: URL
   cookies: Cookies
-  pendingCookies: { [k: string]: string }
+  pendingVariables: { [k: string]: string }
+  pageVars: { [k: string]: string }
   webcmPrefs: {
     listeners: {
       [k: string]: string[]
@@ -24,9 +25,10 @@ export class ClientGeneric {
     this.manager = manager
     this.request = request
     this.response = response
-    this.pendingCookies = {}
-    this.title = request.body.title // TODO - or it's in the response somewhere (ie. in the title html element)
+    this.pendingVariables = {}
+    this.title = request.body.title
     this.timestamp = request.body.timestamp
+    this.pageVars = request.body.pageVars || {}
     this.offset = request.body.offset
     this.url =
       request.body?.location || new URL(config.target + request.url || '')
@@ -56,34 +58,36 @@ export class ClientGeneric {
   set(key: string, value?: string | null, opts?: ClientSetOptions) {
     const cookieOpts: Cookies.SetOption = { signed: !!config.cookiesKey }
     const { expiry, scope = 'infinite' } = opts || {}
+    if (typeof expiry === 'number') {
+      cookieOpts.maxAge = expiry
+    }
+    if (expiry instanceof Date) {
+      cookieOpts.expires = expiry
+    }
     switch (scope) {
       case 'page':
-        if (typeof expiry === 'number') {
-          cookieOpts.maxAge = expiry
-        }
-        if (expiry instanceof Date) {
-          cookieOpts.expires = expiry
-        }
-        cookieOpts.path === this.url.pathname
-        this.cookies.set(key, value, cookieOpts)
+        this.response.payload.pageVars.push([key, value])
         break
       case 'session':
-        this.response.payload.session.push([key, value])
+        delete cookieOpts.expires
+        this.cookies.set(key, value, cookieOpts)
         break
       default:
-        this.response.payload.local.push([key, value])
+        cookieOpts.maxAge = 31536000000000
+        this.cookies.set(key, value, cookieOpts)
         break
     }
     if (value === null || value === undefined) {
-      delete this.pendingCookies[key]
+      delete this.pendingVariables[key]
     } else {
-      this.pendingCookies[key] = value
+      this.pendingVariables[key] = value
     }
   }
   get(key: string) {
     return (
       this.cookies.get(key, { signed: !!config.cookiesKey }) ||
-      this.pendingCookies[key]
+      this.pageVars[key] ||
+      this.pendingVariables[key]
     )
   }
   attachEvent(component: string, event: string) {
