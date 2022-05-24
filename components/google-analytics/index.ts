@@ -10,10 +10,6 @@ const getFullURL = (requestPayload: any) => {
   return BASE_URL + params
 }
 
-/**
- * Google Analytics has the same behaviour for both Pageviews and User-Configured Events
- * This function will be used to handle both types of events
- * */
 const sendGA3Event = function (
   event: MCEvent,
   settings: ComponentSettings,
@@ -33,15 +29,12 @@ const sendGA3Event = function (
 }
 
 export default async function (manager: Manager, settings: ComponentSettings) {
-  // ====== Subscribe to User-Configured Events ======
   manager.addEventListener('event', event => sendGA3Event(event, settings))
 
-  // ====== Subscribe to Pageview Events ======
   manager.addEventListener('pageview', event => {
     sendGA3Event(event, settings)
   })
 
-  // ====== Subscribe to Ecommerce Events ======
   manager.addEventListener('ecommerce', event => {
     sendGA3Event(event, settings, true)
   })

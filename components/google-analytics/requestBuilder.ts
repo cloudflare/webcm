@@ -15,11 +15,12 @@ export const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
     ul: client.language,
     dl: client.url?.href,
     ua: client.userAgent,
-    ...(settings?.hideOriginalIP && {
+    tid: settings.tid,
+    ...(!settings?.hideOriginalIP && {
       uip: client.ip,
     }),
     ...(client.referer && { dr: client.referer }),
-  }
+  } as any
 
   if (client.get('_ga')) {
     requestBody['cid'] = client.get('_ga').split('.').slice(-2).join('.')
@@ -76,6 +77,5 @@ export const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
     }
   })
 
-  const rawParams = { ...requestBody, ...payload }
-  return rawParams
+  return { ...requestBody, ...payload }
 }
