@@ -5,13 +5,13 @@ import { getRequestBody } from './track'
  * Maping the standard MC ecommerce API to FB ecommerce event names
  */
 const EVENT_NAMES_MAP: { [k: string]: string } = {
-  'Order Completed': 'PURCHASE',
-  'Product Added': 'ADD_TO_CART',
-  'Products Searched': 'SEARCH',
-  'Checkout Started': 'INITIATE_CHECKOUT',
-  'Payment Info Entered': 'ADD_PAYMENT_INFO',
-  'Product Added to Wishlist': 'ADD_TO_WISHLIST',
-  'Product Viewed': 'VIEW_CONTENT',
+  'Order Completed': 'Purchase',
+  'Product Added': 'AddToCart',
+  'Products Searched': 'Search',
+  'Checkout Started': 'InitiateCheckout',
+  'Payment Info Entered': 'AddPaymentInfo',
+  'Product Added to Wishlist': 'AddToWishlist',
+  'Product Viewed': 'ViewContent',
 }
 
 const getContentName = (payload: any) => {
