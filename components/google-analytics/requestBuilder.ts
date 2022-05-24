@@ -1,10 +1,11 @@
 import crypto from 'crypto'
 import { ComponentSettings, MCEvent } from '../../lib/manager'
+
 const getRandomInt = () => Math.floor(2147483647 * Math.random())
 
 export const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   const { client, payload } = event
-  const requestBody: any = {
+  const requestBody = {
     t: 'pageview',
     v: 1,
     jid: getRandomInt(),
@@ -21,7 +22,6 @@ export const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
   }
 
   if (client.get('_ga')) {
-    // This will leave our UUID as it is, but extract the right value from tha _ga cookie
     requestBody['cid'] = client.get('_ga').split('.').slice(-2).join('.')
   } else {
     const uid = crypto.randomUUID()
@@ -33,11 +33,12 @@ export const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
     requestBody['_gid'] = client.get('_gid').split('.').slice(-2).join('.')
   }
 
-  /* Start of gclid treating, taken from our Google Conversion Pixel implementation */
+  /* Start of gclid treating */
   if (client.url.searchParams.get('_gl')) {
     try {
       const gclaw = atob(
         // because it's in a try-catch already
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         client.url.searchParams.get('_gl').split('*').pop().replaceAll('.', '')
       )
@@ -54,6 +55,7 @@ export const getToolRequest = (event: MCEvent, settings: ComponentSettings) => {
     requestBody.gclid = client.get('gclid')
   }
   /* End of gclid treating */
+
   if (requestBody.gclid) {
     const url = new URL(requestBody.dl)
     url.searchParams.get('gclid') ||
