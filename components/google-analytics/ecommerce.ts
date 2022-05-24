@@ -35,7 +35,7 @@ const EVERYTHING_ELSE_GA = {
   ts: '__client.shipping',
 }
 
-const EEC_MAP: any = {
+const EEC_MAP: Record<string, Record<string, string | string[]>> = {
   'View Promotion': {
     ea: 'view_promotion',
     promo1id: '__client.promotion_id',
@@ -64,7 +64,7 @@ const EEC_MAP: any = {
     ea: 'remove_from_cart',
     pa: 'remove',
   },
-  'Cart Viewed': {}, // TBC
+  'Cart Viewed': {},
   'Checkout Started': { ea: 'begin_checkout', pa: 'checkout' },
   'Checkout Step Viewed': {
     pa: 'checkout',
@@ -81,6 +81,7 @@ const EEC_MAP: any = {
   'Order Completed': {
     ea: 'purchase',
     pa: 'purchase',
+    ti: ['__client.order_id', '__client.checkout_id', '__client.product_id'],
   },
   'Order Updated': {
     ea: 'set_checkout_option',
@@ -90,12 +91,12 @@ const EEC_MAP: any = {
     ea: 'refund',
     pa: 'refund',
   },
-  'Order Cancelled': {}, // TBC
+  'Order Cancelled': {},
 }
 
 export const getEcommerceParams = (event: MCEvent) => {
-  const { payload, client } = event
-  const requestBody: any = {}
+  const { payload } = event
+  const requestBody: Record<string, unknown> = {}
 
   requestBody.ec = 'ecommerce'
   requestBody.t = 'event'
@@ -105,7 +106,7 @@ export const getEcommerceParams = (event: MCEvent) => {
     const eecPayload = {
       ...EEC_MAP[eventName],
       ...EVERYTHING_ELSE_GA,
-    }
+    } as any
     for (const key of Object.keys(eecPayload)) {
       const ctxMap = eecPayload[key]
       if (Array.isArray(ctxMap)) {
