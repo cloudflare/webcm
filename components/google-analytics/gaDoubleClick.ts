@@ -36,18 +36,10 @@ export const gaDoubleClick = (
   ) {
     // Build the GA Audiences request
     const audiences: any = {
+      ...doubleClick,
       t: 'sr',
-      aip: 1,
       _r: 4,
       slf_rd: 1,
-      v: 1,
-      _v: 'j86',
-      tid: payload.tid,
-      cid: cid,
-      jid: jid,
-      gjid: gjid,
-      _u: 'KGDAAEADQAAAAC~',
-      z: Math.floor(2147483647 * Math.random()),
     }
     const audienceParams = new URLSearchParams(audiences).toString()
     const baseAudienceURL = 'https://www.google.com/ads/ga-audiences?'
@@ -64,7 +56,7 @@ export const gaDoubleClick = (
     clientJSAudience += `if (domain.startsWith("1g") && domain.length > 2) {`
 
     // Trigger the request to the local Google domain too
-    clientJSAudience += `zaraz.f("${finalAudienceURL}".replace("www.google.com", "www.google."+domain.slice(2)));`
+    clientJSAudience += `fetch("${finalAudienceURL}".replace("www.google.com", "www.google."+domain.slice(2)));`
     clientJSAudience += `}}`
     clientJSAudience += `},x.send();`
     client.execute(clientJSAudience)
