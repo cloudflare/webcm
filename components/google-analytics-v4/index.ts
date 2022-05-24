@@ -2,21 +2,15 @@ import { ComponentSettings, Manager, MCEvent } from '../../lib/manager'
 import { getFinalURL } from './requestBuilder'
 
 export default async function (manager: Manager, settings: ComponentSettings) {
-  // ====== Subscribe to User-Configured Events ======
   manager.addEventListener('event', event => sendEvent(event, settings))
 
-  // ====== Subscribe to Pageview Events ======
-  manager.addEventListener('pageview', _event => {
-    // uncomment this when client.fetc is available for pageviews
-    //sendEvent(event, settings)
+  manager.addEventListener('pageview', event => {
+    sendEvent(event, settings)
   })
 
-  // ====== Subscribe to Ecommerce Events ======
-  if (settings.ecommerce) {
-    manager.addEventListener('ecommerce', async event =>
-      sendEcommerceEvent(event, settings)
-    )
-  }
+  manager.addEventListener('ecommerce', async event =>
+    sendEcommerceEvent(event, settings)
+  )
 }
 
 const sendEcommerceEvent = async (
@@ -90,7 +84,7 @@ const sendEvent = async (
       clientJSAudience += `zaraz.f("${finalAudienceURL}".replace("www.google.com", "www.google."+domain.slice(2)));`
       clientJSAudience += `}}`
       clientJSAudience += `},x.send();`
-      client.eval(clientJSAudience)
+      client.execute(clientJSAudience)
     } else {
       // If no GAv4-Audiences, just trigger DoubleClick normally
       client.fetch(finalDoubleClickURL)
