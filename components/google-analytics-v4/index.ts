@@ -32,20 +32,19 @@ const sendEvent = async (
   })
 
   if (settings['ga-audiences'] || settings['ga-doubleclick']) {
-    // Build the DoubleClick request first, because it's also needed for GAv4-Audiences
     const baseDoubleClick = 'https://stats.g.doubleclick.net/g/collect?'
     const doubleClick = {
       t: 'dc',
-      aip: 1,
-      _r: 3,
-      v: 1,
+      aip: '1',
+      _r: '3',
+      v: '1',
       _v: 'j86',
       tid: settings.tid,
       cid: requestBody['cid'],
       _u: 'KGDAAEADQAAAAC~',
-      z: Math.floor(2147483647 * Math.random()),
+      z: (+Math.floor(2147483647 * Math.random())).toString(),
     }
-    const doubleClickParams = new URLSearchParams(doubleClick as any).toString()
+    const doubleClickParams = new URLSearchParams(doubleClick).toString()
     const finalDoubleClickURL = baseDoubleClick + doubleClickParams
 
     if (
@@ -55,18 +54,12 @@ const sendEvent = async (
     ) {
       // Build the GAv4 Audiences request
       const audiences = {
+        ...doubleClick,
         t: 'sr',
-        aip: 1,
-        _r: 4,
-        slf_rd: 1,
-        v: 1,
-        _v: 'j86',
-        tid: settings.tid,
-        cid: requestBody['cid'],
-        _u: 'KGDAAEADQAAAAC~',
-        z: Math.floor(2147483647 * Math.random()),
+        _r: '4',
+        slf_rd: '1',
       }
-      const audienceParams = new URLSearchParams(audiences as any).toString()
+      const audienceParams = new URLSearchParams(audiences).toString()
       const baseAudienceURL = 'https://www.google.com/ads/ga-audiences?'
       const finalAudienceURL = baseAudienceURL + audienceParams
       let clientJSAudience = ''
