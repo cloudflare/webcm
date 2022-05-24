@@ -18,6 +18,6 @@
         true
       )
       .then(webcm._processServerResponse)
-    // TODO reset any client-stored variables?
+    webcm.pageVars = {}
   }
 })

@@ -34,6 +34,7 @@ const manager = new ManagerGeneric({
 })
 
 const defaultPayload = {
+  pageVars: [],
   fetch: [],
   execute: [],
   return: undefined,

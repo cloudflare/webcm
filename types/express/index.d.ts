@@ -5,8 +5,7 @@ declare namespace Express {
   interface Response {
     payload: {
       fetch: [string, RequestInit][]
-      local: [string, unknown][]
-      session: [string, unknown][]
+      pageVars: [string, unknown][]
       execute: string[]
       return?: { [k: string]: unknown }
     }
