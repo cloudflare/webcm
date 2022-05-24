@@ -9,15 +9,8 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   })
 
   manager.addEventListener('ecommerce', async event =>
-    sendEcommerceEvent(event, settings)
+    sendEvent(event, settings, true)
   )
-}
-
-const sendEcommerceEvent = async (
-  event: MCEvent,
-  settings: ComponentSettings
-) => {
-  sendEvent(event, settings, true)
 }
 
 const sendEvent = async (
