@@ -9,8 +9,6 @@ const sendEvent = async (payload: any, settings: ComponentSettings) => {
   const requestBody = {
     data: [payload],
     access_token: settings.accessToken,
-    // TODO proably this will come with the request and it will not be part of the settings
-    // and if it comes in the request it will be automatically added to the request ?
     ...(settings.testKey && {
       test_event_code: settings.testKey,
     }),
