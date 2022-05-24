@@ -55,35 +55,6 @@
       "displayWidget": "toggle",
       "toggleOptions": [0, 1],
       "defaultValue": 0
-    },
-    "__zaraz_setting_hideOriginalIP": {
-      "displayName": "Hide Originating IP Address",
-      "helpText": "This will prevent sending the visitor IP address to Google Analytics 4",
-      "displayWidget": "toggle",
-      "validations": [{ "type": "boolean" }],
-      "defaultValue": false
-    },
-    "__zaraz_setting_ecommerce": {
-      "displayName": "E-commerce tracking",
-      "helpText": "Enable forwarding of Zaraz E-commerce API events to Google Analytics as part of the enhanced e-commerce tracking feature. [Learn more](https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce#ecommerce-tracking)",
-      "displayWidget": "toggle",
-      "validations": [{ "type": "boolean" }],
-      "settingsOnly": true,
-      "defaultValue": false
-    },
-    "__zaraz_setting_ga-audiences": {
-      "displayName": "Google Analytics Audiences",
-      "helpText": "Enable Audiences collection through Google Analytics",
-      "displayWidget": "toggle",
-      "validations": [{ "type": "boolean" }],
-      "defaultValue": false
-    },
-    "__zaraz_setting_baseDomain": {
-      "displayName": "Cookie Base Domain",
-      "placeholder": "domain.com",
-      "helpText": "Manually set the domain for all Google Analytics cookies",
-      "displayWidget": "text",
-      "validations": [{ "required": true }, { "type": "string" }]
     }
   }
 }
