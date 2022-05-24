@@ -51,7 +51,10 @@ const mapEcommerceData = (event: MCEvent) => {
   custom_data.value = getValue(payload)
   payload.order_id && (custom_data.order_id = payload.order_id)
 
-  if (event.name && event.name in ['Checkout Started', 'Order Completed']) {
+  if (
+    event.name &&
+    ['Checkout Started', 'Order Completed'].includes(event.name)
+  ) {
     custom_data.num_items = (payload.products?.length || 1).toString()
   }
   if (event.name === 'Products Searched') {
