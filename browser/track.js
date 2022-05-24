@@ -1,17 +1,19 @@
 const webcm = {
+  pageVars: {},
   _processServerResponse: async res => {
-    const data = await res.json()
-
+    const data = res.json ? await res.json() : res
     for (const [url, opts] of data.fetch) fetch(url, opts)
+    for (const [key, val] of data.pageVars) webcm.pageVars[key] = val
     for (const e of data.execute) eval(e)
     return data.return
   },
   track: async (payload, eventType = 0) => {
     const paths = ['TRACK_PATH', 'CLIENT_EVENTS_PATH', 'EC_EVENTS_PATH']
     const data = {
+      payload,
       location: window.location,
       title: document.title,
-      payload,
+      pageVars: webcm.pageVars,
       timestamp: new Date().getTime(),
       offset: new Date().getTimezoneOffset(),
     }

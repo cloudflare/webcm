@@ -13,7 +13,8 @@ export class ClientGeneric {
   manager: ManagerGeneric
   url: URL
   cookies: Cookies
-  pendingCookies: { [k: string]: string }
+  pendingVariables: { [k: string]: string }
+  pageVars: { [k: string]: string }
   webcmPrefs: {
     listeners: {
       [k: string]: string[]
@@ -24,9 +25,10 @@ export class ClientGeneric {
     this.manager = manager
     this.request = request
     this.response = response
-    this.pendingCookies = {}
-    this.title = request.body.title // TODO - or it's in the response somewhere (ie. in the title html element)
+    this.pendingVariables = {}
+    this.title = request.body.title
     this.timestamp = request.body.timestamp
+    this.pageVars = request.body.pageVars || {}
     this.offset = request.body.offset
     this.url =
       request.body?.location || new URL(config.target + request.url || '')
@@ -53,18 +55,39 @@ export class ClientGeneric {
   fetch(resource: string, settings?: RequestInit) {
     this.response.payload.fetch.push([resource, settings || {}])
   }
-  set(key: string, value?: string | null) {
-    this.cookies.set(key, value, { signed: !!config.cookiesKey })
+  set(key: string, value?: string | null, opts?: ClientSetOptions) {
+    const cookieOpts: Cookies.SetOption = { signed: !!config.cookiesKey }
+    const { expiry, scope = 'infinite' } = opts || {}
+    if (typeof expiry === 'number') {
+      cookieOpts.maxAge = expiry
+    }
+    if (expiry instanceof Date) {
+      cookieOpts.expires = expiry
+    }
+    switch (scope) {
+      case 'page':
+        this.response.payload.pageVars.push([key, value])
+        break
+      case 'session':
+        delete cookieOpts.expires
+        this.cookies.set(key, value, cookieOpts)
+        break
+      default:
+        cookieOpts.maxAge = 31536000000000
+        this.cookies.set(key, value, cookieOpts)
+        break
+    }
     if (value === null || value === undefined) {
-      delete this.pendingCookies[key]
+      delete this.pendingVariables[key]
     } else {
-      this.pendingCookies[key] = value
+      this.pendingVariables[key] = value
     }
   }
   get(key: string) {
     return (
       this.cookies.get(key, { signed: !!config.cookiesKey }) ||
-      this.pendingCookies[key]
+      this.pageVars[key] ||
+      this.pendingVariables[key]
     )
   }
   attachEvent(component: string, event: string) {
@@ -73,6 +96,9 @@ export class ClientGeneric {
     } else {
       this.webcmPrefs.listeners[component].push(event)
     }
+    this.cookies.set('webcm_prefs', JSON.stringify(this.webcmPrefs), {
+      signed: true,
+    })
   }
 }
 
@@ -114,9 +140,8 @@ export class Client {
     const component = componentOverride || this.#component
     return this.#generic.get(component + '__' + key)
   }
-  // TODO - actually respect the scopes specified in opts
-  set(key: string, value?: string | null, _opts?: ClientSetOptions) {
-    this.#generic.set(this.#component + '__' + key, value)
+  set(key: string, value?: string | null, opts?: ClientSetOptions) {
+    this.#generic.set(this.#component + '__' + key, value, opts)
   }
   attachEvent(event: string) {
     this.#generic.attachEvent(this.#component, event)

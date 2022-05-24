@@ -33,14 +33,15 @@ const manager = new ManagerGeneric({
   clientEventsPath,
 })
 
-const defaultPayload = {
+const getDefaultPayload = () => ({
+  pageVars: [],
   fetch: [],
   execute: [],
   return: undefined,
-}
+})
 
 const handleTrack: RequestHandler = (req, res) => {
-  res.payload = { ...defaultPayload }
+  res.payload = getDefaultPayload()
   if (manager.listeners['event']) {
     const event = new MCEvent('event', req)
     const clientGeneric = new ClientGeneric(req, res, manager)
@@ -55,7 +56,7 @@ const handleTrack: RequestHandler = (req, res) => {
 }
 
 const handleEcommerce: RequestHandler = (req, res) => {
-  res.payload = { ...defaultPayload }
+  res.payload = getDefaultPayload()
   if (manager.listeners['ecommerce']) {
     const event = new MCEvent('ecommerce', req)
     const clientGeneric = new ClientGeneric(req, res, manager)
@@ -70,7 +71,7 @@ const handleEcommerce: RequestHandler = (req, res) => {
 }
 
 const handleClientEvent: RequestHandler = (req, res) => {
-  res.payload = { ...defaultPayload }
+  res.payload = getDefaultPayload()
   const event = new MCEvent(req.body.payload.event, req)
   const clientGeneric = new ClientGeneric(req, res, manager)
   const clientComponentNames = Object.entries(
@@ -167,7 +168,7 @@ for (const [path, fileTarget] of Object.entries(manager.staticFiles)) {
 
 // Listen to all normal requests
 app.use('**', (req, res, next) => {
-  res.payload = { ...defaultPayload }
+  res.payload = getDefaultPayload()
   const clientGeneric = new ClientGeneric(req, res, manager)
   const proxySettings = {
     target,
@@ -189,9 +190,9 @@ app.use('**', (req, res, next) => {
             '<head>',
             `<head><script>${manager.getInjectedScript(
               clientGeneric
-            )};webcm._processServerResponse(JSON.parse(${JSON.stringify(
+            )};webcm._processServerResponse(${JSON.stringify(
               res.payload
-            )}))</script>`
+            )})</script>`
           )
         }
         return responseBuffer
