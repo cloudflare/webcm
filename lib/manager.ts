@@ -17,7 +17,9 @@ export class MCEvent extends Event {
   constructor(type: string, req: Request) {
     super(type)
     this.type = type
-    this.payload = req.body.payload || {}
+    // the default payload is here for the pageview events,
+    // because they're 'symbolic' get requests and payload doesn't exist
+    this.payload = req.body.payload || { timestamp: new Date().getTime() }
     this.name = type === 'ecommerce' ? this.payload.name : undefined
   }
 }

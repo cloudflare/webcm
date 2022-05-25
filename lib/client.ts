@@ -27,8 +27,8 @@ export class ClientGeneric {
     this.response = response
     this.pendingVariables = {}
     this.title = request.body.title
-    this.timestamp = request.body.timestamp
-    this.pageVars = request.body.pageVars || {}
+    ;(this.timestamp = request.body.timestamp || new Date().getTime()),
+      (this.pageVars = request.body.pageVars || {})
     this.offset = request.body.offset
     this.url = new URL(
       request.body?.location?.href || config.target + request.url || ''
@@ -118,6 +118,7 @@ export class Client implements MCClient {
   referer
   ip
   title?
+  timestamp?
   url
   fetch
   execute
@@ -129,6 +130,7 @@ export class Client implements MCClient {
     this.fetch = this.#generic.fetch.bind(generic)
     this.execute = this.#generic.execute.bind(generic)
     this.title = this.#generic.title
+    this.timestamp = this.#generic.timestamp
     this.emitter = 'browser'
     this.userAgent = this.#generic.request.headers['user-agent'] || ''
     this.language = this.#generic.request.headers['accept-language'] || ''
