@@ -20,21 +20,6 @@
         }
       ]
     },
-    "__zaraz_secret_accessToken": {
-      "displayName": "Conversion API Access Token",
-      "helpText": "The Conversion API Access Token is a string that Zaraz uses to authenticate when sending events in your name. You can obtain it [following the information here](https://developers.facebook.com/docs/marketing-api/conversions-api/get-started#access-token).",
-      "placeholder": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-      "displayWidget": "secret",
-      "validations": [
-        { "minLen": 20 },
-        {
-          "required": true
-        },
-        {
-          "type": "string"
-        }
-      ]
-    },
     "ev": {
       "displayName": "Facebook Event Name",
       "helpText": "Facebook event name can be \"PageView\", one of [the standard Facebook events](https://developers.facebook.com/docs/analytics/send_data/events/#standard), or a custom name.",
