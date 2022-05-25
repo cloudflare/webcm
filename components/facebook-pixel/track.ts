@@ -94,6 +94,7 @@ const getBaseRequest = (event: MCEvent, settings: ComponentSettings) => {
     },
     custom_data: {},
   }
+  delete payload.ev
 
   return request
 }
