@@ -44,9 +44,8 @@ const getFBP = (event: MCEvent) => {
     // If it exists, great - we use it!
     fbp = client.get('_fbp')
   } else {
-    // TODO this comment lies -> we're not sending a request to the client side? should we ???
-    // If _fbp is missing, we are generating it, saving it as cookie, and sending one request from the client side too
-    fbp = fbCookieBase(event) + String(Math.round(2147483647 * Math.random())) // This is taken from the FB pixel code
+    // If _fbp is missing, we are generating it, saving it as cookie
+    fbp = fbCookieBase(event) + String(Math.round(2147483647 * Math.random()))
     client.set('_fbp', fbp)
   }
 
@@ -80,16 +79,15 @@ const getBaseRequest = (event: MCEvent, settings: ComponentSettings) => {
   const fbp = getFBP(event)
 
   const request: { [k: string]: any } = {
-    event_name: payload.name || payload.type,
+    event_name: payload.ev || event.name || event.type,
     event_id: eventId,
     action_source: 'website',
-    // event_time: client.timestamp,
+    event_time: client.timestamp && Math.floor(client.timestamp / 1000),
     event_source_url: client.url.href,
     data_processing_options: [],
     user_data: {
       fbp,
-      // TODO if hideOriginalIP is true we should not send the IP, right?
-      ...(settings.hideOriginalIP && {
+      ...(!settings.hideClientIP && {
         client_user_agent: client.userAgent,
         client_ip_address: client.ip,
       }),
