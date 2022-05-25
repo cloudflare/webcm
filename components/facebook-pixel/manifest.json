@@ -6,20 +6,6 @@
   "categories": ["Advertising"],
   "provides": ["events"],
   "fields": {
-    "property": {
-      "displayName": "Pixel ID",
-      "helpText": "The Pixel ID is a long number that identifies your Facebook Ads account. You can obtain it from the [Events Manager](https://www.facebook.com/events_manager2/) underneath your site name.",
-      "placeholder": "XXXXXXXXXXXXXXXXXXXX",
-      "displayWidget": "text",
-      "validations": [
-        {
-          "required": true
-        },
-        {
-          "type": "number"
-        }
-      ]
-    },
     "ev": {
       "displayName": "Facebook Event Name",
       "helpText": "Facebook event name can be \"PageView\", one of [the standard Facebook events](https://developers.facebook.com/docs/analytics/send_data/events/#standard), or a custom name.",
@@ -34,59 +20,11 @@
         }
       ]
     },
-    "content_ids": {
-      "displayName": "Content IDs",
-      "helpText": "Array of integers or strings. Product IDs associated with the event, such as SKUs (e.g. [\"ABC123\", \"XYZ789\"]). [Learn More] (https://developers.facebook.com/docs/facebook-pixel/reference/)",
-      "displayWidget": "text",
-      "validations": [{ "type": "string" }]
-    },
-    "content_category": {
-      "displayName": "Content Category",
-      "helpText": "Category of the page or product.",
-      "displayWidget": "text",
-      "validations": [{ "type": "string" }]
-    },
-    "content_name": {
-      "displayName": "Content Name",
-      "helpText": "Name of the page/product.",
-      "displayWidget": "text",
-      "validations": [{ "type": "string" }]
-    },
-    "content_type": {
-      "displayName": "Content Type",
-      "helpText": "Can be product or product_group based on the content_ids or contents being passed. If the IDs being passed in the content_ids or contents parameter are IDs of products, then the value should be product. If product group IDs are being passed, then the value should be product_group.",
-      "displayWidget": "text",
-      "validations": [{ "type": "string" }]
-    },
-    "currency": {
-      "displayName": "Currency",
-      "helpText": "Currency for the value specified.",
-      "displayWidget": "text",
-      "validations": [{ "type": "string" }]
-    },
-    "delivery_category": {
-      "displayName": "Delivery Category",
-      "helpText": "Category of the delivery. Supported values: in_store — Purchase requires customer to enter to the store. curbside — Purchase requires curbside pickup. home_delivery — Purchase is delivered to the customer.",
-      "displayWidget": "text",
-      "validations": [{ "type": "string" }]
-    },
-    "num_items": {
-      "displayName": "Number of Items",
-      "helpText": "Number of items when checkout was initiated. Used with the InitiateCheckout event.",
-      "displayWidget": "text",
-      "validations": [{ "type": "number" }]
-    },
     "predicted_ltv": {
       "displayName": "Predicted LTV",
       "helpText": "Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.",
       "displayWidget": "text",
       "validations": [{ "type": "number" }]
-    },
-    "search_string": {
-      "displayName": "Search String",
-      "helpText": "String entered by the user for the search. Used with the Search event.",
-      "displayWidget": "text",
-      "validations": [{ "type": "string" }]
     },
     "status": {
       "displayName": "Status",
@@ -100,7 +38,7 @@
       "displayWidget": "text",
       "validations": [{ "type": "number" }]
     },
-    // user data
+
     "em": {
       "displayName": "Email",
       "displayWidget": "text",
