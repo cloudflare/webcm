@@ -30,8 +30,9 @@ export class ClientGeneric {
     this.timestamp = request.body.timestamp
     this.pageVars = request.body.pageVars || {}
     this.offset = request.body.offset
-    this.url =
-      request.body?.location || new URL(config.target + request.url || '')
+    this.url = new URL(
+      request.body?.location?.href || config.target + request.url || ''
+    )
     this.cookies = new Cookies(request, response, { keys: [config.cookiesKey] })
     if (this.cookies.get('webcm_prefs', { signed: !!config.cookiesKey })) {
       this.webcmPrefs = JSON.parse(
