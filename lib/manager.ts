@@ -29,10 +29,9 @@ type ComponentConfig = [string, ComponentSettings]
 
 type EmbedCallback = (context: {
   parameters: { [k: string]: unknown }
-  client: ClientGeneric
-}) => any
+}) => Promise<string>
 
-type WidgetCallback = (context: { client: ClientGeneric }) => any
+type WidgetCallback = () => Promise<string>
 
 const EXTS = ['.ts', '.mts', '.mjs', '.js']
 
@@ -188,7 +187,7 @@ export class ManagerGeneric {
     return injectedScript
   }
 
-  async processEmbeds(response: string, client: ClientGeneric) {
+  async processEmbeds(response: string) {
     const dom = new JSDOM(response)
     for (const div of dom.window.document.querySelectorAll(
       'div[data-component-embed]'
@@ -200,10 +199,7 @@ export class ManagerGeneric {
       )
       const name = parameters['component-embed']
       if (this.registeredEmbeds[name]) {
-        const embed = await this.registeredEmbeds[name]({
-          parameters,
-          client,
-        })
+        const embed = await this.registeredEmbeds[name]({ parameters })
         const iframe = `<iframe sandbox="allow-scripts" src="about:blank" style="border: 0"srcDoc="${embed}"></iframe>`
         div.innerHTML = iframe
       }
@@ -212,10 +208,10 @@ export class ManagerGeneric {
     return dom.serialize()
   }
 
-  async processWidgets(response: string, client: ClientGeneric) {
+  async processWidgets(response: string) {
     const dom = new JSDOM(response)
     for (const fn of this.registeredWidgets) {
-      const widget = await fn({ client })
+      const widget = await fn()
       const div = dom.window.document.createElement('div')
       div.innerHTML = widget
       dom.window.document.body.appendChild(div)
