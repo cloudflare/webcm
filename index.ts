@@ -184,8 +184,8 @@ app.use('**', (req, res, next) => {
         ) {
           handlePageView(proxyReq as Request, clientGeneric)
           let response = responseBuffer.toString('utf8')
-          response = await manager.processEmbeds(response, clientGeneric)
-          response = await manager.processWidgets(response, clientGeneric)
+          response = await manager.processEmbeds(response)
+          response = await manager.processWidgets(response)
           return response.replace(
             '<head>',
             `<head><script>${manager.getInjectedScript(
