@@ -30,7 +30,7 @@ export default async function (manager: Manager, settings: ComponentSettings) {
 
   manager.createEventListener('mousemove', async event => {
     const { payload } = event
-    console.info('🐁 🪤 Mousemove:', payload)
+    console.info('🐁 🪤 Mousemove:', JSON.stringify(payload, null, 2))
   })
 
   manager.createEventListener('mousedown', async event => {
@@ -47,17 +47,20 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   })
 
   manager.createEventListener('resize', async event => {
-    console.info('🪟 New window size!', event.payload)
+    console.info('🪟 New window size!', JSON.stringify(event.payload, null, 2))
   })
 
   manager.createEventListener('scroll', async event => {
-    console.info('🛞🛞🛞 They see me scrollin...they hatin...', event.payload)
+    console.info(
+      '🛞🛞🛞 They see me scrollin...they hatin...',
+      JSON.stringify(event.payload, null, 2)
+    )
   })
 
   manager.createEventListener('resourcePerformanceEntry', async event => {
     console.info(
-      'Witness the fitness - fresh resourcePerformanceEntry',
-      event.payload
+      'Witness the fitness - fresh resource performance entries',
+      JSON.stringify(event.payload, null, 2)
     )
   })
 
@@ -68,9 +71,9 @@ export default async function (manager: Manager, settings: ComponentSettings) {
       const num = Math.random()
       client.set('clientNumber', num.toString())
     }
-    if (parseFloat(clientNumber) > 0.5) {
-      client.attachEvent('mousemove')
-    }
+    // if (parseFloat(clientNumber) > 0.1) {
+    // }
+    client.attachEvent('mousemove')
 
     client.attachEvent('mousedown')
     client.attachEvent('historyChange')

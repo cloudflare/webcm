@@ -247,6 +247,25 @@ manager.createEventListener('historyChange', async event => {
 
 The above will send a server-side request to `example.com/collect` whenever the page changes in a Single Page Application, with the URL and the page title as payload.
 
+<details><summary>example payload output</summary>
+
+```js
+{
+  event: 'historyChange',
+  payload: {
+    history: [
+      {
+        url: 'https://cheese.com',
+        title: 'Cheese',
+        timestamp: 1653923753892,
+      },
+    ],
+  },
+}
+```
+</details>
+<br/>
+
 #### Scroll
 
 ```js
@@ -254,6 +273,25 @@ manager.createEventListener('scroll', async event => {
   console.info('They see me scrollin...they hatin...', event.payload)
 })
 ```
+<details><summary>example payload output</summary>
+
+```json
+{
+  "event": "scroll",
+  "payload": {
+    "scrolls": [
+      {
+        "scrollX": 0,
+        "scrollY": 77.7272720336914,
+        "timestamp": 1653923753892,
+        "element": {}
+      }
+    ]
+  }
+}
+```
+</details>
+<br/>
 
 #### Mouse move
 
@@ -263,19 +301,56 @@ manager.createEventListener('mousemove', async event => {
   console.info('🐁 🪤 Mousemove:', payload)
 })
 ```
+<details><summary>example payload output</summary>
+
+```json
+{
+  "event": "mousemove",
+  "payload": {
+    "mousemoves": [
+      {
+        "clientX": 586,
+        "clientY": 106,
+        "pageX": 586,
+        "pageY": 106,
+        "target": {},
+        "relativeX": 93.4446,
+        "relativeY": 28.1562,
+        "timestamp": 1653923647675
+      }
+    ]
+  }
+}
+```
+</details>
+<br/>
+
 
 #### Mouse down
 
 ```js
 manager.createEventListener('mousedown', async event => {
-  // Save mouse coordinates as a cookie
-  const { client, payload } = event
-  console.info('🐁 ⬇️ Mousedown payload:', payload)
-  const [firstClick] = payload.mousedown
-  client.set('lastClickX', firstClick.clientX)
-  client.set('lastClickY', firstClick.clientY)
+  console.info('🐁 ⬇️ Mousedown payload:', event.payload)
 })
 ```
+<details><summary>example payload output</summary>
+
+```js
+{
+  event: 'mousedown',
+  mousedown: [
+    {
+      target: 'body',
+      timestamp: 1653923456438,
+      altKey: false,
+      clientX: 276,
+      clientY: 403
+    }
+  ]
+}
+```
+</details>
+<br/>
 
 #### Resize
 
@@ -284,14 +359,55 @@ manager.createEventListener('resize', async event => {
   console.info('New window size!', event.payload)
 })
 ```
+<details><summary>example payload output</summary>
+
+```json
+{
+  "event": "resize",
+  "payload": {
+    "dimensions": [
+      {
+        "innerWidth": 634,
+        "innerHeight": 694,
+        "availHeight": 875,
+        "availWidth": 1440,
+        "timestamp": 1653923372708
+      }
+    ]
+  }
+}
+```
+</details>
+<br/>
 
 #### Performance entries
 
 ```js
 manager.createEventListener('performance', async event => {
-  console.info('New performance entry!', event.payload)
+  console.info('New performance entries!', event.payload)
 })
 ```
+<details><summary>example payload output</summary>
+
+```json
+{
+  "event": "resourcePerformanceEntry",
+  "payload": {
+    "resources": [
+      {
+        "url": "http://localhost:1337/webcm/demoComponent/cheese",
+        "timestamp": 1653921858149
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1458682760028-07c9d41d0cd1?ixid=MnwxMTI1OHwwfDF8cmFuZG9tfHx8fHx8fHx8MTY1MDQ1NDY4NA&ixlib=rb-1.2.1&q=85&w=2880",
+        "timestamp": 1653921858149
+      }
+    ]
+  }
+}
+```
+</details>
+<br/>
 
 ### Embeds and Widgets
 
