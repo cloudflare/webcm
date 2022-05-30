@@ -1,4 +1,5 @@
-import { ComponentSettings, MCEvent } from '../../lib/manager'
+import { ComponentSettings } from '@managed-components/types'
+import { MCEvent } from '../../lib/manager'
 import { getRequestBody } from './track'
 
 /**
@@ -33,7 +34,8 @@ const getContentIds = (payload: any) => {
   ]
 }
 
-const getValue = (payload: any) => payload.value || payload.price || payload.total || payload.revenue
+const getValue = (payload: any) =>
+  payload.value || payload.price || payload.total || payload.revenue
 
 const mapEcommerceData = (event: MCEvent) => {
   const { payload, client } = event
