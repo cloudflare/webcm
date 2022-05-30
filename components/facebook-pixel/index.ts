@@ -1,4 +1,4 @@
-import { ComponentSettings, Manager, MCEvent } from '../../lib/manager'
+import { ComponentSettings, Manager } from '@managed-components/types'
 import { getEcommerceRequestBody } from './ecommerce'
 import { getRequestBody } from './track'
 

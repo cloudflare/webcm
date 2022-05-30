@@ -1,6 +1,5 @@
-import { ComponentSettings } from '@managed-components/types'
+import { ComponentSettings, MCEvent } from '@managed-components/types'
 import * as crypto from 'crypto'
-import { MCEvent } from '../../lib/manager'
 import { flattenKeys } from './utils'
 
 const USER_DATA: Record<string, { hashed?: boolean }> = {

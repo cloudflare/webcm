@@ -1,5 +1,4 @@
-import { ComponentSettings } from '@managed-components/types'
-import { MCEvent } from '../../lib/manager'
+import { ComponentSettings, MCEvent } from '@managed-components/types'
 import { getRequestBody } from './track'
 
 /**
