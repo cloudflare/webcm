@@ -247,7 +247,7 @@ manager.createEventListener('historyChange', async event => {
 
 The above will send a server-side request to `example.com/collect` whenever the page changes in a Single Page Application, with the URL and the page title as payload.
 
-<details><summary>example payload output</summary>
+example payload output:
 
 ```js
 {
@@ -263,8 +263,7 @@ The above will send a server-side request to `example.com/collect` whenever the 
   },
 }
 ```
-</details>
-<br/>
+
 
 #### Scroll
 
@@ -273,7 +272,7 @@ manager.createEventListener('scroll', async event => {
   console.info('They see me scrollin...they hatin...', event.payload)
 })
 ```
-<details><summary>example payload output</summary>
+example payload output:
 
 ```json
 {
@@ -290,8 +289,7 @@ manager.createEventListener('scroll', async event => {
   }
 }
 ```
-</details>
-<br/>
+
 
 #### Mouse move
 
@@ -301,7 +299,7 @@ manager.createEventListener('mousemove', async event => {
   console.info('🐁 🪤 Mousemove:', payload)
 })
 ```
-<details><summary>example payload output</summary>
+example payload output:
 
 ```json
 {
@@ -322,8 +320,7 @@ manager.createEventListener('mousemove', async event => {
   }
 }
 ```
-</details>
-<br/>
+
 
 
 #### Mouse down
@@ -333,7 +330,7 @@ manager.createEventListener('mousedown', async event => {
   console.info('🐁 ⬇️ Mousedown payload:', event.payload)
 })
 ```
-<details><summary>example payload output</summary>
+example payload output:
 
 ```js
 {
@@ -349,8 +346,7 @@ manager.createEventListener('mousedown', async event => {
   ]
 }
 ```
-</details>
-<br/>
+
 
 #### Resize
 
@@ -359,7 +355,7 @@ manager.createEventListener('resize', async event => {
   console.info('New window size!', event.payload)
 })
 ```
-<details><summary>example payload output</summary>
+example payload output:
 
 ```json
 {
@@ -377,8 +373,7 @@ manager.createEventListener('resize', async event => {
   }
 }
 ```
-</details>
-<br/>
+
 
 #### Performance entries
 
@@ -387,7 +382,7 @@ manager.createEventListener('performance', async event => {
   console.info('New performance entries!', event.payload)
 })
 ```
-<details><summary>example payload output</summary>
+example payload output:
 
 ```json
 {
@@ -406,8 +401,7 @@ manager.createEventListener('performance', async event => {
   }
 }
 ```
-</details>
-<br/>
+
 
 ### Embeds and Widgets
 
