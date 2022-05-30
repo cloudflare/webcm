@@ -73,8 +73,7 @@ export const getEcommerceRequestBody = async (
   request.event_name = EVENT_NAMES_MAP[event.name || ''] || event.name
   delete request.custom_data.eventName
 
-  const ecommerceData = mapEcommerceData(event)
-  request.custom_data = { ...request.custom_data, ...ecommerceData }
+  request.custom_data = { ...request.custom_data, ...mapEcommerceData(event) }
 
   return request
 }
