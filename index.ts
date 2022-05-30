@@ -108,7 +108,7 @@ const handlePageView = (req: Request, clientGeneric: ClientGeneric) => {
   }
   for (const componentName of Object.keys(manager.listeners['pageview'])) {
     pageview.client = new Client(componentName, clientGeneric)
-    manager.listeners['pageview'][componentName].forEach(
+    manager.listeners['pageview'][componentName]?.forEach(
       (fn: MCEventListener) => fn(pageview)
     )
   }
