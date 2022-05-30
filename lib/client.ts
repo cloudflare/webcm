@@ -6,7 +6,7 @@ import { Client as MCClient } from '@managed-components/types'
 export class ClientGeneric {
   type = 'browser'
   title?: string
-  timestamp?: number
+  timestamp: number
   offset?: number
   request: Request
   response: Response
@@ -27,8 +27,8 @@ export class ClientGeneric {
     this.response = response
     this.pendingVariables = {}
     this.title = request.body.title
-    ;(this.timestamp = request.body.timestamp || new Date().getTime()),
-      (this.pageVars = request.body.pageVars || {})
+    this.timestamp = request.body.timestamp || new Date().getTime()
+    this.pageVars = request.body.pageVars || {}
     this.offset = request.body.offset
     this.url = new URL(
       request.body?.location?.href || config.target + request.url || ''
@@ -118,7 +118,7 @@ export class Client implements MCClient {
   referer
   ip
   title?
-  timestamp?
+  timestamp
   url
   fetch
   execute
