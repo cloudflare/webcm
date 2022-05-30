@@ -1,8 +1,9 @@
+import { ComponentSettings } from '@managed-components/types'
 import * as crypto from 'crypto'
-import { ComponentSettings, MCEvent } from '../../lib/manager'
+import { MCEvent } from '../../lib/manager'
 import { flattenKeys } from './utils'
 
-const USER_DATA: { [k: string]: any } = {
+const USER_DATA: Record<string, { hashed?: boolean }> = {
   em: { hashed: true },
   ph: { hashed: true },
   fn: { hashed: true },
@@ -20,7 +21,7 @@ const USER_DATA: { [k: string]: any } = {
 }
 
 // Build the start of every FB Cookie
-function fbCookieBase(event: MCEvent) {
+const fbCookieBase = (event: MCEvent) => {
   const { client } = event
   return (
     'fb.' +
@@ -78,7 +79,7 @@ const getBaseRequest = (event: MCEvent, settings: ComponentSettings) => {
   const eventId = String(Math.round(Math.random() * 100000000000000000))
   const fbp = getFBP(event)
 
-  const request: { [k: string]: any } = {
+  const body: { [k: string]: any } = {
     event_name: payload.ev || event.name || event.type,
     event_id: eventId,
     action_source: 'website',
@@ -96,7 +97,7 @@ const getBaseRequest = (event: MCEvent, settings: ComponentSettings) => {
   }
   delete payload.ev
 
-  return request
+  return body
 }
 
 export const getRequestBody = async (
