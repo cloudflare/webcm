@@ -41,7 +41,6 @@ const mapEcommerceData = (event: MCEvent) => {
   const custom_data: { [k: string]: any } = {}
 
   custom_data.currency = payload.currency
-
   custom_data.content_type = 'product'
   custom_data.content_ids = getContentIds(payload)
   custom_data.content_name = getContentName(payload)
