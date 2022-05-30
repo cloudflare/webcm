@@ -33,9 +33,7 @@ const getContentIds = (payload: any) => {
   ]
 }
 
-const getValue = (payload: any) => {
-  return payload.value || payload.price || payload.total || payload.revenue
-}
+const getValue = (payload: any) => payload.value || payload.price || payload.total || payload.revenue
 
 const mapEcommerceData = (event: MCEvent) => {
   const { payload, client } = event
