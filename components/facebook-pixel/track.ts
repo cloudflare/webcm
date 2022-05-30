@@ -21,6 +21,7 @@ const USER_DATA: Record<string, { hashed?: boolean }> = {
 }
 
 // Build the start of every FB Cookie
+// https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/fbp-and-fbc/
 const fbCookieBase = (event: MCEvent) => {
   const { client } = event
   return (
@@ -34,50 +35,28 @@ const fbCookieBase = (event: MCEvent) => {
   )
 }
 
-/**
- * Fetch FBP cookie
- * https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/fbp-and-fbc/
- **/
-const getFBP = (event: MCEvent) => {
-  const { client } = event
-  let fbp = ''
-  if (client.get('_fbp')) {
-    // If it exists, great - we use it!
-    fbp = client.get('_fbp')
-  } else {
-    // If _fbp is missing, we are generating it, saving it as cookie
-    fbp = fbCookieBase(event) + String(Math.round(2147483647 * Math.random()))
-    client.set('_fbp', fbp)
-  }
-
-  return fbp
+const setNewFBP = (event: MCEvent) => {
+  const val =
+    fbCookieBase(event) + String(Math.round(2147483647 * Math.random()))
+  event.client.set('fb-pixel', val)
+  return val
 }
 
-/**
- * Fetch FBC cookie
- * https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/fbp-and-fbc/
- **/
 const getFBC = (event: MCEvent) => {
   const { client } = event
+  let fbc = client.get('fb-click') || ''
 
-  let fbc = ''
-  if (client.get('_fbc')) {
-    fbc = client.get('_fbc')
-  }
-
-  // Check if we can extract it from the URL
   if (client.url.searchParams?.get('fbclid')) {
-    fbc = fbCookieBase(event) + client.url.searchParams?.get('fbclid')
-    client.set('_fbc', fbc)
+    fbc = fbCookieBase(event) + client.url.searchParams.get('fbclid')
+    client.set('fb-click', fbc)
   }
-
   return fbc
 }
 
-const getBaseRequest = (event: MCEvent, settings: ComponentSettings) => {
+const getBaseRequestBody = (event: MCEvent, settings: ComponentSettings) => {
   const { client, payload } = event
   const eventId = String(Math.round(Math.random() * 100000000000000000))
-  const fbp = getFBP(event)
+  const fbp = event.client.get('fb-pixel') || setNewFBP(event)
 
   const body: { [k: string]: any } = {
     event_name: payload.ev || event.name || event.type,
@@ -105,9 +84,8 @@ export const getRequestBody = async (
   settings: ComponentSettings
 ) => {
   const { payload } = event
-
   const fbc = getFBC(event)
-  const request = getBaseRequest(event, settings)
+  const body = getBaseRequestBody(event, settings)
 
   // appending hashed user data
   const encoder = new TextEncoder()
@@ -118,16 +96,16 @@ export const getRequestBody = async (
         const data = encoder.encode(value.trim().toLowerCase())
         value = await crypto.createHash('sha256').update(data).digest('hex')
       }
-      request.user_data[key] = value
+      body.user_data[key] = value
       delete payload[key]
     }
   }
 
   if (fbc) {
-    request.user_data.fbc = fbc
+    body.user_data.fbc = fbc
   }
 
-  request.custom_data = flattenKeys(payload)
+  body.custom_data = flattenKeys(payload)
 
-  return request
+  return body
 }
