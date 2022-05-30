@@ -2,7 +2,7 @@ import Cookies from 'cookies'
 import { Request, Response } from 'express'
 import config from '../config.json'
 import { ManagerGeneric } from './manager'
-
+import { Client as MCClient } from '@managed-components/types'
 export class ClientGeneric {
   type = 'browser'
   title?: string
@@ -108,7 +108,7 @@ interface ClientSetOptions {
   expiry?: Date | number | null
 }
 
-export class Client {
+export class Client implements MCClient {
   #generic
   #component
   emitter

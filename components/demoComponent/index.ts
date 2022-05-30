@@ -10,13 +10,13 @@ export default async function (manager: Manager, settings: ComponentSettings) {
     manager.invalidateCache('weather-Kyoto')
     return new Response(`You made a ${request.method} request`)
   })
-  console.log('demoComponent exposes an endpoint at', myRoute)
+  console.log(':::: exposes an endpoint at', myRoute)
 
   const myProxiedRoute = manager.proxy('/gate/*', 'http://n-gate.com')
-  console.log(`demoComponent proxies ${myProxiedRoute} to http://n-gate.com`)
+  console.log(`:::: proxies ${myProxiedRoute} to http://n-gate.com`)
 
   const myStaticFile = manager.serve('/cheese', './assets/Camembert.jpg')
-  console.log(`demoComponent serves a file at ${myStaticFile}`)
+  console.log(`:::: serves a file at ${myStaticFile}`)
 
   if (settings.ecommerce) {
     manager.addEventListener('ecommerce', event => {

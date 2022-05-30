@@ -4,7 +4,8 @@ import { JSDOM } from 'jsdom'
 import path from 'path'
 import { invalidateCache, useCache } from '../cache/index'
 import { get, set } from '../storage/kv-storage'
-import { Client, ClientGeneric } from './client'
+import { ClientGeneric, Client } from './client'
+import { Manager as MCManager } from '@managed-components/types'
 
 console.info('\nWebCM, version', process.env.npm_package_version)
 export class MCEvent extends Event {
@@ -220,7 +221,7 @@ export class ManagerGeneric {
   }
 }
 
-export class Manager {
+export class Manager implements MCManager {
   #generic: ManagerGeneric
   #component: string
   name: string
@@ -240,7 +241,7 @@ export class Manager {
   }
 
   get(key: string) {
-    get(this.#component + '__' + key)
+    return get(this.#component + '__' + key)
   }
 
   set(key: string, value: any) {
