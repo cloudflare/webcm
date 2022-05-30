@@ -53,7 +53,7 @@ Every Managed Component includes a `manifest.json`. The manifest file includes i
 | `allowCustomFields` | Whether or not users should be allowed to send custom fields to the tool                                     |
 | `permissions`       | Array of permissions the tool requires for its operation                                                     |
 
-## Permissions
+### Permissions
 
 The following table describes the permissions that a tool can ask for when being added to a website.
 
@@ -72,6 +72,7 @@ The following table describes the permissions that a tool can ask for when being
 | hook_user_events     | events: `event`                                                             |
 | hook_browser_events  | events: `pageview`, `historyChange`, `DOMChange`, `click`, `scroll`, `time` |
 
+---
 ## API Overview
 
 ### Structure
@@ -134,20 +135,32 @@ manager.route('/ping', request => {
 
 The above will map respond with a 204 code to all requests under `domain.com/cdn-cgi/zaraz/example/ping`.
 
+### Events Overview
+
+In a nutshell, manager events are listened to using `manager.addEventListener`, but each client event requires two steps:
+  1. listener declaration using `manager.createEventListener`
+  2. then linking to a client using `client.attachEvent`.
+
+**Why?**
+
+`manager.addEventListener` is used for all events originating from the manager itself, whereas `manager.createEventListener` is for events originating from the client.
+This is an important difference because when your component is initialized, there are no clients (they only show up later, when visitors are visiting the website). This is why you don't have access to the `client` object in the top-most function of your component; it is only exposed inside the event handlers (e.g. `pageview` & `clientcreated`).
+For client events, we're separating the declaration of the handler from its coupling to a client instance. `createEventListener` therefore declares the handler, but doesn't attach it to any client yet. When the `client` object is later exposed in one of the `manager` event handlers, you can use `client.attachEvent` to actually bind the aforementioned handler to the client.
+
 ### Manager Events
 
-#### Pageview
+#### Pageview (`pageview`)
 
 ```js
 manager.addEventListener('pageview', async event => {
-  const { context, client, page } = event
+  const { client } = event
 
   // Send server-side request
   fetch('https://example.com/collect', {
     method: 'POST',
     data: {
-      url: context.system.page.url.href,
-      title: context.system.page.title,
+      url: client.url.href,
+      title: client.title,
     },
   })
 })
@@ -155,7 +168,19 @@ manager.addEventListener('pageview', async event => {
 
 The above will send a server-side request to `example.com/collect` whenever the a new page loads, with the URL and the page title as payload.
 
-#### User-configured events
+#### Client Creation (`clientcreated`)
+
+```js
+manager.addEventListener('clientcreated', async event => {
+  const { client } = event
+  const num = Math.random()
+  client.set('clientNumber', num.toString())
+})
+```
+
+The above will store a random number variable to the client whenever a new client loads a page.
+
+#### User-configured events (`event`)
 
 Users can configure events using a site-wide [Events API](https://developers.cloudflare.com/zaraz/web-api), and then map these events to different tools. A tool can register to listen to events and then define the way it will be processed.
 
@@ -184,20 +209,37 @@ In the above example, when the tool receives an event it will do multiple things
 
 ### Client Events
 
+NOTE: Each of the below client events listeners are instantiated using `manager.createEventListener` and **enabled** by using `client.attachEvent`.
+
+E.g.
+
+```js
+// earlier in the Managed Component:
+manager.createEventListener('mousedown', async event => {
+  console.info('🐁 ⬇️ Mousedown:', event.payload)
+})
+
+// later in the same component
+manager.addEventListener('clientcreated', ({ client }) => {
+  client.attachEvent('mousedown')
+})
+```
+
+The above example establishes a `mousedown` event listener for each newly created client.
 #### Single Page Application navigation
 
 The `historyChange` event is called whenever the page changes in a Single Page Application, by mean of `history.pushState` or `history.replaceState`. Tools can automatically trigger an action when this event occurs using an Event Listener.
 
 ```js
-client.addEventListener('historyChange', async event => {
-  const { context, client, page } = event
+manager.createEventListener('historyChange', async event => {
+  const { client } = event
 
   // Send server-side request
   fetch('https://example.com/collect', {
     method: 'POST',
     data: {
-      url: context.system.page.url.href,
-      title: context.system.page.title,
+      url: client.url.href,
+      title: client.title,
     },
   })
 })
@@ -208,7 +250,7 @@ The above will send a server-side request to `example.com/collect` whenever the 
 #### Scroll
 
 ```js
-client.addEventListener('scroll', async (event: MCEvent) => {
+manager.createEventListener('scroll', async event => {
   console.info('They see me scrollin...they hatin...', event.payload)
 })
 ```
@@ -216,7 +258,7 @@ client.addEventListener('scroll', async (event: MCEvent) => {
 #### Mouse move
 
 ```js
-client.addEventListener('mousemove', async (event: MCEvent) => {
+manager.createEventListener('mousemove', async event => {
   const { payload } = event
   console.info('🐁 🪤 Mousemove:', payload)
 })
@@ -225,7 +267,7 @@ client.addEventListener('mousemove', async (event: MCEvent) => {
 #### Mouse down
 
 ```js
-client.addEventListener('mousedown', async (event: MCEvent) => {
+manager.createEventListener('mousedown', async event => {
   // Save mouse coordinates as a cookie
   const { client, payload } = event
   console.info('🐁 ⬇️ Mousedown payload:', payload)
@@ -238,7 +280,7 @@ client.addEventListener('mousedown', async (event: MCEvent) => {
 #### Resize
 
 ```js
-client.addEventListener('resize', async (event: MCEvent) => {
+manager.createEventListener('resize', async event => {
   console.info('New window size!', event.payload)
 })
 ```
@@ -246,7 +288,7 @@ client.addEventListener('resize', async (event: MCEvent) => {
 #### Performance entries
 
 ```js
-client.addEventListener('performance', async (event: MCEvent) => {
+manager.createEventListener('performance', async event => {
   console.info('New performance entry!', event.payload)
 })
 ```
@@ -359,7 +401,8 @@ manager.route('/invalidate', request => {
 
 The above example can be used by a tool to remotely wipe a cached item, for example when it wants the website to re-fetch data from the tool vendor API.
 
-### Client Functions
+---
+### Clientside Functions
 
 #### `client.fetch`
 
@@ -379,7 +422,7 @@ Save a value on the client. In a normal web browser, this would translate into a
 client.set('uuid', uuidv4(), { scope: 'infinite' })
 ```
 
-The above will save a UUIDv4 string under a key called `uuid`, readable by this tool only. The Components Manager will attempt to make this key persist infintely.
+The above will save a UUIDv4 string under a key called `uuid`, readable by this tool only. The Components Manager will know to attempt to make this key persist indefinitely.
 
 The third argument is an optional object with these defaults:
 
