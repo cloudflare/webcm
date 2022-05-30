@@ -26,5 +26,12 @@ const webcm = {
     })
     return webcm._processServerResponse(res)
   },
-  _syncedAttributes: ['altKey', 'clientX', 'clientY'],
+  _syncedAttributes: [
+    'altKey',
+    'clientX',
+    'clientY',
+    'pageX',
+    'pageY',
+    'button',
+  ],
 }
