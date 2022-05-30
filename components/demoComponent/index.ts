@@ -1,5 +1,6 @@
+import { ComponentSettings } from '@managed-components/types'
 import { Request } from 'express'
-import { ComponentSettings, Manager } from '../../lib/manager'
+import { Manager } from '../../lib/manager'
 
 export default async function (manager: Manager, settings: ComponentSettings) {
   // FYI - You can use fetch to get some remote preferences here based on `settings`
