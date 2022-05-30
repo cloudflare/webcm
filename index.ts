@@ -1,3 +1,4 @@
+import { MCEventListener } from '@managed-components/types'
 import express, { Request, RequestHandler } from 'express'
 import {
   createProxyMiddleware,
@@ -6,7 +7,7 @@ import {
 import * as fs_path from 'path'
 import config from './config.json'
 import { Client, ClientGeneric } from './lib/client'
-import { ManagerGeneric, MCEvent, MCEventListener } from './lib/manager'
+import { ManagerGeneric, MCEvent } from './lib/manager'
 
 if (process.env.NODE_ENV === 'production') {
   process.on('unhandledRejection', (reason: Error) => {
@@ -101,14 +102,14 @@ const handlePageView = (req: Request, clientGeneric: ClientGeneric) => {
     )) {
       const event = new MCEvent('clientcreated', req)
       event.client = new Client(componentName as string, clientGeneric)
-      manager.listeners['clientcreated'][componentName].forEach(
+      manager.listeners['clientcreated'][componentName]?.forEach(
         (fn: MCEventListener) => fn(event)
       )
     }
   }
   for (const componentName of Object.keys(manager.listeners['pageview'])) {
     pageview.client = new Client(componentName, clientGeneric)
-    manager.listeners['pageview'][componentName].forEach(
+    manager.listeners['pageview'][componentName]?.forEach(
       (fn: MCEventListener) => fn(pageview)
     )
   }

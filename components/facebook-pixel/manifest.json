@@ -1,0 +1,128 @@
+{
+  "name": "Facebook Pixel",
+  "description": "Facebook Pixel",
+  "namespace": "facebook-pixel",
+  "icon": "assets/facebook-logo.svg",
+  "categories": ["Advertising"],
+  "provides": ["events"],
+  "fields": {
+    "ev": {
+      "displayName": "Facebook Event Name",
+      "helpText": "Facebook event name can be \"PageView\", one of [the standard Facebook events](https://developers.facebook.com/docs/analytics/send_data/events/#standard), or a custom name.",
+      "placeholder": "e.g. PageView, Contact, Add to Cart etc",
+      "displayWidget": "text",
+      "validations": [
+        {
+          "required": true
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "predicted_ltv": {
+      "displayName": "Predicted LTV",
+      "helpText": "Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.",
+      "displayWidget": "text",
+      "validations": [{ "type": "number" }]
+    },
+    "status": {
+      "displayName": "Status",
+      "helpText": "Used with the CompleteRegistration event, to show the status of the registration.",
+      "displayWidget": "toggle",
+      "validations": [{ "type": "boolean" }]
+    },
+    "value": {
+      "displayName": "Value",
+      "helpText": "Value of a user performing this event to the business",
+      "displayWidget": "text",
+      "validations": [{ "type": "number" }]
+    },
+
+    "em": {
+      "displayName": "Email",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "ph": {
+      "displayName": "Phone Number",
+      "helpText": "Remove symbols, letters, and any leading zeros. Phone numbers must include a country code to be used for matching (e.g., the number 1 must precede a phone number in the United States). Always include the country code as part of your customers' phone numbers, even if all of your data is from the same country.",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "fn": {
+      "displayName": "First Name",
+      "helpText": "Using Roman alphabet a-z characters is recommended. Lowercase only with no punctuation.",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "ln": {
+      "displayName": "Last Name",
+      "helpText": "Using Roman alphabet a-z characters is recommended. Lowercase only with no punctuation.",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "db": {
+      "displayName": "Date of Birth",
+      "helpText": "We accept the YYYYMMDD format accommodating a range of month, day and year combinations, with or without punctuation.",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "ge": {
+      "displayName": "Gender",
+      "helpText": "We accept gender in the form of an initial in lowercase.",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "ct": {
+      "displayName": "City",
+      "helpText": "Using Roman alphabet a-z characters is recommended. Lowercase only with no punctuation, no special characters, and no spaces.",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "st": {
+      "displayName": "State",
+      "helpText": "Use the [2-character ANSI abbreviation code](https://en.wikipedia.org/wiki/Federal_Information_Processing_Standard_state_code) in lowercase. Normalize states outside the U.S. in lowercase with no punctuation, no special characters, and no spaces.",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "zp": {
+      "displayName": "Zip Code",
+      "helpText": "Use lowercase with no spaces and no dash. Use only the first 5 digits for U.S. zip codes. Use the area, district, and sector format for the UK.",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "country": {
+      "displayName": "Country",
+      "helpText": "Use the lowercase, 2-letter country codes in [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). \n **Important Note:** Always include your customers' countries’ even if all of your country codes are from the same country. We match on a global scale, and this simple step helps us match as many people as possible from your list.",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "external_id": {
+      "displayName": "External ID",
+      "helpText": "Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "subscription_id": {
+      "displayName": "Subscription ID",
+      "helpText": "The subscription ID for the user in this transaction; it is similar to the order ID for an individual product.",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "fb_login_id": {
+      "displayName": "Facebook Login ID",
+      "helpText": "The ID issued by Facebook when a person first logs into an instance of an app. This is also known as [App-Scoped ID](https://developers.facebook.com/docs/messenger-platform/reference/id-matching-api/#aid)",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    },
+    "lead_id": {
+      "displayName": "Lead ID",
+      "helpText": "The ID associated with a lead generated by [Facebook's Lead Ads](https://developers.facebook.com/docs/marketing-api/guides/lead-ads)",
+      "displayWidget": "text",
+      "validations": [{ "type": "string" }]
+    }
+  },
+  "allowCustomFields": true,
+  "permissions": []
+}

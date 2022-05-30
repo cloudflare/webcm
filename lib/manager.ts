@@ -5,10 +5,17 @@ import path from 'path'
 import { invalidateCache, useCache } from '../cache/index'
 import { get, set } from '../storage/kv-storage'
 import { ClientGeneric, Client } from './client'
-import { Manager as MCManager } from '@managed-components/types'
+import {
+  ComponentSettings,
+  EmbedCallback,
+  Manager as MCManager,
+  MCEvent as PrimaryMCEvent,
+  MCEventListener,
+  WidgetCallback,
+} from '@managed-components/types'
 
 console.info('\nWebCM, version', process.env.npm_package_version)
-export class MCEvent extends Event {
+export class MCEvent extends Event implements PrimaryMCEvent {
   name?: string
   payload: any
   client!: Client
@@ -17,28 +24,14 @@ export class MCEvent extends Event {
   constructor(type: string, req: Request) {
     super(type)
     this.type = type
-    this.payload = req.body.payload || {}
+    this.payload = req.body.payload || { timestamp: new Date().getTime() } // because pageviews are symbolic requests without a payload
     this.name = type === 'ecommerce' ? this.payload.name : undefined
   }
 }
 
-export interface ComponentSettings {
-  [key: string]: any
-}
-
 type ComponentConfig = [string, ComponentSettings]
 
-type EmbedCallback = (context: {
-  parameters: { [k: string]: unknown }
-}) => Promise<string>
-
-type WidgetCallback = () => Promise<string>
-
 const EXTS = ['.ts', '.mts', '.mjs', '.js']
-
-export interface MCEventListener {
-  (event: MCEvent): void
-}
 
 export class ManagerGeneric {
   components: (string | ComponentConfig)[]
