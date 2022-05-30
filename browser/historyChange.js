@@ -15,7 +15,7 @@
             ],
           },
         },
-        true
+        1
       )
       .then(webcm._processServerResponse)
     webcm.pageVars = {}
