@@ -2,7 +2,7 @@ import { ComponentSettings, MCEvent } from '../../lib/manager'
 import { getRequestBody } from './track'
 
 /**
- * Maping the standard MC ecommerce API to FB ecommerce event names
+ * Mapping the standard MC ecommerce API to FB ecommerce event names
  */
 const EVENT_NAMES_MAP: { [k: string]: string } = {
   'Order Completed': 'Purchase',
