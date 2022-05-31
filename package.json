@@ -6,13 +6,18 @@
     "type": "git",
     "url": "https://github.com/cloudflare/webcm"
   },
-  "engines": {
-    "node": ">=17.0.0"
-  },
   "author": "Cloudflare Managed Components Team <managedcomponents@cloudflare.com> (https://blog.cloudflare.com/zaraz-open-source-managed-components-and-webcm/)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/cloudflare/webcm"
+  },
+  "keywords": [
+    "webcm",
+    "managed-components",
+    "cloudflare"
+  ],
+  "engines": {
+    "node": ">=17.0.0"
   },
   "main": "index.ts",
   "scripts": {
