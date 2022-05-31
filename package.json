@@ -1,8 +1,26 @@
 {
-  "name": "ec-web",
+  "name": "webcm",
   "version": "1.0.0",
-  "description": "",
+  "description": "Demonstrative implementation of a web-based manager for utilising Managed Components",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cloudflare/webcm"
+  },
+  "engines": {
+    "node": ">=17.0.0"
+  },
+  "author": "Cloudflare Managed Components Team <managedcomponents@cloudflare.com> (https://blog.cloudflare.com/zaraz-open-source-managed-components-and-webcm/)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cloudflare/webcm"
+  },
   "main": "index.ts",
+  "scripts": {
+    "lint": "npx eslint --ext .ts,.js, .",
+    "lint:fix": "npx eslint --ext .ts,.js, . --fix",
+    "test": "vitest --globals",
+    "dev": "TS_NODE_FILES=true npx nodemon --exec 'node --experimental-fetch --loader ts-node/esm' index.ts"
+  },
   "dependencies": {
     "cookies": "^0.8.0",
     "eslint-config-prettier": "^8.5.0",
@@ -10,21 +28,6 @@
     "http-proxy-middleware": "^2.0.6",
     "jsdom": "^19.0.0"
   },
-  "scripts": {
-    "lint": "npx eslint --ext .ts,.js, .",
-    "lint:fix": "npx eslint --ext .ts,.js, . --fix",
-    "test": "vitest --globals",
-    "dev": "TS_NODE_FILES=true npx nodemon --exec 'node --experimental-fetch --loader ts-node/esm' index.ts"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cloudflare/ec-web"
-  },
-  "engines": {
-    "node": ">=17.0.0"
-  },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@managed-components/types": "^1.0.0",
     "@types/cookies": "^0.7.7",
