@@ -13,5 +13,5 @@ To run WebCM you need to have Node version >= 17. You can then install all depen
 
 ## Read more
 
-- See [EXPLAINER.md](EXPLAINER.md) for more information about External Components and how they work
+- See [EXPLAINER.md](EXPLAINER.md) for more information about Managed Components and how they work
 - See [SPECS.md](SPECS.md) for more information about the APIs that WebCM is implementing

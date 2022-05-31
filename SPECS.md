@@ -87,7 +87,7 @@ export default async function (manager, settings) {
 
 ### Server functionality
 
-External Components provides a couple of methods that allow a tool to introduce server-side functionality:
+Managed Components provides a couple of methods that allow a tool to introduce server-side functionality:
 
 #### `proxy`
 
@@ -405,7 +405,7 @@ example payload output:
 
 ### Embeds and Widgets
 
-External Components can provide embeds (elements pre-placed by the website owner using a placeholder) and widgets (floating elements).
+Managed Components can provide embeds (elements pre-placed by the website owner using a placeholder) and widgets (floating elements).
 
 #### Embed support
 
