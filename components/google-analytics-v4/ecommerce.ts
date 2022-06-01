@@ -94,14 +94,14 @@ const _prepareStringContent = function (value: any) {
 // eg: id45790-32~caGames~nmMonopoly: 3rd Edition~pr19~qt1
 const buildProductRequest = (item: { [k: string]: any }) => {
   const allKeys = {}
-  for (let [id, value] of Object.entries(item)) {
+  for (const [id, value] of Object.entries(item)) {
     const result: { [k: string]: string } = {}
-    value = _prepareStringContent(value)
+    const preppedValue = _prepareStringContent(value)
     Object.prototype.hasOwnProperty.call(PRODUCT_DETAILS_MAPPING, id) &&
-      (result[PRODUCT_DETAILS_MAPPING[id]] = value)
+      (result[PRODUCT_DETAILS_MAPPING[id]] = preppedValue)
     if (Object.prototype.hasOwnProperty.call(_listMapping, id)) {
       if (!Object.prototype.hasOwnProperty.call(result, _listMapping[id])) {
-        result[_listMapping[id]] = value
+        result[_listMapping[id]] = preppedValue
       }
     }
     Object.assign(allKeys, result)
