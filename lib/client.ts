@@ -1,6 +1,5 @@
 import Cookies from 'cookies'
 import { Request, Response } from 'express'
-import config from '../config.json'
 import { ManagerGeneric } from './manager'
 import { Client as MCClient } from '@managed-components/types'
 export class ClientGeneric {
@@ -13,6 +12,7 @@ export class ClientGeneric {
   manager: ManagerGeneric
   url: URL
   cookies: Cookies
+  cookiesKey?: string
   pendingVariables: { [k: string]: string }
   pageVars: { [k: string]: string }
   webcmPrefs: {
@@ -21,7 +21,13 @@ export class ClientGeneric {
     }
   }
 
-  constructor(request: Request, response: Response, manager: ManagerGeneric) {
+  constructor(
+    request: Request,
+    response: Response,
+    manager: ManagerGeneric,
+    config: { cookiesKey?: string; target?: string }
+  ) {
+    this.cookiesKey = config.cookiesKey || ''
     this.manager = manager
     this.request = request
     this.response = response
@@ -33,10 +39,10 @@ export class ClientGeneric {
     this.url = new URL(
       request.body?.location?.href || config.target + request.url || ''
     )
-    this.cookies = new Cookies(request, response, { keys: [config.cookiesKey] })
-    if (this.cookies.get('webcm_prefs', { signed: !!config.cookiesKey })) {
+    this.cookies = new Cookies(request, response, { keys: [this.cookiesKey] })
+    if (this.cookies.get('webcm_prefs', { signed: !!this.cookiesKey })) {
       this.webcmPrefs = JSON.parse(
-        this.cookies.get('webcm_prefs', { signed: !!config.cookiesKey }) || ''
+        this.cookies.get('webcm_prefs', { signed: !!this.cookiesKey }) || ''
       )
     } else {
       this.webcmPrefs = { listeners: {} }
@@ -57,7 +63,7 @@ export class ClientGeneric {
     this.response.payload.fetch.push([resource, settings || {}])
   }
   set(key: string, value?: string | null, opts?: ClientSetOptions) {
-    const cookieOpts: Cookies.SetOption = { signed: !!config.cookiesKey }
+    const cookieOpts: Cookies.SetOption = { signed: !!this.cookiesKey }
     const { expiry, scope = 'infinite' } = opts || {}
     if (typeof expiry === 'number') {
       cookieOpts.maxAge = expiry
@@ -86,7 +92,7 @@ export class ClientGeneric {
   }
   get(key: string) {
     return (
-      this.cookies.get(key, { signed: !!config.cookiesKey }) ||
+      this.cookies.get(key, { signed: !!this.cookiesKey }) ||
       this.pageVars[key] ||
       this.pendingVariables[key]
     )
