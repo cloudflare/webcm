@@ -2,8 +2,8 @@ import { Request } from 'express'
 import { existsSync, readFileSync } from 'fs'
 import { JSDOM } from 'jsdom'
 import path from 'path'
-import { invalidateCache, useCache } from '../cache/index'
-import { get, set } from '../storage/kv-storage'
+import { invalidateCache, useCache } from './cache/index'
+import { get, set } from './storage/kv-storage'
 import { ClientGeneric, Client } from './client'
 import {
   ComponentSettings,
@@ -14,7 +14,6 @@ import {
   WidgetCallback,
 } from '@managed-components/types'
 
-console.info('\nWebCM, version', process.env.npm_package_version)
 export class MCEvent extends Event implements PrimaryMCEvent {
   name?: string
   payload: any
@@ -31,7 +30,7 @@ export class MCEvent extends Event implements PrimaryMCEvent {
 
 type ComponentConfig = [string, ComponentSettings]
 
-const EXTS = ['.ts', '.mts', '.mjs', '.js']
+const EXTS = ['.js', '.mjs', '.ts', '.mts']
 
 export class ManagerGeneric {
   components: (string | ComponentConfig)[]
@@ -39,6 +38,7 @@ export class ManagerGeneric {
   name: string
   ecommerceEventsPath: string
   clientEventsPath: string
+  componentsFolderPath: string
   requiredSnippets: string[]
   mappedEndpoints: {
     [k: string]: (request: Request) => Response
@@ -69,7 +69,10 @@ export class ManagerGeneric {
     trackPath: string
     clientEventsPath: string
     ecommerceEventsPath: string
+    componentsFolderPath?: string
   }) {
+    this.componentsFolderPath =
+      Context.componentsFolderPath || path.join(__dirname, '..', 'components')
     this.requiredSnippets = ['track']
     this.registeredWidgets = []
     this.registeredEmbeds = {}
@@ -130,8 +133,9 @@ export class ManagerGeneric {
       }
       for (const ext of EXTS) {
         componentPath = path.join(
-          __dirname,
-          `../components/${componentName}/index${ext}`
+          this.componentsFolderPath,
+          componentName,
+          'index' + ext
         )
         if (existsSync(componentPath)) {
           component =
@@ -139,6 +143,8 @@ export class ManagerGeneric {
               ? await import(componentPath)
               : require(componentPath)
           break
+        } else {
+          // TODO - fetch component from CDN if available
         }
       }
 
@@ -169,7 +175,7 @@ export class ManagerGeneric {
     )
 
     for (const snippet of [...this.requiredSnippets, ...clientListeners]) {
-      const snippetPath = `browser/${snippet}.js`
+      const snippetPath = path.join(__dirname, 'browser', `${snippet}.js`)
       if (existsSync(snippetPath)) {
         injectedScript += readFileSync(snippetPath)
           .toString()
