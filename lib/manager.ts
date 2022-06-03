@@ -30,7 +30,7 @@ export class MCEvent extends Event implements PrimaryMCEvent {
 
 type ComponentConfig = [string, ComponentSettings]
 
-const EXTS = ['.js', '.mjs', '.ts', '.mts']
+const EXTS = ['.mjs', '.js', '.mts', '.ts']
 
 export class ManagerGeneric {
   components: (string | ComponentConfig)[]
@@ -123,6 +123,7 @@ export class ManagerGeneric {
   async initScript() {
     for (const compConfig of this.components) {
       let component
+      let componentPathBase = ''
       let componentPath = ''
       let componentName = ''
       let componentSettings = {}
@@ -132,19 +133,32 @@ export class ManagerGeneric {
         componentName = compConfig
       }
       for (const ext of EXTS) {
-        componentPath = path.join(
-          this.componentsFolderPath,
-          componentName,
-          'index' + ext
-        )
-        if (existsSync(componentPath)) {
-          component =
-            ext === '.mjs'
-              ? await import(componentPath)
-              : require(componentPath)
-          break
+        componentPathBase = path.join(this.componentsFolderPath, componentName)
+        componentPath = path.join(componentPathBase, 'dist', 'index' + ext)
+        if (existsSync(componentPathBase)) {
+          if (existsSync(componentPath)) {
+            console.info('FOUND LOCAL MC:', componentPath)
+            component =
+              ext === '.mjs'
+                ? await import(componentPath)
+                : require(componentPath)
+            break
+          }
         } else {
-          // TODO - fetch component from CDN if available
+          componentPath = `https://unpkg.com/@managed-components/${componentName}/dist/index${ext}`
+          try {
+            component = await import(componentPath)
+            console.info('FOUND REMOTE MC:', componentPath)
+            break
+          } catch (error) {
+            // file ext not found
+            console.warn(
+              'error loading remote component:',
+              componentPath,
+              '\n',
+              error
+            )
+          }
         }
       }
 
