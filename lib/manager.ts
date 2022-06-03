@@ -1,10 +1,3 @@
-import { Request } from 'express'
-import { existsSync, readFileSync } from 'fs'
-import { JSDOM } from 'jsdom'
-import path from 'path'
-import { invalidateCache, useCache } from './cache/index'
-import { get, set } from './storage/kv-storage'
-import { ClientGeneric, Client } from './client'
 import {
   ComponentSettings,
   EmbedCallback,
@@ -13,6 +6,14 @@ import {
   MCEventListener,
   WidgetCallback,
 } from '@managed-components/types'
+import { Request } from 'express'
+import { existsSync, readFileSync, unlink, writeFileSync } from 'fs'
+import { JSDOM } from 'jsdom'
+import path from 'path'
+import { x as extract } from 'tar'
+import { invalidateCache, useCache } from './cache/index'
+import { Client, ClientGeneric } from './client'
+import { get, set } from './storage/kv-storage'
 
 export class MCEvent extends Event implements PrimaryMCEvent {
   name?: string
@@ -120,64 +121,105 @@ export class ManagerGeneric {
     this.listeners[type][component].push(callback)
   }
 
+  async initComponent(
+    component: any,
+    name: string,
+    settings: ComponentSettings
+  ) {
+    if (component) {
+      try {
+        console.info(':: Initialising component', name)
+        await component.default(new Manager(name, this), settings)
+      } catch (error) {
+        console.error(':: Error initialising component', component, error)
+      }
+    }
+  }
+
+  async fetchLocalComponent(basePath: string) {
+    let component
+    const pkgPath = path.join(basePath, 'package.json')
+    if (existsSync(pkgPath)) {
+      const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'))
+      const main = pkg.main
+      const mainPath = path.join(basePath, main)
+      if (existsSync(mainPath)) {
+        console.info('FOUND LOCAL MC:', mainPath)
+        component = mainPath.endsWith('.mjs')
+          ? await import(mainPath)
+          : require(mainPath)
+      } else {
+        console.error(`No executable file for component at ${mainPath}`)
+      }
+    } else {
+      for (const ext of EXTS) {
+        const componentPath = path.join(basePath, 'index' + ext)
+        if (existsSync(componentPath)) {
+          console.info('FOUND LOCAL MC:', componentPath)
+          component =
+            ext === '.mjs'
+              ? await import(componentPath)
+              : require(componentPath)
+          break
+        }
+      }
+      if (!component) {
+        console.error(`No executable file for component in ${basePath}`)
+      }
+    }
+    return component
+  }
+
+  async fetchRemoteComponent(basePath: string, name: string) {
+    let component
+    const regUrl = `https://registry.npmjs.org/@managed-components/${name}`
+    try {
+      const res = await fetch(regUrl)
+      const json = await res.json()
+      const version = json['dist-tags'].latest
+      const url = json.versions[version].dist.tarball
+      const tarball = await fetch(url)
+      console.info('FOUND REMOTE MC:', url)
+      const componentPath = path.join(this.componentsFolderPath, name)
+      const tarballPath = path.join(this.componentsFolderPath, name + '.tar.gz')
+
+      // FIXME - save & extract this tarball properly
+      writeFileSync(tarballPath, await tarball.arrayBuffer())
+      await extract({ cwd: this.componentsFolderPath, file: componentPath })
+
+      unlink(tarballPath, (err: unknown) => {
+        if (err) throw err
+        // tarball deleted
+      })
+
+      component = await this.fetchLocalComponent(basePath)
+    } catch (error) {
+      console.error(':: Error fetching remote component', name, error)
+    }
+    return component
+  }
+
+  async loadComponent(name: string) {
+    const localPathBase = path.join(this.componentsFolderPath, name)
+    return existsSync(localPathBase)
+      ? this.fetchLocalComponent(localPathBase)
+      : this.fetchRemoteComponent(localPathBase, name)
+  }
+
+  parseCompConfig(config: string | ComponentConfig) {
+    let name = config as string
+    let settings = {}
+    if (Array.isArray(config)) {
+      ;[name, settings] = config
+    }
+    return { name, settings }
+  }
+
   async initScript() {
     for (const compConfig of this.components) {
-      let component
-      let componentPathBase = ''
-      let componentPath = ''
-      let componentName = ''
-      let componentSettings = {}
-      if (Array.isArray(compConfig)) {
-        ;[componentName, componentSettings] = compConfig
-      } else {
-        componentName = compConfig
-      }
-      for (const ext of EXTS) {
-        componentPathBase = path.join(this.componentsFolderPath, componentName)
-        componentPath = path.join(componentPathBase, 'dist', 'index' + ext)
-        if (existsSync(componentPathBase)) {
-          if (existsSync(componentPath)) {
-            console.info('FOUND LOCAL MC:', componentPath)
-            component =
-              ext === '.mjs'
-                ? await import(componentPath)
-                : require(componentPath)
-            break
-          }
-        } else {
-          componentPath = `https://unpkg.com/@managed-components/${componentName}/dist/index${ext}`
-          try {
-            component = await import(componentPath)
-            console.info('FOUND REMOTE MC:', componentPath)
-            break
-          } catch (error) {
-            // file ext not found
-            console.warn(
-              'error loading remote component:',
-              componentPath,
-              '\n',
-              error
-            )
-          }
-        }
-      }
-
-      if (component) {
-        try {
-          console.info(':: Loading component', componentName)
-          await component.default(
-            new Manager(componentName, this),
-            componentSettings
-          )
-        } catch (error) {
-          console.error(
-            ':: Error loading component',
-            componentPath,
-            component,
-            error
-          )
-        }
-      }
+      const { name, settings } = this.parseCompConfig(compConfig)
+      const component = await this.loadComponent(name)
+      await this.initComponent(component, name, settings)
     }
   }
 
