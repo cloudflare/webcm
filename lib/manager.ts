@@ -7,10 +7,10 @@ import {
   WidgetCallback,
 } from '@managed-components/types'
 import { Request } from 'express'
-import { existsSync, readFileSync, unlink, writeFileSync } from 'fs'
+import { existsSync, readFileSync } from 'fs'
 import { JSDOM } from 'jsdom'
+import pacote from 'pacote'
 import path from 'path'
-import { x as extract } from 'tar'
 import { invalidateCache, useCache } from './cache/index'
 import { Client, ClientGeneric } from './client'
 import { get, set } from './storage/kv-storage'
@@ -172,26 +172,9 @@ export class ManagerGeneric {
 
   async fetchRemoteComponent(basePath: string, name: string) {
     let component
-    const regUrl = `https://registry.npmjs.org/@managed-components/${name}`
     try {
-      const res = await fetch(regUrl)
-      const json = await res.json()
-      const version = json['dist-tags'].latest
-      const url = json.versions[version].dist.tarball
-      const tarball = await fetch(url)
-      console.info('FOUND REMOTE MC:', url)
       const componentPath = path.join(this.componentsFolderPath, name)
-      const tarballPath = path.join(this.componentsFolderPath, name + '.tar.gz')
-
-      // FIXME - save & extract this tarball properly
-      writeFileSync(tarballPath, await tarball.arrayBuffer())
-      await extract({ cwd: this.componentsFolderPath, file: componentPath })
-
-      unlink(tarballPath, (err: unknown) => {
-        if (err) throw err
-        // tarball deleted
-      })
-
+      await pacote.extract(`@managed-components/${name}`, componentPath)
       component = await this.fetchLocalComponent(basePath)
     } catch (error) {
       console.error(':: Error fetching remote component', name, error)
