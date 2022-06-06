@@ -87,7 +87,6 @@ export class ManagerGeneric {
     this.clientEventsPath = Context.clientEventsPath
     this.ecommerceEventsPath = Context.ecommerceEventsPath
     this.components = Context.components
-    this.initScript()
   }
 
   route(
@@ -201,7 +200,7 @@ export class ManagerGeneric {
     return { name, settings }
   }
 
-  async initScript() {
+  async init() {
     for (const compConfig of this.components) {
       const { name, settings } = this.parseCompConfig(compConfig)
       const component = await this.loadComponent(name)

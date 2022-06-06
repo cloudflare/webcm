@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-export const startServer = (
+export const startServer = async (
   configPath?: string,
   componentsFolderPath?: string
 ) => {
@@ -44,6 +44,8 @@ export const startServer = (
     clientEventsPath,
     componentsFolderPath: componentsPath,
   })
+
+  await manager.init()
 
   const getDefaultPayload = () => ({
     pageVars: [],
@@ -175,10 +177,7 @@ export const startServer = (
 
   // Mount static files
   for (const [path, fileTarget] of Object.entries(manager.staticFiles)) {
-    app.use(
-      path,
-      express.static(fs_path.join(__dirname, 'components', fileTarget))
-    )
+    app.use(path, express.static(fs_path.join(componentsPath, fileTarget)))
   }
 
   // Listen to all normal requests
@@ -221,6 +220,6 @@ export const startServer = (
   console.info('\nWebCM, version', process.env.npm_package_version || version)
   app.listen(port, hostname)
   console.info(
-    `\n🚀 WebCM is now proxying ${target} at http://${hostname}:${port}`
+    `\n🚀 WebCM is now proxying ${target} at http://${hostname}:${port}\n\n`
   )
 }
