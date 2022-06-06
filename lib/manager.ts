@@ -1,10 +1,3 @@
-import { Request } from 'express'
-import { existsSync, readFileSync } from 'fs'
-import { JSDOM } from 'jsdom'
-import path from 'path'
-import { invalidateCache, useCache } from '../cache/index'
-import { get, set } from '../storage/kv-storage'
-import { ClientGeneric, Client } from './client'
 import {
   ComponentSettings,
   EmbedCallback,
@@ -13,8 +6,15 @@ import {
   MCEventListener,
   WidgetCallback,
 } from '@managed-components/types'
+import { Request } from 'express'
+import { existsSync, readFileSync, rmdir } from 'fs'
+import { JSDOM } from 'jsdom'
+import pacote from 'pacote'
+import path from 'path'
+import { invalidateCache, useCache } from './cache/index'
+import { Client, ClientGeneric } from './client'
+import { get, set } from './storage/kv-storage'
 
-console.info('\nWebCM, version', process.env.npm_package_version)
 export class MCEvent extends Event implements PrimaryMCEvent {
   name?: string
   payload: any
@@ -31,7 +31,7 @@ export class MCEvent extends Event implements PrimaryMCEvent {
 
 type ComponentConfig = [string, ComponentSettings]
 
-const EXTS = ['.ts', '.mts', '.mjs', '.js']
+const EXTS = ['.mjs', '.js', '.mts', '.ts']
 
 export class ManagerGeneric {
   components: (string | ComponentConfig)[]
@@ -39,6 +39,7 @@ export class ManagerGeneric {
   name: string
   ecommerceEventsPath: string
   clientEventsPath: string
+  componentsFolderPath: string
   requiredSnippets: string[]
   mappedEndpoints: {
     [k: string]: (request: Request) => Response
@@ -69,7 +70,10 @@ export class ManagerGeneric {
     trackPath: string
     clientEventsPath: string
     ecommerceEventsPath: string
+    componentsFolderPath?: string
   }) {
+    this.componentsFolderPath =
+      Context.componentsFolderPath || path.join(__dirname, '..', 'components')
     this.requiredSnippets = ['track']
     this.registeredWidgets = []
     this.registeredEmbeds = {}
@@ -83,7 +87,6 @@ export class ManagerGeneric {
     this.clientEventsPath = Context.clientEventsPath
     this.ecommerceEventsPath = Context.ecommerceEventsPath
     this.components = Context.components
-    this.initScript()
   }
 
   route(
@@ -117,23 +120,41 @@ export class ManagerGeneric {
     this.listeners[type][component].push(callback)
   }
 
-  async initScript() {
-    for (const compConfig of this.components) {
-      let component
-      let componentPath = ''
-      let componentName = ''
-      let componentSettings = {}
-      if (Array.isArray(compConfig)) {
-        ;[componentName, componentSettings] = compConfig
-      } else {
-        componentName = compConfig
+  async initComponent(
+    component: any,
+    name: string,
+    settings: ComponentSettings
+  ) {
+    if (component) {
+      try {
+        console.info(':: Initialising component', name)
+        await component.default(new Manager(name, this), settings)
+      } catch (error) {
+        console.error(':: Error initialising component', component, error)
       }
+    }
+  }
+
+  async fetchLocalComponent(basePath: string) {
+    let component
+    const pkgPath = path.join(basePath, 'package.json')
+    if (existsSync(pkgPath)) {
+      const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'))
+      const main = pkg.main
+      const mainPath = path.join(basePath, main)
+      if (existsSync(mainPath)) {
+        console.info('FOUND LOCAL MC:', mainPath)
+        component = mainPath.endsWith('.mjs')
+          ? await import(mainPath)
+          : require(mainPath)
+      } else {
+        console.error(`No executable file for component at ${mainPath}`)
+      }
+    } else {
       for (const ext of EXTS) {
-        componentPath = path.join(
-          __dirname,
-          `../components/${componentName}/index${ext}`
-        )
+        const componentPath = path.join(basePath, 'index' + ext)
         if (existsSync(componentPath)) {
+          console.info('FOUND LOCAL MC:', componentPath)
           component =
             ext === '.mjs'
               ? await import(componentPath)
@@ -141,23 +162,49 @@ export class ManagerGeneric {
           break
         }
       }
-
-      if (component) {
-        try {
-          console.info(':: Loading component', componentName)
-          await component.default(
-            new Manager(componentName, this),
-            componentSettings
-          )
-        } catch (error) {
-          console.error(
-            ':: Error loading component',
-            componentPath,
-            component,
-            error
-          )
-        }
+      if (!component) {
+        console.error(`No executable file for component in ${basePath}`)
       }
+    }
+    return component
+  }
+
+  async fetchRemoteComponent(basePath: string, name: string) {
+    let component
+    const componentPath = path.join(this.componentsFolderPath, name)
+    try {
+      await pacote.extract(`@managed-components/${name}`, componentPath)
+      component = await this.fetchLocalComponent(basePath)
+    } catch (error) {
+      console.error(':: Error fetching remote component', name, error)
+      rmdir(componentPath, () =>
+        console.info(':::: Removed empty component folder', componentPath)
+      )
+    }
+    return component
+  }
+
+  async loadComponent(name: string) {
+    const localPathBase = path.join(this.componentsFolderPath, name)
+    return existsSync(localPathBase)
+      ? this.fetchLocalComponent(localPathBase)
+      : this.fetchRemoteComponent(localPathBase, name)
+  }
+
+  parseCompConfig(config: string | ComponentConfig) {
+    let name = config as string
+    let settings = {}
+    if (Array.isArray(config)) {
+      ;[name, settings] = config
+    }
+    return { name, settings }
+  }
+
+  async init() {
+    for (const compConfig of this.components) {
+      const { name, settings } = this.parseCompConfig(compConfig)
+      const component = await this.loadComponent(name)
+      await this.initComponent(component, name, settings)
     }
   }
 
@@ -169,7 +216,7 @@ export class ManagerGeneric {
     )
 
     for (const snippet of [...this.requiredSnippets, ...clientListeners]) {
-      const snippetPath = `browser/${snippet}.js`
+      const snippetPath = path.join(__dirname, 'browser', `${snippet}.js`)
       if (existsSync(snippetPath)) {
         injectedScript += readFileSync(snippetPath)
           .toString()
