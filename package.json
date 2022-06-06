@@ -24,7 +24,7 @@
   },
   "main": "index.ts",
   "scripts": {
-    "dev": "TS_NODE_FILES=true nodemon --exec 'node --experimental-network-imports --loader ts-node/esm' index.ts",
+    "dev": "TS_NODE_FILES=true nodemon --exec 'node --loader ts-node/esm' index.ts",
     "lint": "eslint --ext .ts,.js, lib",
     "lint:fix": "eslint --ext .ts,.js, lib --fix",
     "typecheck": "tsc --noEmit",
