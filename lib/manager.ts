@@ -7,7 +7,7 @@ import {
   WidgetCallback,
 } from '@managed-components/types'
 import { Request } from 'express'
-import { existsSync, readFileSync } from 'fs'
+import { existsSync, readFileSync, rmdir } from 'fs'
 import { JSDOM } from 'jsdom'
 import pacote from 'pacote'
 import path from 'path'
@@ -172,12 +172,15 @@ export class ManagerGeneric {
 
   async fetchRemoteComponent(basePath: string, name: string) {
     let component
+    const componentPath = path.join(this.componentsFolderPath, name)
     try {
-      const componentPath = path.join(this.componentsFolderPath, name)
       await pacote.extract(`@managed-components/${name}`, componentPath)
       component = await this.fetchLocalComponent(basePath)
     } catch (error) {
       console.error(':: Error fetching remote component', name, error)
+      rmdir(componentPath, () =>
+        console.info(':::: Removed empty component folder', componentPath)
+      )
     }
     return component
   }
