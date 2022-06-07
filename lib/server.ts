@@ -5,7 +5,6 @@ import {
   responseInterceptor,
 } from 'http-proxy-middleware'
 import * as fs_path from 'path'
-import demoConfig from '../tests/demo_config.json'
 import { Client, ClientGeneric } from './client'
 import { ManagerGeneric, MCEvent } from './manager'
 import { version } from '../package.json'
@@ -17,10 +16,11 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 export const startServer = async (
-  configPath?: string,
-  componentsFolderPath?: string
+  configPath = 'tests/demo_config.json',
+  componentsFolderPath = './components'
 ) => {
-  const config = configPath ? require(fs_path.resolve(configPath)) : demoConfig
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const config = require(fs_path.resolve(configPath))
   const componentsPath = componentsFolderPath
     ? fs_path.resolve(componentsFolderPath)
     : ''
