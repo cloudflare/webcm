@@ -8,8 +8,8 @@ To run WebCM you need to have Node version >= 18. You can then install all depen
 
 ## Usage
 
-1. Edit [config.json](config.json) to your preferences. Make sure to adjust the `target` key to point to your webserver.
-1. Run `npm run dev`
+1. Edit [config.json](tests/demo_config.json) to your preferences. Make sure to adjust the `target` key to point to your webserver.
+2. Run `npm run dev`
 
 ## Read more
 
