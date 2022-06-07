@@ -4,7 +4,7 @@ WebCM is a proxy server implementation of a [Components Manager (CM)](EXPLAINER.
 
 ## Installation
 
-To run WebCM you need to have Node version >= 17. You can then install all dependencies with `npm i`.
+To run WebCM you need to have Node version >= 18. You can then install all dependencies with `npm i`.
 
 ## Usage
 
