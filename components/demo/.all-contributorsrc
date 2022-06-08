@@ -1,0 +1,42 @@
+{
+  "projectName": "@managed-components/demo",
+  "projectOwner": "managed-components",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 75,
+  "commit": true,
+  "commitConvention": "none",
+  "contributors": [
+    {
+      "login": "simonabadoiu",
+      "name": "Simona Badoiu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1610123?v=4",
+      "profile": "https://github.com/simonabadoiu",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "bjesus",
+      "name": "Yo'av Moshe",
+      "avatar_url": "https://avatars.githubusercontent.com/u/55081?v=4",
+      "profile": "https://yoavmoshe.com/about",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "jonnyparris",
+      "name": "Ruskin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6400000?v=4",
+      "profile": "https://github.com/jonnyparris",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7
+}
