@@ -2,7 +2,7 @@
   "name": "upward",
   "version": "1.0",
   "description": "Upward",
-  "main": "index.mjs",
+  "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
