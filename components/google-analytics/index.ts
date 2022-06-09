@@ -1,4 +1,4 @@
-import { ComponentSettings, Manager, MCEvent } from '../../lib/manager'
+import { ComponentSettings, Manager, MCEvent } from '@managed-components/types'
 import { getEcommerceParams } from './ecommerce'
 import { gaDoubleClick } from './gaDoubleClick'
 import { getToolRequest } from './requestBuilder'
