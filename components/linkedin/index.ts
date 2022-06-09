@@ -1,4 +1,4 @@
-import { ComponentSettings, Manager, MCEvent } from '../../lib/manager'
+import { ComponentSettings, Manager, MCEvent } from '@managed-components/types'
 
 const TRACK_URL = 'https://px.ads.linkedin.com/collect/'
 
