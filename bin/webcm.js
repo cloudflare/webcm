@@ -94,6 +94,7 @@ function onFatalError(error) {
         require('ts-node').register({
           files: true,
           transpileOnly: true,
+          dir: __dirname,
         })
         const { startServer } = require('../lib/server')
         startServer(argv.config, argv.components)
