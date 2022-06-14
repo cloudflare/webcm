@@ -11,6 +11,10 @@ To run WebCM you need to have Node version >= 18. You can then install all depen
 1. Edit [config.json](tests/demo_config.json) to your preferences. Make sure to adjust the `target` key to point to your webserver.
 2. Run `npm run dev`
 
+## Execute
+
+Run `npx webcm --c=tests/demo_config.json --mc=./components`
+
 ## Read more
 
 - See [managedcomponents.dev](https://managedcomponents.dev) for more information about Managed Components and how they work
