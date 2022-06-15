@@ -1,4 +1,5 @@
 import {
+  ComponentPermissions,
   ComponentSettings,
   EmbedCallback,
   Manager as MCManager,
@@ -29,12 +30,16 @@ export class MCEvent extends Event implements PrimaryMCEvent {
   }
 }
 
-type ComponentConfig = [string, ComponentSettings]
+type ComponentConfig = {
+  name: string
+  settings: ComponentSettings
+  permissions: ComponentPermissions
+}
 
 const EXTS = ['.mjs', '.js', '.mts', '.ts']
 
 export class ManagerGeneric {
-  components: (string | ComponentConfig)[]
+  components: ComponentConfig[]
   trackPath: string
   name: string
   ecommerceEventsPath: string
@@ -66,7 +71,7 @@ export class ManagerGeneric {
   registeredWidgets: WidgetCallback[]
 
   constructor(Context: {
-    components: (string | ComponentConfig)[]
+    components: ComponentConfig[]
     trackPath: string
     clientEventsPath: string
     ecommerceEventsPath: string
@@ -191,18 +196,9 @@ export class ManagerGeneric {
       : this.fetchRemoteComponent(localPathBase, name)
   }
 
-  parseCompConfig(config: string | ComponentConfig) {
-    let name = config as string
-    let settings = {}
-    if (Array.isArray(config)) {
-      ;[name, settings] = config
-    }
-    return { name, settings }
-  }
-
   async init() {
     for (const compConfig of this.components) {
-      const { name, settings } = this.parseCompConfig(compConfig)
+      const { name, settings } = compConfig
       const component = await this.loadComponent(name)
       await this.initComponent(component, name, settings)
     }
