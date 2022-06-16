@@ -2,6 +2,7 @@ import Cookies from 'cookies'
 import { Request, Response } from 'express'
 import { ManagerGeneric } from './manager'
 import { Client as MCClient } from '@managed-components/types'
+import { PERMISSIONS } from './constants'
 export class ClientGeneric {
   type = 'browser'
   title?: string
@@ -125,14 +126,11 @@ export class Client implements MCClient {
   title?
   timestamp
   url
-  execute
 
   constructor(component: string, generic: ClientGeneric) {
     this.#generic = generic
     this.#component = component
     this.url = this.#generic.url
-    // this.fetch = this.#generic.fetch.bind(generic)
-    this.execute = this.#generic.execute.bind(generic)
     this.title = this.#generic.title
     this.timestamp = this.#generic.timestamp
     this.emitter = 'browser'
@@ -145,17 +143,50 @@ export class Client implements MCClient {
     this.#generic.return(this.#component, value)
   }
   get(key: string, componentOverride?: string) {
-    const component = componentOverride || this.#component
-    return this.#generic.get(component + '__' + key)
-  }
-
-  fetch(resource: string, settings?: RequestInit) {
-    this.#generic.fetch(resource, settings)
+    const permission = componentOverride
+      ? PERMISSIONS.CLIENT_EXT_GET
+      : PERMISSIONS.CLIENT_GET
+    if (this.#generic.manager.checkPermissions(this.#component, permission)) {
+      const component = componentOverride || this.#component
+      return this.#generic.get(component + '__' + key)
+    }
+    // TODO what should we return here as default
+    return 'UNAUTHORIZED'
   }
 
   set(key: string, value?: string | null, opts?: ClientSetOptions) {
-    this.#generic.set(this.#component + '__' + key, value, opts)
+    if (
+      this.#generic.manager.checkPermissions(
+        this.#component,
+        PERMISSIONS.CLIENT_SET
+      )
+    ) {
+      this.#generic.set(this.#component + '__' + key, value, opts)
+    }
   }
+
+  fetch(resource: string, settings?: RequestInit) {
+    if (
+      this.#generic.manager.checkPermissions(
+        this.#component,
+        PERMISSIONS.CLIENT_FETCH
+      )
+    ) {
+      this.#generic.fetch(resource, settings)
+    }
+  }
+
+  execute(code: string) {
+    if (
+      this.#generic.manager.checkPermissions(
+        this.#component,
+        PERMISSIONS.CLIENT_EXECUTE
+      )
+    ) {
+      this.#generic.execute(code)
+    }
+  }
+
   attachEvent(event: string) {
     this.#generic.attachEvent(this.#component, event)
   }

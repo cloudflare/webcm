@@ -139,8 +139,7 @@ export class ManagerGeneric {
         // save component permissions in memory
         this.permissions[name] = permissions
         console.info(':: Initialising component', name)
-
-        await component.default(new Manager(name, this, permissions), settings)
+        await component.default(new Manager(name, this), settings)
       } catch (error) {
         console.error(':: Error initialising component', component, error)
       }
@@ -263,12 +262,8 @@ export class ManagerGeneric {
     return dom.serialize()
   }
 
-  checkPermissions(
-    component: string,
-    componentPermissions: ComponentPermissions,
-    method: string
-  ) {
-    console.log('Checking permissions for', component, method)
+  checkPermissions(component: string, method: string) {
+    const componentPermissions = this.permissions[component] || []
     if (!componentPermissions.includes(method)) {
       console.error(
         `❗❗❗ ${component} component: ${method.toLocaleUpperCase()} - not enough permissions `
@@ -282,17 +277,11 @@ export class ManagerGeneric {
 export class Manager implements MCManager {
   #generic: ManagerGeneric
   #component: string
-  #permissions: ComponentPermissions
   name: string
 
-  constructor(
-    component: string,
-    generic: ManagerGeneric,
-    permissions: ComponentPermissions
-  ) {
+  constructor(component: string, generic: ManagerGeneric) {
     this.#generic = generic
     this.#component = component
-    this.#permissions = permissions
     this.name = this.#generic.name
   }
 
@@ -321,13 +310,7 @@ export class Manager implements MCManager {
   }
 
   route(path: string, callback: (request: Request) => Response) {
-    if (
-      this.#generic.checkPermissions(
-        this.#component,
-        this.#permissions,
-        PERMISSIONS.ROUTE
-      )
-    ) {
+    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.ROUTE)) {
       return this.#generic.route(this.#component, path, callback)
     }
     // TODO should we have a default routing path that sais this route was not allowed or something more specific?s
@@ -335,26 +318,14 @@ export class Manager implements MCManager {
   }
 
   proxy(path: string, target: string) {
-    if (
-      this.#generic.checkPermissions(
-        this.#component,
-        this.#permissions,
-        PERMISSIONS.PROXY
-      )
-    ) {
+    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.PROXY)) {
       return this.#generic.proxy(this.#component, path, target)
     }
     return 'UNAUTHORIZED'
   }
 
   serve(path: string, target: string) {
-    if (
-      this.#generic.checkPermissions(
-        this.#component,
-        this.#permissions,
-        PERMISSIONS.SERVE
-      )
-    ) {
+    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.SERVE)) {
       return this.#generic.serve(this.#component, path, target)
     }
     return 'UNAUTHORIZED'
@@ -374,13 +345,7 @@ export class Manager implements MCManager {
   }
 
   registerWidget(callback: WidgetCallback) {
-    if (
-      this.#generic.checkPermissions(
-        this.#component,
-        this.#permissions,
-        PERMISSIONS.WIDGET
-      )
-    ) {
+    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.WIDGET)) {
       this.#generic.registeredWidgets.push(callback)
     }
   }
