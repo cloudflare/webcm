@@ -297,15 +297,15 @@ export class Manager implements MCManager {
   }
 
   addEventListener(type: string, callback: MCEventListener) {
-    if (
-      this.#generic.checkPermissions(
-        this.#component,
-        this.#permissions,
-        'addEventListener'
-      )
-    ) {
-      this.#generic.addEventListener(this.#component, type, callback)
-    }
+    // if (
+    //   this.#generic.checkPermissions(
+    //     this.#component,
+    //     this.#permissions,
+    //     'addEventListener'
+    //   )
+    // ) {
+    this.#generic.addEventListener(this.#component, type, callback)
+    // }
   }
 
   createEventListener(type: string, callback: MCEventListener) {
