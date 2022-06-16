@@ -125,14 +125,13 @@ export class Client implements MCClient {
   title?
   timestamp
   url
-  fetch
   execute
 
   constructor(component: string, generic: ClientGeneric) {
     this.#generic = generic
     this.#component = component
     this.url = this.#generic.url
-    this.fetch = this.#generic.fetch.bind(generic)
+    // this.fetch = this.#generic.fetch.bind(generic)
     this.execute = this.#generic.execute.bind(generic)
     this.title = this.#generic.title
     this.timestamp = this.#generic.timestamp
@@ -149,6 +148,11 @@ export class Client implements MCClient {
     const component = componentOverride || this.#component
     return this.#generic.get(component + '__' + key)
   }
+
+  fetch(resource: string, settings?: RequestInit) {
+    this.#generic.fetch(resource, settings)
+  }
+
   set(key: string, value?: string | null, opts?: ClientSetOptions) {
     this.#generic.set(this.#component + '__' + key, value, opts)
   }
