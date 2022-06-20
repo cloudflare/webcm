@@ -1,5 +1,6 @@
 import { MCEventListener } from '@managed-components/types'
 import express, { Request, RequestHandler } from 'express'
+import fs from 'fs'
 import {
   createProxyMiddleware,
   responseInterceptor,
@@ -17,11 +18,17 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 export const startServer = async (
-  configPath = 'tests/demo_config.json',
+  configPath = './webcm.config.ts',
   componentsFolderPath = './components'
 ) => {
+  const configFullPath = fs_path.resolve(configPath)
+  if (!fs.existsSync(configFullPath)) {
+    console.error('Could not load WebCM config from', configFullPath)
+    console.log('\nPlease create your configuration and run WebCM again.')
+    process.exit(1)
+  }
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const config = require(fs_path.resolve(configPath))
+  const config = require(configFullPath).default
   const componentsPath = componentsFolderPath
     ? fs_path.resolve(componentsFolderPath)
     : ''

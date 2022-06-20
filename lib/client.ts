@@ -26,7 +26,7 @@ export class ClientGeneric {
     request: Request,
     response: Response,
     manager: ManagerGeneric,
-    config: { cookiesKey?: string; target?: string }
+    config: { cookiesKey?: string; hostname?: string }
   ) {
     this.cookiesKey = config.cookiesKey || ''
     this.manager = manager
@@ -38,7 +38,8 @@ export class ClientGeneric {
     this.pageVars = request.body.pageVars || {}
     this.offset = request.body.offset
     this.url = new URL(
-      request.body?.location?.href || config.target + request.url || ''
+      request.body?.location?.href ||
+        'http://' + config.hostname + request.originalUrl
     )
     this.cookies = new Cookies(request, response, { keys: [this.cookiesKey] })
     if (this.cookies.get('webcm_prefs', { signed: !!this.cookiesKey })) {

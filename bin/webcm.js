@@ -80,7 +80,7 @@ function onFatalError(error) {
           .option('config', {
             alias: 'c',
             type: 'string',
-            default: './mc_config.json',
+            default: './webcm.config.ts',
             describe: 'path to your Managed Components config',
           })
           .option('components', {

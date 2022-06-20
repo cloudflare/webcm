@@ -5,3 +5,4 @@ node_modules
 dist
 coverage
 components
+webcm.config.ts
