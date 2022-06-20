@@ -14,8 +14,8 @@ import pacote from 'pacote'
 import path from 'path'
 import { invalidateCache, useCache } from './cache/index'
 import { Client, ClientGeneric } from './client'
+import { MANAGER_EVENTS, PERMISSIONS } from './constants'
 import { get, set } from './storage/kv-storage'
-import { PERMISSIONS } from './constants'
 
 export class MCEvent extends Event implements PrimaryMCEvent {
   name?: string
@@ -27,7 +27,8 @@ export class MCEvent extends Event implements PrimaryMCEvent {
     super(type)
     this.type = type
     this.payload = req.body.payload || { timestamp: new Date().getTime() } // because pageviews are symbolic requests without a payload
-    this.name = type === 'ecommerce' ? this.payload.name : undefined
+    this.name =
+      type === MANAGER_EVENTS.ECOMMERCE ? this.payload.name : undefined
   }
 }
 
@@ -286,15 +287,24 @@ export class Manager implements MCManager {
   }
 
   addEventListener(type: string, callback: MCEventListener) {
-    // if (
-    //   this.#generic.checkPermissions(
-    //     this.#component,
-    //     this.#permissions,
-    //     'addEventListener'
-    //   )
-    // ) {
-    this.#generic.addEventListener(this.#component, type, callback)
-    // }
+    let permission
+    switch (type) {
+      case MANAGER_EVENTS.CLIENT_CREATED:
+        permission = PERMISSIONS.CLIENT_CREATED
+        break
+      case MANAGER_EVENTS.USER_EVENT:
+        permission = PERMISSIONS.HOOK_USER_EVENTS
+        break
+      case MANAGER_EVENTS.PAGEVIEW:
+        permission = PERMISSIONS.PAGEVIEW
+        break
+    }
+    if (
+      permission &&
+      this.#generic.checkPermissions(this.#component, permission)
+    ) {
+      this.#generic.addEventListener(this.#component, type, callback)
+    }
   }
 
   createEventListener(type: string, callback: MCEventListener) {
