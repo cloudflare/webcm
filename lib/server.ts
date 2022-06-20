@@ -64,14 +64,14 @@ export const startServer = async (
 
   const handleTrack: RequestHandler = (req, res) => {
     res.payload = getDefaultPayload()
-    if (manager.listeners[MANAGER_EVENTS.USER_EVENT]) {
-      const event = new MCEvent(MANAGER_EVENTS.USER_EVENT, req)
+    if (manager.listeners[MANAGER_EVENTS.userEvent]) {
+      const event = new MCEvent(MANAGER_EVENTS.userEvent, req)
       const clientGeneric = new ClientGeneric(req, res, manager, config)
       for (const componentName of Object.keys(
-        manager.listeners[MANAGER_EVENTS.USER_EVENT]
+        manager.listeners[MANAGER_EVENTS.userEvent]
       )) {
         event.client = new Client(componentName, clientGeneric)
-        manager.listeners[MANAGER_EVENTS.USER_EVENT][componentName].forEach(
+        manager.listeners[MANAGER_EVENTS.userEvent][componentName].forEach(
           (fn: MCEventListener) => fn(event)
         )
       }
@@ -81,14 +81,14 @@ export const startServer = async (
 
   const handleEcommerce: RequestHandler = (req, res) => {
     res.payload = getDefaultPayload()
-    if (manager.listeners[MANAGER_EVENTS.ECOMMERCE]) {
-      const event = new MCEvent(MANAGER_EVENTS.ECOMMERCE, req)
+    if (manager.listeners[MANAGER_EVENTS.ecommerce]) {
+      const event = new MCEvent(MANAGER_EVENTS.ecommerce, req)
       const clientGeneric = new ClientGeneric(req, res, manager, config)
       for (const componentName of Object.keys(
-        manager.listeners[MANAGER_EVENTS.ECOMMERCE]
+        manager.listeners[MANAGER_EVENTS.ecommerce]
       )) {
         event.client = new Client(componentName, clientGeneric)
-        manager.listeners[MANAGER_EVENTS.ECOMMERCE][componentName].forEach(
+        manager.listeners[MANAGER_EVENTS.ecommerce][componentName].forEach(
           (fn: MCEventListener) => fn(event)
         )
       }
@@ -121,24 +121,24 @@ export const startServer = async (
   }
 
   const handlePageView = (req: Request, clientGeneric: ClientGeneric) => {
-    if (!manager.listeners[MANAGER_EVENTS.PAGEVIEW]) return
-    const pageview = new MCEvent(MANAGER_EVENTS.PAGEVIEW, req)
+    if (!manager.listeners[MANAGER_EVENTS.pageview]) return
+    const pageview = new MCEvent(MANAGER_EVENTS.pageview, req)
     if (!clientGeneric.cookies.get('webcm_prefs')) {
       for (const componentName of Object.keys(
-        manager.listeners[MANAGER_EVENTS.CLIENT_CREATED]
+        manager.listeners[MANAGER_EVENTS.clientCreated]
       )) {
-        const event = new MCEvent(MANAGER_EVENTS.CLIENT_CREATED, req)
+        const event = new MCEvent(MANAGER_EVENTS.clientCreated, req)
         event.client = new Client(componentName as string, clientGeneric)
-        manager.listeners[MANAGER_EVENTS.CLIENT_CREATED][
-          componentName
-        ]?.forEach((fn: MCEventListener) => fn(event))
+        manager.listeners[MANAGER_EVENTS.clientCreated][componentName]?.forEach(
+          (fn: MCEventListener) => fn(event)
+        )
       }
     }
     for (const componentName of Object.keys(
-      manager.listeners[MANAGER_EVENTS.PAGEVIEW]
+      manager.listeners[MANAGER_EVENTS.pageview]
     )) {
       pageview.client = new Client(componentName, clientGeneric)
-      manager.listeners[MANAGER_EVENTS.PAGEVIEW][componentName]?.forEach(
+      manager.listeners[MANAGER_EVENTS.pageview][componentName]?.forEach(
         (fn: MCEventListener) => fn(pageview)
       )
     }

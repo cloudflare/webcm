@@ -145,8 +145,8 @@ export class Client implements MCClient {
   }
   get(key: string, componentOverride?: string) {
     const permission = componentOverride
-      ? PERMISSIONS.CLIENT_EXT_GET
-      : PERMISSIONS.CLIENT_GET
+      ? PERMISSIONS.clientExtGet
+      : PERMISSIONS.clientGet
     if (this.#generic.manager.checkPermissions(this.#component, permission)) {
       const component = componentOverride || this.#component
       return this.#generic.get(component + '__' + key)
@@ -159,7 +159,7 @@ export class Client implements MCClient {
     if (
       this.#generic.manager.checkPermissions(
         this.#component,
-        PERMISSIONS.CLIENT_SET
+        PERMISSIONS.clientSet
       )
     ) {
       this.#generic.set(this.#component + '__' + key, value, opts)
@@ -170,7 +170,7 @@ export class Client implements MCClient {
     if (
       this.#generic.manager.checkPermissions(
         this.#component,
-        PERMISSIONS.CLIENT_FETCH
+        PERMISSIONS.clientFetch
       )
     ) {
       this.#generic.fetch(resource, settings)
@@ -181,7 +181,7 @@ export class Client implements MCClient {
     if (
       this.#generic.manager.checkPermissions(
         this.#component,
-        PERMISSIONS.CLIENT_EXECUTE
+        PERMISSIONS.clientExecute
       )
     ) {
       this.#generic.execute(code)

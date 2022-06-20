@@ -28,7 +28,7 @@ export class MCEvent extends Event implements PrimaryMCEvent {
     this.type = type
     this.payload = req.body.payload || { timestamp: new Date().getTime() } // because pageviews are symbolic requests without a payload
     this.name =
-      type === MANAGER_EVENTS.ECOMMERCE ? this.payload.name : undefined
+      type === MANAGER_EVENTS.ecommerce ? this.payload.name : undefined
   }
 }
 
@@ -265,9 +265,10 @@ export class ManagerGeneric {
 
   checkPermissions(component: string, method: string) {
     const componentPermissions = this.permissions[component] || []
+    console.log('Component: ', component, ' method: ', method)
     if (!componentPermissions.includes(method)) {
       console.error(
-        `❗❗❗ ${component} component: ${method.toLocaleUpperCase()} - not enough permissions `
+        `❗❗❗ ${component} component: ${method?.toLocaleUpperCase()} - not enough permissions `
       )
       return false
     }
@@ -288,21 +289,18 @@ export class Manager implements MCManager {
 
   addEventListener(type: string, callback: MCEventListener) {
     let permission
-    switch (type) {
-      case MANAGER_EVENTS.CLIENT_CREATED:
-        permission = PERMISSIONS.CLIENT_CREATED
-        break
-      case MANAGER_EVENTS.USER_EVENT:
-        permission = PERMISSIONS.HOOK_USER_EVENTS
-        break
-      case MANAGER_EVENTS.PAGEVIEW:
-        permission = PERMISSIONS.PAGEVIEW
-        break
-    }
     if (
-      permission &&
-      this.#generic.checkPermissions(this.#component, permission)
+      [
+        MANAGER_EVENTS.clientCreated,
+        MANAGER_EVENTS.userEvent,
+        MANAGER_EVENTS.pageview,
+      ].includes(type)
     ) {
+      permission = PERMISSIONS[type]
+      if (this.#generic.checkPermissions(this.#component, permission)) {
+        this.#generic.addEventListener(this.#component, type, callback)
+      }
+    } else {
       this.#generic.addEventListener(this.#component, type, callback)
     }
   }
@@ -320,7 +318,7 @@ export class Manager implements MCManager {
   }
 
   route(path: string, callback: (request: Request) => Response) {
-    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.ROUTE)) {
+    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.route)) {
       return this.#generic.route(this.#component, path, callback)
     }
     // TODO should we have a default routing path that sais this route was not allowed or something more specific?s
@@ -328,14 +326,14 @@ export class Manager implements MCManager {
   }
 
   proxy(path: string, target: string) {
-    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.PROXY)) {
+    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.proxy)) {
       return this.#generic.proxy(this.#component, path, target)
     }
     return 'UNAUTHORIZED'
   }
 
   serve(path: string, target: string) {
-    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.SERVE)) {
+    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.serve)) {
       return this.#generic.serve(this.#component, path, target)
     }
     return 'UNAUTHORIZED'
@@ -355,7 +353,7 @@ export class Manager implements MCManager {
   }
 
   registerWidget(callback: WidgetCallback) {
-    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.WIDGET)) {
+    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.widget)) {
       this.#generic.registeredWidgets.push(callback)
     }
   }
