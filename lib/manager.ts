@@ -336,14 +336,17 @@ export class Manager implements MCManager {
       permission = PERMISSIONS[type]
       if (this.#generic.checkPermissions(this.#component, permission)) {
         this.#generic.addEventListener(this.#component, type, callback)
+        return true
       }
     } else {
       this.#generic.addEventListener(this.#component, type, callback)
+      return true
     }
   }
 
   createEventListener(type: string, callback: MCEventListener) {
     this.#generic.clientListeners[`${type}__${this.#component}`] = callback
+    return true
   }
 
   get(key: string) {
@@ -351,29 +354,25 @@ export class Manager implements MCManager {
   }
 
   set(key: string, value: any) {
-    set(this.#component + '__' + key, value)
+    return set(this.#component + '__' + key, value)
   }
 
   route(path: string, callback: (request: Request) => Response) {
     if (this.#generic.checkPermissions(this.#component, PERMISSIONS.route)) {
       return this.#generic.route(this.#component, path, callback)
     }
-    // TODO should we have a default routing path that sais this route was not allowed or something more specific?s
-    return 'UNAUTHORIZED'
   }
 
   proxy(path: string, target: string) {
     if (this.#generic.checkPermissions(this.#component, PERMISSIONS.proxy)) {
       return this.#generic.proxy(this.#component, path, target)
     }
-    return 'UNAUTHORIZED'
   }
 
   serve(path: string, target: string) {
     if (this.#generic.checkPermissions(this.#component, PERMISSIONS.serve)) {
       return this.#generic.serve(this.#component, path, target)
     }
-    return 'UNAUTHORIZED'
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -383,15 +382,18 @@ export class Manager implements MCManager {
 
   invalidateCache(key: string) {
     invalidateCache(this.#component + '__' + key)
+    return true
   }
 
   registerEmbed(name: string, callback: EmbedCallback) {
     this.#generic.registeredEmbeds[this.#component + '__' + name] = callback
+    return true
   }
 
   registerWidget(callback: WidgetCallback) {
     if (this.#generic.checkPermissions(this.#component, PERMISSIONS.widget)) {
       this.#generic.registeredWidgets.push(callback)
+      return true
     }
   }
 }

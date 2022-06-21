@@ -142,6 +142,7 @@ export class Client implements MCClient {
   }
   return(value: unknown) {
     this.#generic.return(this.#component, value)
+    return true
   }
   get(key: string, componentOverride?: string) {
     const permission = componentOverride
@@ -151,8 +152,6 @@ export class Client implements MCClient {
       const component = componentOverride || this.#component
       return this.#generic.get(component + '__' + key)
     }
-    // TODO what should we return here as default
-    return 'UNAUTHORIZED'
   }
 
   set(key: string, value?: string | null, opts?: ClientSetOptions) {
@@ -163,6 +162,7 @@ export class Client implements MCClient {
       )
     ) {
       this.#generic.set(this.#component + '__' + key, value, opts)
+      return true
     }
   }
 
@@ -174,6 +174,7 @@ export class Client implements MCClient {
       )
     ) {
       this.#generic.fetch(resource, settings)
+      return true
     }
   }
 
@@ -185,10 +186,12 @@ export class Client implements MCClient {
       )
     ) {
       this.#generic.execute(code)
+      return true
     }
   }
 
   attachEvent(event: string) {
     this.#generic.attachEvent(this.#component, event)
+    return true
   }
 }
