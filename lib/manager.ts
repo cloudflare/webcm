@@ -151,8 +151,13 @@ export class ManagerGeneric {
   }
 
   async loadComponentManifest(basePath: string) {
+    let manifest
     const manifestPath = path.join(basePath, 'manifest.json')
-    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+    if (existsSync(manifestPath)) {
+      manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+    } else {
+      manifest = {}
+    }
 
     return manifest
   }
@@ -222,12 +227,10 @@ export class ManagerGeneric {
   ) {
     let hasPermissions = true
     const missingPermissions = []
-    for (const [key, value] of Object.entries(requiredPermissions)) {
-      if (value.required) {
-        if (!givenPermissions.includes(key)) {
-          hasPermissions = false
-          missingPermissions.push(key)
-        }
+    for (const [key, value] of Object.entries(requiredPermissions || {})) {
+      if (value.required && !givenPermissions.includes(key)) {
+        hasPermissions = false
+        missingPermissions.push(key)
       }
     }
     !hasPermissions &&
