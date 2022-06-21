@@ -1,5 +1,4 @@
 import {
-  ComponentPermissions,
   ComponentSettings,
   EmbedCallback,
   Manager as MCManager,
@@ -32,10 +31,14 @@ export class MCEvent extends Event implements PrimaryMCEvent {
   }
 }
 
+type ComponentConfigPermissions = {
+  [key: string]: { description: string; required: boolean }
+}
+
 type ComponentConfig = {
   name: string
   settings: ComponentSettings
-  permissions: ComponentPermissions
+  permissions: string[]
 }
 
 const EXTS = ['.mjs', '.js', '.mts', '.ts']
@@ -71,7 +74,7 @@ export class ManagerGeneric {
     [k: string]: EmbedCallback
   }
   registeredWidgets: WidgetCallback[]
-  permissions: { [k: string]: ComponentPermissions }
+  permissions: { [k: string]: string[] }
 
   constructor(Context: {
     components: ComponentConfig[]
@@ -133,7 +136,7 @@ export class ManagerGeneric {
     component: any,
     name: string,
     settings: ComponentSettings,
-    permissions: ComponentPermissions
+    permissions: string[]
   ) {
     if (component) {
       try {
@@ -145,6 +148,13 @@ export class ManagerGeneric {
         console.error(':: Error initialising component', component, error)
       }
     }
+  }
+
+  async loadComponentManifest(basePath: string) {
+    const manifestPath = path.join(basePath, 'manifest.json')
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+
+    return manifest
   }
 
   async fetchLocalComponent(basePath: string) {
@@ -178,7 +188,8 @@ export class ManagerGeneric {
         console.error(`No executable file for component in ${basePath}`)
       }
     }
-    return component
+    const manifest = await this.loadComponentManifest(basePath)
+    return { component, manifest }
   }
 
   async fetchRemoteComponent(basePath: string, name: string) {
@@ -193,6 +204,7 @@ export class ManagerGeneric {
         console.info(':::: Removed empty component folder', componentPath)
       )
     }
+
     return component
   }
 
@@ -203,11 +215,37 @@ export class ManagerGeneric {
       : this.fetchRemoteComponent(localPathBase, name)
   }
 
+  async hasRequiredPermissions(
+    component: string,
+    requiredPermissions: ComponentConfigPermissions,
+    givenPermissions: string[]
+  ) {
+    let hasPermissions = true
+    const missingPermissions = []
+    for (const [key, value] of Object.entries(requiredPermissions)) {
+      if (value.required) {
+        if (!givenPermissions.includes(key)) {
+          hasPermissions = false
+          missingPermissions.push(key)
+        }
+      }
+    }
+    !hasPermissions &&
+      console.error(
+        `:: 🔒 Missing permissions ${JSON.stringify(
+          missingPermissions
+        ).toLocaleUpperCase()} for component ${component}. Component may not function correctly.`
+      )
+    return hasPermissions
+  }
+
   async init() {
     for (const compConfig of this.components) {
       const { name, settings, permissions } = compConfig
-      const component = await this.loadComponent(name)
+      const { component, manifest } = (await this.loadComponent(name)) || {}
+
       await this.initComponent(component, name, settings, permissions)
+      this.hasRequiredPermissions(name, manifest.permissions, permissions)
     }
   }
 
@@ -265,10 +303,9 @@ export class ManagerGeneric {
 
   checkPermissions(component: string, method: string) {
     const componentPermissions = this.permissions[component] || []
-    console.log('Component: ', component, ' method: ', method)
     if (!componentPermissions.includes(method)) {
       console.error(
-        `❗❗❗ ${component} component: ${method?.toLocaleUpperCase()} - not enough permissions `
+        `⚠️  ${component} component: ${method?.toLocaleUpperCase()} - permissions not granted `
       )
       return false
     }
