@@ -327,17 +327,8 @@ export class Manager implements MCManager {
   }
 
   addEventListener(type: string, callback: MCEventListener) {
-    let permission
-    if (['clientcreated', 'event', 'pageview'].includes(type)) {
-      permission = PERMISSIONS[type]
-      if (this.#generic.checkPermissions(this.#component, permission)) {
-        this.#generic.addEventListener(this.#component, type, callback)
-        return true
-      }
-    } else {
-      this.#generic.addEventListener(this.#component, type, callback)
-      return true
-    }
+    this.#generic.addEventListener(this.#component, type, callback)
+    return true
   }
 
   createEventListener(type: string, callback: MCEventListener) {
