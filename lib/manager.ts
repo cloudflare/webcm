@@ -13,6 +13,7 @@ import pacote from 'pacote'
 import path from 'path'
 import { invalidateCache, useCache } from './cache/index'
 import { Client, ClientGeneric } from './client'
+import { PERMISSIONS } from './constants'
 import { get, set } from './storage/kv-storage'
 
 export class MCEvent extends Event implements PrimaryMCEvent {
@@ -29,12 +30,20 @@ export class MCEvent extends Event implements PrimaryMCEvent {
   }
 }
 
-type ComponentConfig = [string, ComponentSettings]
+type ComponentConfigPermissions = {
+  [key: string]: { description: string; required: boolean }
+}
+
+type ComponentConfig = {
+  name: string
+  settings: ComponentSettings
+  permissions: string[]
+}
 
 const EXTS = ['.mjs', '.js', '.mts', '.ts']
 
 export class ManagerGeneric {
-  components: (string | ComponentConfig)[]
+  components: ComponentConfig[]
   trackPath: string
   name: string
   ecommerceEventsPath: string
@@ -64,9 +73,10 @@ export class ManagerGeneric {
     [k: string]: EmbedCallback
   }
   registeredWidgets: WidgetCallback[]
+  permissions: { [k: string]: string[] }
 
   constructor(Context: {
-    components: (string | ComponentConfig)[]
+    components: ComponentConfig[]
     trackPath: string
     clientEventsPath: string
     ecommerceEventsPath: string
@@ -78,6 +88,7 @@ export class ManagerGeneric {
     this.registeredWidgets = []
     this.registeredEmbeds = {}
     this.listeners = {}
+    this.permissions = {}
     this.clientListeners = {}
     this.mappedEndpoints = {}
     this.proxiedEndpoints = {}
@@ -123,16 +134,31 @@ export class ManagerGeneric {
   async initComponent(
     component: any,
     name: string,
-    settings: ComponentSettings
+    settings: ComponentSettings,
+    permissions: string[]
   ) {
     if (component) {
       try {
+        // save component permissions in memory
+        this.permissions[name] = permissions
         console.info(':: Initialising component', name)
         await component.default(new Manager(name, this), settings)
       } catch (error) {
         console.error(':: Error initialising component', component, error)
       }
     }
+  }
+
+  async loadComponentManifest(basePath: string) {
+    let manifest
+    const manifestPath = path.join(basePath, 'manifest.json')
+    if (existsSync(manifestPath)) {
+      manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+    } else {
+      manifest = {}
+    }
+
+    return manifest
   }
 
   async fetchLocalComponent(basePath: string) {
@@ -166,7 +192,8 @@ export class ManagerGeneric {
         console.error(`No executable file for component in ${basePath}`)
       }
     }
-    return component
+    const manifest = await this.loadComponentManifest(basePath)
+    return { component, manifest }
   }
 
   async fetchRemoteComponent(basePath: string, name: string) {
@@ -181,6 +208,7 @@ export class ManagerGeneric {
         console.info(':::: Removed empty component folder', componentPath)
       )
     }
+
     return component
   }
 
@@ -191,20 +219,35 @@ export class ManagerGeneric {
       : this.fetchRemoteComponent(localPathBase, name)
   }
 
-  parseCompConfig(config: string | ComponentConfig) {
-    let name = config as string
-    let settings = {}
-    if (Array.isArray(config)) {
-      ;[name, settings] = config
+  async hasRequiredPermissions(
+    component: string,
+    requiredPermissions: ComponentConfigPermissions,
+    givenPermissions: string[]
+  ) {
+    let hasPermissions = true
+    const missingPermissions = []
+    for (const [key, value] of Object.entries(requiredPermissions || {})) {
+      if (value.required && !givenPermissions.includes(key)) {
+        hasPermissions = false
+        missingPermissions.push(key)
+      }
     }
-    return { name, settings }
+    !hasPermissions &&
+      console.error(
+        `:: 🔒 Missing permissions ${JSON.stringify(
+          missingPermissions
+        ).toLocaleUpperCase()} for component ${component}. Component may not function correctly.`
+      )
+    return hasPermissions
   }
 
   async init() {
     for (const compConfig of this.components) {
-      const { name, settings } = this.parseCompConfig(compConfig)
-      const component = await this.loadComponent(name)
-      await this.initComponent(component, name, settings)
+      const { name, settings, permissions } = compConfig
+      const { component, manifest } = (await this.loadComponent(name)) || {}
+
+      await this.initComponent(component, name, settings, permissions)
+      this.hasRequiredPermissions(name, manifest.permissions, permissions)
     }
   }
 
@@ -259,6 +302,17 @@ export class ManagerGeneric {
     }
     return dom.serialize()
   }
+
+  checkPermissions(component: string, method: string) {
+    const componentPermissions = this.permissions[component] || []
+    if (!componentPermissions.includes(method)) {
+      console.error(
+        `⚠️  ${component} component: ${method?.toLocaleUpperCase()} - permissions not granted `
+      )
+      return false
+    }
+    return true
+  }
 }
 
 export class Manager implements MCManager {
@@ -274,10 +328,12 @@ export class Manager implements MCManager {
 
   addEventListener(type: string, callback: MCEventListener) {
     this.#generic.addEventListener(this.#component, type, callback)
+    return true
   }
 
   createEventListener(type: string, callback: MCEventListener) {
     this.#generic.clientListeners[`${type}__${this.#component}`] = callback
+    return true
   }
 
   get(key: string) {
@@ -285,19 +341,25 @@ export class Manager implements MCManager {
   }
 
   set(key: string, value: any) {
-    set(this.#component + '__' + key, value)
+    return set(this.#component + '__' + key, value)
   }
 
   route(path: string, callback: (request: Request) => Response) {
-    return this.#generic.route(this.#component, path, callback)
+    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.route)) {
+      return this.#generic.route(this.#component, path, callback)
+    }
   }
 
   proxy(path: string, target: string) {
-    return this.#generic.proxy(this.#component, path, target)
+    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.proxy)) {
+      return this.#generic.proxy(this.#component, path, target)
+    }
   }
 
   serve(path: string, target: string) {
-    return this.#generic.serve(this.#component, path, target)
+    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.serve)) {
+      return this.#generic.serve(this.#component, path, target)
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -307,13 +369,18 @@ export class Manager implements MCManager {
 
   invalidateCache(key: string) {
     invalidateCache(this.#component + '__' + key)
+    return true
   }
 
   registerEmbed(name: string, callback: EmbedCallback) {
     this.#generic.registeredEmbeds[this.#component + '__' + name] = callback
+    return true
   }
 
   registerWidget(callback: WidgetCallback) {
-    this.#generic.registeredWidgets.push(callback)
+    if (this.#generic.checkPermissions(this.#component, PERMISSIONS.widget)) {
+      this.#generic.registeredWidgets.push(callback)
+      return true
+    }
   }
 }

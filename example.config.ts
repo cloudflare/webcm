@@ -1,6 +1,19 @@
 export default {
   // The Managed Components to load, with their settings and permissions
-  components: [['demo', { ecommerce: true }]],
+  components: [
+    {
+      name: 'demo',
+      settings: { ecommerce: true },
+      permissions: [
+        'access_client_kv',
+        'provide_server_functionality',
+        'provide_widget',
+        'serve_static_files',
+        'client_kv',
+        'client_network_requests',
+      ],
+    },
+  ],
   // The target server URL to proxy
   target: 'http://127.0.0.1:8000',
   // The hostname to which WebCM should bind

@@ -1,14 +1,14 @@
 import { MCEventListener } from '@managed-components/types'
 import express, { Request, RequestHandler } from 'express'
+import fs from 'fs'
 import {
   createProxyMiddleware,
   responseInterceptor,
 } from 'http-proxy-middleware'
 import * as fs_path from 'path'
+import { version } from '../package.json'
 import { Client, ClientGeneric } from './client'
 import { ManagerGeneric, MCEvent } from './manager'
-import { version } from '../package.json'
-import fs from 'fs'
 
 if (process.env.NODE_ENV === 'production') {
   process.on('unhandledRejection', (reason: Error) => {
