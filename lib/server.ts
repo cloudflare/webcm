@@ -8,7 +8,6 @@ import {
 import * as fs_path from 'path'
 import { version } from '../package.json'
 import { Client, ClientGeneric } from './client'
-import { MANAGER_EVENTS } from './constants'
 import { ManagerGeneric, MCEvent } from './manager'
 
 if (process.env.NODE_ENV === 'production') {
