@@ -26,8 +26,7 @@ export class MCEvent extends Event implements PrimaryMCEvent {
     super(type)
     this.type = type
     this.payload = req.body.payload || { timestamp: new Date().getTime() } // because pageviews are symbolic requests without a payload
-    this.name =
-      type === MANAGER_EVENTS.ecommerce ? this.payload.name : undefined
+    this.name = type === 'ecommerce' ? this.payload.name : undefined
   }
 }
 
@@ -329,13 +328,7 @@ export class Manager implements MCManager {
 
   addEventListener(type: string, callback: MCEventListener) {
     let permission
-    if (
-      [
-        MANAGER_EVENTS.clientCreated,
-        MANAGER_EVENTS.userEvent,
-        MANAGER_EVENTS.pageview,
-      ].includes(type)
-    ) {
+    if (['clientcreated', 'event', 'pageview'].includes(type)) {
       permission = PERMISSIONS[type]
       if (this.#generic.checkPermissions(this.#component, permission)) {
         this.#generic.addEventListener(this.#component, type, callback)

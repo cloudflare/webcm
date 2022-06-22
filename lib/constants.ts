@@ -1,23 +1,16 @@
 export const PERMISSIONS: { [k: string]: string } = {
-  serve: 'serve_static',
-  proxy: 'server_functions',
-  route: 'server_functions',
+  serve: 'serve_static_files',
+  proxy: 'provide_server_functionality',
+  route: 'provide_server_functionality',
   widget: 'provide_widget',
   // client permissions
-  clientGet: 'client_kv',
-  clientExtGet: 'client_ext_kv',
+  clientGet: 'access_client_kv',
+  clientExtGet: 'access_extended_client_kv',
   clientSet: 'client_kv',
-  clientExecute: 'run_client_js',
-  clientFetch: 'client_fetch',
+  clientExecute: 'execute_unsafe_scripts',
+  clientFetch: 'client_network_requests',
   // manager specific permissions
-  event: 'hook_user_events',
-  pageview: 'pageview',
-  clientcreated: 'client_created',
-}
-
-export const MANAGER_EVENTS = {
-  clientCreated: 'clientcreated',
-  pageview: 'pageview',
-  ecommerce: 'ecommerce',
-  userEvent: 'event',
+  event: 'attach_track_events', // delete
+  pageview: 'attach_pageview_events', // delete
+  clientCreated: 'attach_client_created_events', // delete
 }
