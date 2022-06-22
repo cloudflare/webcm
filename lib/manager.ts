@@ -13,7 +13,7 @@ import pacote from 'pacote'
 import path from 'path'
 import { invalidateCache, useCache } from './cache/index'
 import { Client, ClientGeneric } from './client'
-import { MANAGER_EVENTS, PERMISSIONS } from './constants'
+import { PERMISSIONS } from './constants'
 import { get, set } from './storage/kv-storage'
 
 export class MCEvent extends Event implements PrimaryMCEvent {
