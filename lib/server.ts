@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 export const startServer = async (
-  configPath = './webcm.config.ts',
+  configPath = './example.config.ts',
   componentsFolderPath = './components'
 ) => {
   const configFullPath = fs_path.resolve(configPath)
@@ -196,15 +196,10 @@ export const startServer = async (
       changeOrigin: true,
       selfHandleResponse: true,
       onProxyRes: responseInterceptor(
-        async (responseBuffer, proxyRes, proxyReq, _res) => {
-          if (
-            proxyRes.headers['content-type']
-              ?.toLowerCase()
-              .includes('text/html') &&
-            !proxyReq.url?.endsWith('.ico')
-          ) {
+        async (responseBuffer, _proxyRes, proxyReq, _res) => {
+          if (proxyReq.headers['accept']?.toLowerCase().includes('text/html')) {
             handlePageView(proxyReq as Request, clientGeneric)
-            let response = responseBuffer.toString('utf8')
+            let response = responseBuffer.toString('utf8') as string
             response = await manager.processEmbeds(response)
             response = await manager.processWidgets(response)
             return response.replace(
