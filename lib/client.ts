@@ -150,7 +150,6 @@ export class Client implements MCClient {
   }
   return(value: unknown) {
     this.#generic.return(this.#component, value)
-    return true
   }
   get(key: string, componentOverride?: string) {
     const permission = componentOverride
@@ -196,7 +195,6 @@ export class Client implements MCClient {
   }
   attachEvent(event: string) {
     this.#generic.attachEvent(this.#component, event)
-    return true
   }
   detachEvent(event: string) {
     this.#generic.detachEvent(this.#component, event)
