@@ -53,7 +53,6 @@ export class ClientGeneric {
       signed: true,
     })
   }
-
   execute(code: string) {
     this.response.payload.execute.push(code)
   }
@@ -109,6 +108,15 @@ export class ClientGeneric {
       signed: true,
     })
   }
+  detachEvent(component: string, event: string) {
+    const eventIndex = this.webcmPrefs.listeners[component].indexOf(event)
+    if (eventIndex > -1) {
+      this.webcmPrefs.listeners[component].splice(eventIndex, 1)
+      this.cookies.set('webcm_prefs', JSON.stringify(this.webcmPrefs), {
+        signed: true,
+      })
+    }
+  }
 }
 
 interface ClientSetOptions {
@@ -153,7 +161,6 @@ export class Client implements MCClient {
       return this.#generic.get(component + '__' + key)
     }
   }
-
   set(key: string, value?: string | null, opts?: ClientSetOptions) {
     if (
       this.#generic.manager.checkPermissions(
@@ -165,7 +172,6 @@ export class Client implements MCClient {
       return true
     }
   }
-
   fetch(resource: string, settings?: RequestInit) {
     if (
       this.#generic.manager.checkPermissions(
@@ -177,7 +183,6 @@ export class Client implements MCClient {
       return true
     }
   }
-
   execute(code: string) {
     if (
       this.#generic.manager.checkPermissions(
@@ -189,9 +194,11 @@ export class Client implements MCClient {
       return true
     }
   }
-
   attachEvent(event: string) {
     this.#generic.attachEvent(this.#component, event)
     return true
+  }
+  detachEvent(event: string) {
+    this.#generic.detachEvent(this.#component, event)
   }
 }
