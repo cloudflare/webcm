@@ -17,8 +17,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 export const startServer = async (
-  configPath = './example.config.ts',
-  componentsFolderPath = './components'
+  configPath: string,
+  componentsFolderPath: string
 ) => {
   const configFullPath = fs_path.resolve(configPath)
   if (!fs.existsSync(configFullPath)) {
