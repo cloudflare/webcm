@@ -19,11 +19,11 @@ export default {
   // The hostname to which WebCM should bind
   hostname: 'localhost',
   // The tracking URL will get all POST requests coming from `webcm.track`
-  trackPath: '/ecweb/track',
+  trackPath: '/webcm/track',
   // The ecommerce URL will get all POST requests coming from `webcm.ecommerce`
-  ecommerceEventsPath: '/ecweb/ecommerce',
+  ecommerceEventsPath: '/webcm/ecommerce',
   // The tracking URL with get all POST requests coming from client events
-  clientEventsPath: '/ecweb/system',
+  clientEventsPath: '/webcm/system',
   // The port WebCM should listen to
   port: 1337,
   // Optional: hash key to make sure cookies set by WebCM aren't tampered with
