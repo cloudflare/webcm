@@ -243,7 +243,7 @@ export class ManagerGeneric {
 
   async init() {
     for (const compConfig of this.components) {
-      const { name, settings, permissions } = compConfig
+      const { name, settings = {}, permissions } = compConfig
       const { component, manifest } = (await this.loadComponent(name)) || {}
 
       await this.initComponent(component, name, settings, permissions)
