@@ -226,18 +226,20 @@ export class ManagerGeneric {
   ) {
     let hasPermissions = true
     const missingPermissions = []
-    for (const [key, value] of Object.entries(requiredPermissions || {})) {
-      if (value.required && !givenPermissions.includes(key)) {
+    for (const [key, permission] of Object.entries(requiredPermissions || {})) {
+      if (permission.required && !givenPermissions.includes(key)) {
         hasPermissions = false
         missingPermissions.push(key)
       }
     }
     !hasPermissions &&
       console.error(
-        `:: 🔒 Missing permissions ${JSON.stringify(
-          missingPermissions
-        ).toLocaleUpperCase()} for component ${component}. Component may not function correctly.`
+        '\x1b[31m',
+        `\n🔒 MISSING REQUIRED PERMISSIONS :: ${component} component requires additional permissions:\n`,
+        '\x1b[33m',
+        `\t${JSON.stringify(missingPermissions)} \n`
       )
+    !hasPermissions && process.exit(1)
     return hasPermissions
   }
 
