@@ -9,7 +9,6 @@ export default {
         'provide_server_functionality',
         'provide_widget',
         'serve_static_files',
-        'client_kv',
         'client_network_requests',
       ],
     },
