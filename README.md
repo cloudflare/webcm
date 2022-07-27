@@ -1,4 +1,4 @@
-# 🧩 WebCM
+<img alt="WebCM" src="https://user-images.githubusercontent.com/55081/181248752-3f8988e0-195f-465c-b7e2-91fa81aed555.png">
 
 WebCM is a proxy server implementation of a [Components Manager](https://managedcomponents.dev/getting-started/components-manager). It works independently from your existing HTTP server. By proxying your server, it can add endpoints, execute server-side code, manipulate responses and more. These capabilities allow for a very performant way to load Managed Components.
 
