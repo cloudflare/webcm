@@ -1,5 +1,8 @@
 import yargs from 'yargs/yargs'
 import { startServer } from './lib/server'
+import nodeCrypto from 'crypto'
+
+globalThis.crypto = nodeCrypto as any
 
 const cliArgs = yargs(process.argv.slice(2))
   .options({
