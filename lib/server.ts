@@ -189,8 +189,6 @@ export const startServer = async (
       onProxyRes: responseInterceptor(
         async (responseBuffer, _proxyRes, proxyReq, _res) => {
           if (proxyReq.headers['accept']?.toLowerCase().includes('text/html')) {
-            // TODO client created is still handled automatically because we can't
-            // TODO trust pageview event listeners ?
             handleResponse(proxyReq as Request, clientGeneric)
             let response = responseBuffer.toString('utf8') as string
             response = await manager.processEmbeds(response)
