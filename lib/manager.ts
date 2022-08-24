@@ -46,8 +46,6 @@ export class ManagerGeneric {
   components: ComponentConfig[]
   trackPath: string
   name: string
-  ecommerceEventsPath: string
-  clientEventsPath: string
   componentsFolderPath: string
   requiredSnippets: string[]
   mappedEndpoints: {
@@ -78,8 +76,6 @@ export class ManagerGeneric {
   constructor(Context: {
     components: ComponentConfig[]
     trackPath: string
-    clientEventsPath: string
-    ecommerceEventsPath: string
     componentsFolderPath?: string
   }) {
     this.componentsFolderPath =
@@ -95,8 +91,6 @@ export class ManagerGeneric {
     this.staticFiles = {}
     this.name = 'WebCM'
     this.trackPath = Context.trackPath
-    this.clientEventsPath = Context.clientEventsPath
-    this.ecommerceEventsPath = Context.ecommerceEventsPath
     this.components = Context.components
   }
 
@@ -266,8 +260,6 @@ export class ManagerGeneric {
         injectedScript += readFileSync(snippetPath)
           .toString()
           .replace('TRACK_PATH', this.trackPath)
-          .replaceAll('CLIENT_EVENTS_PATH', this.clientEventsPath)
-          .replaceAll('EC_EVENTS_PATH', this.ecommerceEventsPath)
       }
     }
     return injectedScript
