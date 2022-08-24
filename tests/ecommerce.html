@@ -1,7 +1,6 @@
 <html>
-
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>test ecommerce</title>
   </head>
 
@@ -10,8 +9,10 @@
     <a href="/">Home</a>
     <p>No it ain't no lie, baby buy buy buyyyy</p>
     <script>
-      webcm.ecommerce('Purchase', { revenue: '123.99' })
+      webcm.track('ecommerce', {
+        name: 'Purchase',
+        data: { revenue: '123.99' },
+      })
     </script>
   </body>
-
 </html>
