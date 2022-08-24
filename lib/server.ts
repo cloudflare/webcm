@@ -1,5 +1,5 @@
 import { MCEventListener } from '@managed-components/types'
-import express, { Request, RequestHandler } from 'express'
+import express, { Request, Response, RequestHandler } from 'express'
 import fs from 'fs'
 import {
   createProxyMiddleware,
@@ -32,23 +32,13 @@ export const startServer = async (
     ? fs_path.resolve(componentsFolderPath)
     : ''
 
-  const {
-    target: configTarget,
-    hostname,
-    port,
-    ecommerceEventsPath,
-    trackPath,
-    clientEventsPath,
-    components,
-  } = config
+  const { target: configTarget, hostname, port, trackPath, components } = config
 
   const target = process.env.CM_TARGET_URL || configTarget
 
   const manager = new ManagerGeneric({
     components,
     trackPath,
-    ecommerceEventsPath,
-    clientEventsPath,
     componentsFolderPath: componentsPath,
   })
 
@@ -61,37 +51,29 @@ export const startServer = async (
     return: undefined,
   })
 
-  const handleTrack: RequestHandler = (req, res) => {
+  const handleEvent = (eventType: string, req: Request, res: Response) => {
     res.payload = getDefaultPayload()
-    if (manager.listeners['event']) {
-      const event = new MCEvent('event', req)
+    if (manager.listeners[eventType]) {
+      // slightly alter ecommerce payload
+      if (eventType === 'ecommerce') {
+        req.body.payload.ecommerce = { ...req.body.payload.data }
+        delete req.body.payload.data
+      }
+
+      const event = new MCEvent(eventType, req)
       const clientGeneric = new ClientGeneric(req, res, manager, config)
-      for (const componentName of Object.keys(manager.listeners['event'])) {
+      for (const componentName of Object.keys(manager.listeners[eventType])) {
         event.client = new Client(componentName, clientGeneric)
-        manager.listeners['event'][componentName].forEach(
+        manager.listeners[eventType][componentName].forEach(
           (fn: MCEventListener) => fn(event)
         )
       }
     }
+
     return res.end(JSON.stringify(res.payload))
   }
 
-  const handleEcommerce: RequestHandler = (req, res) => {
-    res.payload = getDefaultPayload()
-    if (manager.listeners['ecommerce']) {
-      const event = new MCEvent('ecommerce', req)
-      const clientGeneric = new ClientGeneric(req, res, manager, config)
-      for (const componentName of Object.keys(manager.listeners['ecommerce'])) {
-        event.client = new Client(componentName, clientGeneric)
-        manager.listeners['ecommerce'][componentName].forEach(
-          (fn: MCEventListener) => fn(event)
-        )
-      }
-    }
-    return res.end(JSON.stringify(res.payload))
-  }
-
-  const handleClientEvent: RequestHandler = (req, res) => {
+  const handleClientEvent = (req: Request, res: Response) => {
     res.payload = getDefaultPayload()
     const event = new MCEvent(req.body.payload.event, req)
     const clientGeneric = new ClientGeneric(req, res, manager, config)
@@ -115,9 +97,21 @@ export const startServer = async (
     res.end(JSON.stringify(res.payload))
   }
 
-  const handlePageView = (req: Request, clientGeneric: ClientGeneric) => {
-    if (!manager.listeners['pageview']) return
-    const pageview = new MCEvent('pageview', req)
+  // 'event', 'ecommerce' 'pageview', 'client' are the standard types
+  // 'remarketing', 'identify' or any other event type
+  const handleTrack: RequestHandler = (req, res) => {
+    const eventType = req.body.eventType
+
+    if (eventType === 'client') {
+      return handleClientEvent(req, res)
+    } else {
+      return handleEvent(eventType, req, res)
+    }
+  }
+
+  const handleResponse = (req: Request, clientGeneric: ClientGeneric) => {
+    if (!manager.listeners['response']) return
+    const responseEvent = new MCEvent('response', req)
     if (!clientGeneric.cookies.get('webcm_prefs')) {
       for (const componentName of Object.keys(
         manager.listeners['clientcreated']
@@ -129,10 +123,10 @@ export const startServer = async (
         )
       }
     }
-    for (const componentName of Object.keys(manager.listeners['pageview'])) {
-      pageview.client = new Client(componentName, clientGeneric)
-      manager.listeners['pageview'][componentName]?.forEach(
-        (fn: MCEventListener) => fn(pageview)
+    for (const componentName of Object.keys(manager.listeners['response'])) {
+      responseEvent.client = new Client(componentName, clientGeneric)
+      manager.listeners['response'][componentName]?.forEach(
+        (fn: MCEventListener) => fn(responseEvent)
       )
     }
   }
@@ -141,10 +135,7 @@ export const startServer = async (
   app.set('trust proxy', true)
 
   // Mount WebCM endpoint
-  app
-    .post(trackPath, handleTrack)
-    .post(ecommerceEventsPath, handleEcommerce)
-    .post(clientEventsPath, handleClientEvent)
+  app.post(trackPath, handleTrack)
 
   // Mount components endpoints
   for (const route of Object.keys(manager.mappedEndpoints)) {
@@ -198,7 +189,9 @@ export const startServer = async (
       onProxyRes: responseInterceptor(
         async (responseBuffer, _proxyRes, proxyReq, _res) => {
           if (proxyReq.headers['accept']?.toLowerCase().includes('text/html')) {
-            handlePageView(proxyReq as Request, clientGeneric)
+            // TODO client created is still handled automatically because we can't
+            // TODO trust pageview event listeners ?
+            handleResponse(proxyReq as Request, clientGeneric)
             let response = responseBuffer.toString('utf8') as string
             response = await manager.processEmbeds(response)
             response = await manager.processWidgets(response)
