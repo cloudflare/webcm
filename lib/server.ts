@@ -1,6 +1,7 @@
 import { MCEventListener } from '@managed-components/types'
 import express, { Request, Response, RequestHandler } from 'express'
 import fs from 'fs'
+import { IncomingMessage, ClientRequest } from 'http'
 import {
   createProxyMiddleware,
   responseInterceptor,
@@ -109,9 +110,10 @@ export const startServer = async (
     }
   }
 
-  const handleResponse = (req: Request, clientGeneric: ClientGeneric) => {
-    if (!manager.listeners['response']) return
-    const responseEvent = new MCEvent('response', req)
+  const handleRequest = (req: Request, clientGeneric: ClientGeneric) => {
+    if (!manager.listeners['request']) return
+    const requestEvent = new MCEvent('request', req)
+
     if (!clientGeneric.cookies.get('webcm_prefs')) {
       for (const componentName of Object.keys(
         manager.listeners['clientcreated']
@@ -123,6 +125,19 @@ export const startServer = async (
         )
       }
     }
+
+    for (const componentName of Object.keys(manager.listeners['request'])) {
+      requestEvent.client = new Client(componentName, clientGeneric)
+      manager.listeners['request'][componentName]?.forEach(
+        (fn: MCEventListener) => fn(requestEvent)
+      )
+    }
+  }
+
+  const handleResponse = (req: Request, clientGeneric: ClientGeneric) => {
+    if (!manager.listeners['response']) return
+    const responseEvent = new MCEvent('response', req)
+
     for (const componentName of Object.keys(manager.listeners['response'])) {
       responseEvent.client = new Client(componentName, clientGeneric)
       manager.listeners['response'][componentName]?.forEach(
@@ -186,10 +201,17 @@ export const startServer = async (
       target,
       changeOrigin: true,
       selfHandleResponse: true,
+      onProxyReq: (
+        _proxyReq: ClientRequest,
+        req: IncomingMessage,
+        _res: Response
+      ) => {
+        handleRequest(req as Request, clientGeneric)
+      },
       onProxyRes: responseInterceptor(
         async (responseBuffer, _proxyRes, proxyReq, _res) => {
+          handleResponse(proxyReq as Request, clientGeneric)
           if (proxyReq.headers['accept']?.toLowerCase().includes('text/html')) {
-            handleResponse(proxyReq as Request, clientGeneric)
             let response = responseBuffer.toString('utf8') as string
             response = await manager.processEmbeds(response)
             response = await manager.processWidgets(response)
