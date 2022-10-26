@@ -81,7 +81,7 @@ export class ClientGeneric {
         this.cookies.set(key, value, cookieOpts)
         break
       default:
-        cookieOpts.maxAge = 31536000000000
+        cookieOpts.maxAge ||= 31536000000000
         this.cookies.set(key, value, cookieOpts)
         break
     }
