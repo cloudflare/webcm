@@ -78,6 +78,7 @@ export class ClientGeneric {
         break
       case 'session':
         delete cookieOpts.expires
+        delete cookieOpts.maxAge
         this.cookies.set(key, value, cookieOpts)
         break
       default:
