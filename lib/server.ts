@@ -134,18 +134,6 @@ export const startServer = async (
     }
   }
 
-  const handleResponse = (req: Request, clientGeneric: ClientGeneric) => {
-    if (!manager.listeners['response']) return
-    const responseEvent = new MCEvent('response', req)
-
-    for (const componentName of Object.keys(manager.listeners['response'])) {
-      responseEvent.client = new Client(componentName, clientGeneric)
-      manager.listeners['response'][componentName]?.forEach(
-        (fn: MCEventListener) => fn(responseEvent)
-      )
-    }
-  }
-
   const app = express().use(express.json())
   app.set('trust proxy', true)
 
@@ -210,7 +198,6 @@ export const startServer = async (
       },
       onProxyRes: responseInterceptor(
         async (responseBuffer, _proxyRes, proxyReq, _res) => {
-          handleResponse(proxyReq as Request, clientGeneric)
           if (proxyReq.headers['accept']?.toLowerCase().includes('text/html')) {
             let response = responseBuffer.toString('utf8') as string
             response = await manager.processEmbeds(response)
