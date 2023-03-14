@@ -8,5 +8,9 @@ export const set = (key: string, value: any) => {
 }
 
 export const get = (key: string) => {
-  return JSON.parse(readFileSync(BASE_DIR + '/' + key).toString())
+  try {
+    return JSON.parse(readFileSync(BASE_DIR + '/' + key).toString())
+  } catch {
+    return
+  }
 }
