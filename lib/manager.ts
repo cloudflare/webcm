@@ -356,6 +356,10 @@ export class Manager implements MCManager {
     }
   }
 
+  fetch(path: string, options?: RequestInit) {
+    return fetch(path, options);
+  }
+
   // eslint-disable-next-line @typescript-eslint/ban-types
   async useCache(key: string, callback: Function, expiry?: number) {
     return await useCache(this.#component + '__' + key, callback, expiry)
