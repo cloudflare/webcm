@@ -356,7 +356,7 @@ export class Manager implements MCManager {
     }
   }
 
-  fetch(path: string, options?: RequestInit) {
+  fetch(path: string | Request, options?: RequestInit) {
     return fetch(path, options);
   }
 
