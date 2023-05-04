@@ -110,7 +110,7 @@ export class ClientGeneric {
     })
   }
   detachEvent(component: string, event: string) {
-    const eventIndex = this.webcmPrefs.listeners[component].indexOf(event)
+    const eventIndex = this.webcmPrefs.listeners[component]?.indexOf(event)
     if (eventIndex > -1) {
       this.webcmPrefs.listeners[component].splice(eventIndex, 1)
       this.cookies.set('webcm_prefs', JSON.stringify(this.webcmPrefs), {
