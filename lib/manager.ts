@@ -356,8 +356,8 @@ export class Manager implements MCManager {
     }
   }
 
-  fetch(path: string | Request, options?: RequestInit) {
-    return fetch(path, options);
+  fetch(path: RequestInfo, options?: RequestInit) {
+    return fetch(path, options)
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-types
