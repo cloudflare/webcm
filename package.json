@@ -1,6 +1,6 @@
 {
   "name": "webcm",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "Demonstrative implementation of a web-based manager for utilising Managed Components",
   "repository": {
     "type": "git",
