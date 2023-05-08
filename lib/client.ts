@@ -35,23 +35,18 @@ export class ClientGeneric {
     this.pendingVariables = {}
     this.title = request.body.title
     this.timestamp = request.body.timestamp || new Date().getTime()
-    this.pageVars = request.body.pageVars || {}
+    this.pageVars = request.body.pageVars || { __client: {} }
     this.offset = request.body.offset
     this.url = new URL(
       request.body?.location?.href ||
         'http://' + config.hostname + request.originalUrl
     )
     this.cookies = new Cookies(request, response, { keys: [this.cookiesKey] })
-    if (this.cookies.get('webcm_prefs', { signed: !!this.cookiesKey })) {
-      this.webcmPrefs = JSON.parse(
-        this.cookies.get('webcm_prefs', { signed: !!this.cookiesKey }) || ''
-      )
-    } else {
+    try {
+      this.webcmPrefs = JSON.parse(this.pageVars.webcm_prefs)
+    } catch {
       this.webcmPrefs = { listeners: {} }
     }
-    this.cookies.set('webcm_prefs', JSON.stringify(this.webcmPrefs), {
-      signed: true,
-    })
   }
   execute(code: string) {
     this.response.payload.execute.push(code)
@@ -105,17 +100,14 @@ export class ClientGeneric {
     } else {
       this.webcmPrefs.listeners[component].push(event)
     }
-    this.cookies.set('webcm_prefs', JSON.stringify(this.webcmPrefs), {
-      signed: true,
-    })
+
+    this.response.payload.pageVars.push(['__webcm_prefs', this.webcmPrefs])
   }
   detachEvent(component: string, event: string) {
     const eventIndex = this.webcmPrefs.listeners[component]?.indexOf(event)
     if (eventIndex > -1) {
       this.webcmPrefs.listeners[component].splice(eventIndex, 1)
-      this.cookies.set('webcm_prefs', JSON.stringify(this.webcmPrefs), {
-        signed: true,
-      })
+      this.response.payload.pageVars.push(['__webcm_prefs', this.webcmPrefs])
     }
   }
 }
