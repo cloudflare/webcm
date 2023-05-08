@@ -255,6 +255,7 @@ export class ManagerGeneric {
     )
 
     for (const snippet of [...this.requiredSnippets, ...clientListeners]) {
+      if (clientGeneric.pageVars.__client[snippet]) continue
       const snippetPath = path.join(__dirname, 'browser', `${snippet}.js`)
       if (existsSync(snippetPath)) {
         injectedScript += readFileSync(snippetPath)

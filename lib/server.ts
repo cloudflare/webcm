@@ -69,6 +69,7 @@ export const startServer = async (
           (fn: MCEventListener) => fn(event)
         )
       }
+      res.payload.execute.push(manager.getInjectedScript(clientGeneric))
     }
 
     return res.end(JSON.stringify(res.payload))
@@ -95,6 +96,7 @@ export const startServer = async (
         )
       }
     }
+    res.payload.execute.push(manager.getInjectedScript(clientGeneric))
     res.end(JSON.stringify(res.payload))
   }
 
