@@ -42,9 +42,9 @@ export class ClientGeneric {
         'http://' + config.hostname + request.originalUrl
     )
     this.cookies = new Cookies(request, response, { keys: [this.cookiesKey] })
-    try {
-      this.webcmPrefs = JSON.parse(this.pageVars.webcm_prefs)
-    } catch {
+    if (this.pageVars.__webcm_prefs) {
+      this.webcmPrefs = this.pageVars.__webcm_prefs as any
+    } else {
       this.webcmPrefs = { listeners: {} }
     }
   }
