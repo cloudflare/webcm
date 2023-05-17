@@ -6,6 +6,7 @@ import { PERMISSIONS } from './constants'
 export class ClientGeneric {
   type = 'browser'
   title?: string
+  referer: string
   timestamp: number
   offset?: number
   request: Request
@@ -34,6 +35,7 @@ export class ClientGeneric {
     this.response = response
     this.pendingVariables = {}
     this.title = request.body.title
+    this.referer = request.body.referer
     this.timestamp = request.body.timestamp || new Date().getTime()
     this.pageVars = request.body.pageVars || { __client: {} }
     this.offset = request.body.offset
@@ -138,7 +140,7 @@ export class Client implements MCClient {
     this.emitter = 'browser'
     this.userAgent = this.#generic.request.headers['user-agent'] || ''
     this.language = this.#generic.request.headers['accept-language'] || ''
-    this.referer = this.#generic.request.headers.referer || ''
+    this.referer = this.#generic.referer || ''
     this.ip = this.#generic.request.ip || ''
   }
   return(value: unknown) {
