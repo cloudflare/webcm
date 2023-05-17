@@ -40,7 +40,7 @@ export class ClientGeneric {
     this.pageVars = request.body.pageVars || { __client: {} }
     this.offset = request.body.offset
     this.url = new URL(
-      request.body?.location?.href ||
+      request.body?.location ||
         'http://' + config.hostname + request.originalUrl
     )
     this.cookies = new Cookies(request, response, { keys: [this.cookiesKey] })
