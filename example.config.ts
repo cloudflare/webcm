@@ -13,8 +13,8 @@ export default {
       ],
     },
   ],
-  // The target server URL to proxy
-  target: 'http://127.0.0.1:8000',
+  // The target server URL to proxy. If unset, webcm will spin up a simple static website and target it instead
+  // target: 'http://127.0.0.1:8000',
   // The hostname to which WebCM should bind
   hostname: 'localhost',
   // The tracking URL will get all POST requests coming from `webcm.track`

@@ -6,10 +6,15 @@ import {
   createProxyMiddleware,
   responseInterceptor,
 } from 'http-proxy-middleware'
-import * as fs_path from 'path'
+import * as path from 'path'
 import { version } from '../package.json'
 import { Client, ClientGeneric } from './client'
 import { ManagerGeneric, MCEvent } from './manager'
+import { Config, defaultConfig } from './config'
+import { PERMISSIONS } from './constants'
+import { StaticServer } from './static-server'
+
+const DEFAULT_TARGET = 'http://localhost:8000'
 
 if (process.env.NODE_ENV === 'production') {
   process.on('unhandledRejection', (reason: Error) => {
@@ -17,32 +22,67 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-export const startServer = async (
-  configPath: string,
-  componentsFolderPath: string
-) => {
-  const configFullPath = fs_path.resolve(configPath)
-  if (!fs.existsSync(configFullPath)) {
-    console.error('Could not load WebCM config from', configFullPath)
-    console.log('\nPlease create your configuration and run WebCM again.')
-    process.exit(1)
+function getConfig(configPath?: string) {
+  let config: Config = defaultConfig
+  if (configPath) {
+    const configFullPath = path.resolve(configPath)
+    if (!fs.existsSync(configFullPath)) {
+      console.error('Could not load WebCM config from', configFullPath)
+      console.log('\nPlease create your configuration and run WebCM again.')
+      process.exit(1)
+    }
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    config = { ...config, ...require(configFullPath).default }
+  } else {
+    console.log('Config path not provided, using defaults....')
   }
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const config = require(configFullPath).default
-  const componentsPath = componentsFolderPath
-    ? fs_path.resolve(componentsFolderPath)
-    : ''
+  if (!config.components) {
+    config.components = []
+  }
+  return config
+}
 
-  const { target: configTarget, hostname, port, trackPath, components } = config
+export async function startServerFromConfig({
+  configPath,
+  componentsFolderPath,
+  customComponentPath,
+  url,
+}: {
+  configPath?: string
+  componentsFolderPath?: string
+  customComponentPath?: string
+  url?: string
+}) {
+  const config = getConfig(configPath)
+  let componentsPath = ''
+  if (componentsFolderPath) {
+    componentsPath = path.resolve(componentsFolderPath)
+  } else {
+    console.log('Components folder path not provided')
+  }
 
-  const target = process.env.CM_TARGET_URL || configTarget
+  const { hostname, port, trackPath, components } = config
+  if (customComponentPath) {
+    components.push({
+      path: path.resolve(customComponentPath),
+      permissions: Object.values(PERMISSIONS), // use all permissions, it's just for testing
+    })
+  }
+
+  if (url) {
+    config.target = url
+  } else if (!config.target) {
+    const server = new StaticServer(8000)
+    server.start()
+    console.log('Started a demo static server at localhost:8000')
+    config.target = DEFAULT_TARGET
+  }
 
   const manager = new ManagerGeneric({
     components,
     trackPath,
     componentsFolderPath: componentsPath,
   })
-
   await manager.init()
 
   const getDefaultPayload = () => ({
@@ -205,8 +245,8 @@ export const startServer = async (
   }
 
   // Mount static files
-  for (const [path, fileTarget] of Object.entries(manager.staticFiles)) {
-    app.use(path, express.static(fs_path.join(componentsPath, fileTarget)))
+  for (const [filePath, fileTarget] of Object.entries(manager.staticFiles)) {
+    app.use(filePath, express.static(path.join(componentsPath, fileTarget)))
   }
 
   // Listen to all normal requests
@@ -214,7 +254,7 @@ export const startServer = async (
     res.payload = getDefaultPayload()
     const clientGeneric = new ClientGeneric(req, res, manager, config)
     const proxySettings = {
-      target,
+      target: config.target,
       changeOrigin: true,
       selfHandleResponse: true,
       onProxyReq: (
@@ -250,6 +290,6 @@ export const startServer = async (
   console.info('\nWebCM, version', process.env.npm_package_version || version)
   app.listen(port, hostname)
   console.info(
-    `\n🚀 WebCM is now proxying ${target} at http://${hostname}:${port}\n\n`
+    `\n🚀 WebCM is now proxying ${config.target} at http://${hostname}:${port}\n\n`
   )
 }

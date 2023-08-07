@@ -22,10 +22,11 @@ It's very easy to get up and running with WebCM using `npx`!
 
 You might want to make WebCM load a locally developed Managed Component.
 
-1. Place your Managed Component inside a `components` directory next to your config file
-2. Edit your config file to include your component name in the `components` object
+To do so, run:
 
-WebCM will now load your component. Use `webcm run dev` to get auto-reloading when your Managed Component changes.
+```bash
+npx webcm start path/to/component.ts
+```
 
 ## Read more
 

@@ -73,14 +73,21 @@ function onFatalError(error) {
     .scriptName('webcm')
     .usage('$0 [args]')
     .command(
-      ['start', '$0'],
+      'start [component] [url]',
       '(default) start webcm proxy server with given Managed Components config file',
       yargs => {
         yargs
+          .positional('component', {
+            type: 'string',
+            describe: 'path to your managed component .js file',
+          })
+          .positional('url', {
+            type: 'string',
+            describe: 'the http url to direct the proxy to',
+          })
           .option('config', {
             alias: 'c',
             type: 'string',
-            default: './webcm.config.ts',
             describe: 'path to your Managed Components config',
           })
           .option('components', {
@@ -96,8 +103,13 @@ function onFatalError(error) {
           transpileOnly: true,
           dir: __dirname,
         })
-        const { startServer } = require('../lib/server')
-        startServer(argv.config, argv.components)
+        const { startServerFromConfig } = require('../lib/server')
+        startServerFromConfig({
+          configPath: argv.config,
+          componentsFolderPath: argv.components,
+          customComponentPath: argv.component,
+          url: argv.url,
+        })
       }
     )
     .help().argv

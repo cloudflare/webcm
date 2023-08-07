@@ -34,11 +34,18 @@ type ComponentConfigPermissions = {
   [key: string]: { description: string; required: boolean }
 }
 
-type ComponentConfig = {
+export type NamedComponentConfig = {
   name: string
   settings: ComponentSettings
   permissions: string[]
 }
+
+export type DirectComponentConfig = {
+  path: string
+  permissions: string[]
+}
+
+export type ComponentConfig = NamedComponentConfig | DirectComponentConfig
 
 const EXTS = ['.mjs', '.js', '.mts', '.ts']
 
@@ -190,7 +197,10 @@ export class ManagerGeneric {
     return { component, manifest }
   }
 
-  async fetchRemoteComponent(basePath: string, name: string) {
+  async fetchRemoteComponent(
+    basePath: string,
+    name: string
+  ): Promise<{ component: any; manifest: any }> {
     let component
     const componentPath = path.join(this.componentsFolderPath, name)
     try {
@@ -201,16 +211,27 @@ export class ManagerGeneric {
       rmdir(componentPath, () =>
         console.info(':::: Removed empty component folder', componentPath)
       )
+      return { component: null, manifest: null }
     }
 
     return component
   }
 
-  async loadComponent(name: string) {
+  async loadComponent(
+    name: string
+  ): Promise<{ manifest: any; component: any }> {
     const localPathBase = path.join(this.componentsFolderPath, name)
     return existsSync(localPathBase)
       ? this.fetchLocalComponent(localPathBase)
       : this.fetchRemoteComponent(localPathBase, name)
+  }
+
+  async loadComponentByPath(
+    path: string
+  ): Promise<{ manifest: any; component: any }> {
+    const component = require(path)
+    const manifest = {}
+    return { component, manifest }
   }
 
   async hasRequiredPermissions(
@@ -239,9 +260,27 @@ export class ManagerGeneric {
 
   async init() {
     for (const compConfig of this.components) {
-      const { name, settings = {}, permissions } = compConfig
-      const { component, manifest } = (await this.loadComponent(name)) || {}
-
+      let name: string
+      let settings: Record<string, unknown>
+      let permissions: string[]
+      let component
+      let manifest
+      if ('path' in compConfig) {
+        name = 'customComponent'
+        settings = {}
+        permissions = (compConfig.permissions || []) as string[]
+        console.log('Loading component by path!', compConfig.path)
+        const result = (await this.loadComponentByPath(compConfig.path)) || {}
+        component = result.component
+        manifest = result.manifest
+      } else {
+        name = compConfig.name
+        settings = compConfig.settings || {}
+        permissions = compConfig.permissions
+        const result = (await this.loadComponent(name)) || {}
+        component = result.component
+        manifest = result.manifest
+      }
       await this.initComponent(component, name, settings, permissions)
       this.hasRequiredPermissions(name, manifest.permissions, permissions)
     }
