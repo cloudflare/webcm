@@ -335,7 +335,7 @@ export class Manager implements MCManager {
     return get(this.#component + '__' + key)
   }
 
-  set(key: string, value: any) {
+  async set(key: string, value: any) {
     return set(this.#component + '__' + key, value)
   }
 
@@ -366,9 +366,8 @@ export class Manager implements MCManager {
     return await useCache(this.#component + '__' + key, callback, expiry)
   }
 
-  invalidateCache(key: string) {
-    invalidateCache(this.#component + '__' + key)
-    return true
+  async invalidateCache(key: string) {
+    return invalidateCache(this.#component + '__' + key)
   }
 
   registerEmbed(name: string, callback: EmbedCallback) {
