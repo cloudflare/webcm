@@ -52,8 +52,43 @@ export const startServer = async (
     return: undefined,
   })
 
-  const handleEvent = (eventType: string, req: Request, res: Response) => {
+  const handleClientCreated = (req: Request, res: Response) => {
+    const cookieName = 'webcm_clientcreated'
+    const eventName = 'clientcreated'
+
+    const clientGeneric = new ClientGeneric(req, res, manager, config)
+    let clientAlreadyCreated = clientGeneric.cookies.get(cookieName) || ''
+
+    for (const componentName of Object.keys(manager.listeners[eventName])) {
+      if (clientAlreadyCreated.split(',')?.includes(componentName)) continue
+      if (
+        !manager.listeners[eventName][componentName] ||
+        !manager.listeners[eventName][componentName].length
+      )
+        continue
+
+      const event = new MCEvent(eventName, req)
+      event.client = new Client(componentName as string, clientGeneric)
+      clientAlreadyCreated = Array.from(
+        new Set([...clientAlreadyCreated.split(','), componentName])
+      ).join(',')
+      clientGeneric.set(cookieName, clientAlreadyCreated)
+
+      manager.listeners[eventName][componentName]?.forEach(
+        (fn: MCEventListener) => fn(event)
+      )
+    }
+  }
+
+  const handleEvent = async (
+    eventType: string,
+    req: Request,
+    res: Response
+  ) => {
     res.payload = getDefaultPayload()
+
+    handleClientCreated(req, res)
+
     if (manager.listeners[eventType]) {
       // slightly alter ecommerce payload
       if (eventType === 'ecommerce') {
@@ -65,8 +100,10 @@ export const startServer = async (
       const clientGeneric = new ClientGeneric(req, res, manager, config)
       for (const componentName of Object.keys(manager.listeners[eventType])) {
         event.client = new Client(componentName, clientGeneric)
-        manager.listeners[eventType][componentName].forEach(
-          (fn: MCEventListener) => fn(event)
+        await Promise.all(
+          manager.listeners[eventType][componentName].map(
+            (fn: MCEventListener) => fn(event)
+          )
         )
       }
       res.payload.execute.push(manager.getInjectedScript(clientGeneric))
@@ -75,7 +112,7 @@ export const startServer = async (
     return res.end(JSON.stringify(res.payload))
   }
 
-  const handleClientEvent = (req: Request, res: Response) => {
+  const handleClientEvent = async (req: Request, res: Response) => {
     res.payload = getDefaultPayload()
     const event = new MCEvent(req.body.payload.event, req)
     const clientGeneric = new ClientGeneric(req, res, manager, config)
@@ -87,9 +124,9 @@ export const startServer = async (
     for (const component of clientComponentNames) {
       event.client = new Client(component, clientGeneric)
       try {
-        manager.clientListeners[req.body.payload.event + '__' + component](
-          event
-        )
+        await manager.clientListeners[
+          req.body.payload.event + '__' + component
+        ](event)
       } catch {
         console.error(
           `Error dispatching ${req.body.payload.event} to ${component}: it isn't registered`
@@ -115,18 +152,6 @@ export const startServer = async (
   const handleRequest = (req: Request, clientGeneric: ClientGeneric) => {
     if (!manager.listeners['request']) return
     const requestEvent = new MCEvent('request', req)
-
-    if (!clientGeneric.cookies.get('webcm_prefs')) {
-      for (const componentName of Object.keys(
-        manager.listeners['clientcreated']
-      )) {
-        const event = new MCEvent('clientcreated', req)
-        event.client = new Client(componentName as string, clientGeneric)
-        manager.listeners['clientcreated'][componentName]?.forEach(
-          (fn: MCEventListener) => fn(event)
-        )
-      }
-    }
 
     for (const componentName of Object.keys(manager.listeners['request'])) {
       requestEvent.client = new Client(componentName, clientGeneric)
