@@ -52,11 +52,14 @@ export const startServer = async (
     return: undefined,
   })
 
-  const handleClientCreated = (req: Request, res: Response) => {
+  const handleClientCreated = (
+    req: Request,
+    res: Response,
+    clientGeneric: ClientGeneric
+  ) => {
     const cookieName = 'webcm_clientcreated'
     const eventName = 'clientcreated'
 
-    const clientGeneric = new ClientGeneric(req, res, manager, config)
     let clientAlreadyCreated = clientGeneric.cookies.get(cookieName) || ''
 
     for (const componentName of Object.keys(manager.listeners[eventName])) {
@@ -86,8 +89,9 @@ export const startServer = async (
     res: Response
   ) => {
     res.payload = getDefaultPayload()
+    const clientGeneric = new ClientGeneric(req, res, manager, config)
 
-    handleClientCreated(req, res)
+    handleClientCreated(req, res, clientGeneric)
 
     if (manager.listeners[eventType]) {
       // slightly alter ecommerce payload
@@ -97,7 +101,6 @@ export const startServer = async (
       }
 
       const event = new MCEvent(eventType, req)
-      const clientGeneric = new ClientGeneric(req, res, manager, config)
       for (const componentName of Object.keys(manager.listeners[eventType])) {
         event.client = new Client(componentName, clientGeneric)
         await Promise.all(
