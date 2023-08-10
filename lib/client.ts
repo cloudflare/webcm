@@ -50,6 +50,25 @@ export class ClientGeneric {
       this.webcmPrefs = { listeners: {} }
     }
   }
+
+  setPrefs() {
+    let exists
+    for (let i = 0; i < this.response.payload.pageVars.length; i++) {
+      const [key] = this.response.payload.pageVars[i]
+
+      if (key === '__webcm_prefs') {
+        exists = true
+        this.response.payload.pageVars.splice(i, 1, [
+          '__webcm_prefs',
+          this.webcmPrefs,
+        ])
+      }
+    }
+    if (!exists) {
+      this.response.payload.pageVars.push(['__webcm_prefs', this.webcmPrefs])
+    }
+  }
+
   execute(code: string) {
     this.response.payload.execute.push(code)
   }
@@ -103,13 +122,13 @@ export class ClientGeneric {
       this.webcmPrefs.listeners[component].push(event)
     }
 
-    this.response.payload.pageVars.push(['__webcm_prefs', this.webcmPrefs])
+    this.setPrefs()
   }
   detachEvent(component: string, event: string) {
     const eventIndex = this.webcmPrefs.listeners[component]?.indexOf(event)
     if (eventIndex > -1) {
       this.webcmPrefs.listeners[component].splice(eventIndex, 1)
-      this.response.payload.pageVars.push(['__webcm_prefs', this.webcmPrefs])
+      this.setPrefs()
     }
   }
 }
