@@ -73,7 +73,7 @@ function onFatalError(error) {
     .scriptName('webcm')
     .usage('$0 [args]')
     .command(
-      'start [component] [url]',
+      'start [component]',
       '(default) start webcm proxy server with given Managed Components config file',
       yargs => {
         yargs
@@ -81,12 +81,14 @@ function onFatalError(error) {
             type: 'string',
             describe: 'path to your managed component .js file',
           })
-          .positional('url', {
+          .option('target', {
+            alias: 't',
             type: 'string',
             describe: 'the http url to direct the proxy to',
           })
           .option('config', {
             alias: 'c',
+            default: './webcm.config.ts',
             type: 'string',
             describe: 'path to your Managed Components config',
           })
@@ -108,7 +110,7 @@ function onFatalError(error) {
           configPath: argv.config,
           componentsFolderPath: argv.components,
           customComponentPath: argv.component,
-          url: argv.url,
+          url: argv.target,
         })
       }
     )

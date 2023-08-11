@@ -1,6 +1,5 @@
 import { MCEventListener } from '@managed-components/types'
 import express, { Request, Response, RequestHandler } from 'express'
-import fs from 'fs'
 import { IncomingMessage, ClientRequest } from 'http'
 import {
   createProxyMiddleware,
@@ -10,7 +9,7 @@ import * as path from 'path'
 import { version } from '../package.json'
 import { Client, ClientGeneric } from './client'
 import { ManagerGeneric, MCEvent } from './manager'
-import { Config, defaultConfig } from './config'
+import { getConfig } from './config'
 import { PERMISSIONS } from './constants'
 import { StaticServer } from './static-server'
 
@@ -20,26 +19,6 @@ if (process.env.NODE_ENV === 'production') {
   process.on('unhandledRejection', (reason: Error) => {
     console.log('Unhandled Rejection at:', reason.stack || reason)
   })
-}
-
-function getConfig(configPath?: string) {
-  let config: Config = defaultConfig
-  if (configPath) {
-    const configFullPath = path.resolve(configPath)
-    if (!fs.existsSync(configFullPath)) {
-      console.error('Could not load WebCM config from', configFullPath)
-      console.log('\nPlease create your configuration and run WebCM again.')
-      process.exit(1)
-    }
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    config = { ...config, ...require(configFullPath).default }
-  } else {
-    console.log('Config path not provided, using defaults....')
-  }
-  if (!config.components) {
-    config.components = []
-  }
-  return config
 }
 
 export async function startServerFromConfig({

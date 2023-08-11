@@ -28,6 +28,28 @@ To do so, run:
 npx webcm start path/to/component.ts
 ```
 
+This will run the component on a simple static site, with all permissions
+enabled. If you want to proxy a different website, pass the URL as another CLI
+argument:
+
+```bash
+npx webcm start path/to/component.ts --target https://example.com
+```
+
+To test the component with different permissions, create a `webcm.config.ts`
+(see [example.config.ts](./example.config.ts)) and set it to:
+
+```ts
+export default {
+  components: [
+    {
+      path: './path/to/component.ts',
+      permissions: ['execute_unsafe_scripts'],
+    },
+  ],
+}
+```
+
 ## Read more
 
 - See [managedcomponents.dev](https://managedcomponents.dev) for more information about Managed Components and how they work

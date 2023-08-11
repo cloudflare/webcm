@@ -269,7 +269,6 @@ export class ManagerGeneric {
         name = 'customComponent'
         settings = {}
         permissions = (compConfig.permissions || []) as string[]
-        console.log('Loading component by path!', compConfig.path)
         const result = (await this.loadComponentByPath(compConfig.path)) || {}
         component = result.component
         manifest = result.manifest
