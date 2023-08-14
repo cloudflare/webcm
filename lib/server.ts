@@ -62,6 +62,8 @@ export const startServer = async (
 
     let clientAlreadyCreated = clientGeneric.cookies.get(cookieName) || ''
 
+    if (!manager.listeners[eventName]) return
+
     for (const componentName of Object.keys(manager.listeners[eventName])) {
       if (clientAlreadyCreated.split(',')?.includes(componentName)) continue
       if (
