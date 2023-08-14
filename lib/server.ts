@@ -66,11 +66,6 @@ export const startServer = async (
 
     for (const componentName of Object.keys(manager.listeners[eventName])) {
       if (clientAlreadyCreated.split(',')?.includes(componentName)) continue
-      if (
-        !manager.listeners[eventName][componentName] ||
-        !manager.listeners[eventName][componentName].length
-      )
-        continue
 
       const event = new MCEvent(eventName, req)
       event.client = new Client(componentName as string, clientGeneric)
@@ -198,7 +193,6 @@ export const startServer = async (
     )) {
       const proxyEndpoint = '/webcm/' + component + path
       app.all(proxyEndpoint + '*', async (req, res, next) => {
-
         const proxy = createProxyMiddleware({
           target: proxyTarget + req.path.replace(proxyEndpoint, ''),
           ignorePath: true,
