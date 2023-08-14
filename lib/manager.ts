@@ -80,7 +80,7 @@ export class ManagerGeneric {
   }) {
     this.componentsFolderPath =
       Context.componentsFolderPath || path.join(__dirname, '..', 'components')
-    this.requiredSnippets = ['track']
+    this.requiredSnippets = ['track', 'embedHeight']
     this.registeredWidgets = []
     this.registeredEmbeds = {}
     this.listeners = {}
@@ -279,8 +279,16 @@ export class ManagerGeneric {
       const name = parameters['component-embed']
       if (this.registeredEmbeds[name]) {
         const embed = await this.registeredEmbeds[name]({ parameters })
-        const iframe = `<iframe sandbox="allow-scripts" src="about:blank" style="border: 0"srcDoc="${embed}"></iframe>`
-        div.innerHTML = iframe
+        const uuid = 'embed-' + crypto.randomUUID()
+        div.innerHTML = `<iframe id="${uuid}" style="width: 100%; border: 0;" src="data:text/html;charset=UTF-8,${encodeURIComponent(
+          embed +
+            `<script>
+const webcmUpdateHeight = () => parent.postMessage({webcmUpdateHeight: true, id: '${uuid}', h: document.body.scrollHeight }, '*');
+addEventListener('load', webcmUpdateHeight);
+addEventListener('resize', webcmUpdateHeight);
+</script>`
+        )}"></iframe>
+`
       }
     }
 
@@ -372,7 +380,7 @@ export class Manager implements MCManager {
   }
 
   registerEmbed(name: string, callback: EmbedCallback) {
-    this.#generic.registeredEmbeds[this.#component + '__' + name] = callback
+    this.#generic.registeredEmbeds[this.#component + '-' + name] = callback
     return true
   }
 

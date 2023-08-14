@@ -167,11 +167,13 @@ export const startServer = async (
       manager.proxiedEndpoints[component]
     )) {
       const proxyEndpoint = '/webcm/' + component + path
-      app.all(proxyEndpoint, async (req, res, next) => {
+      app.all(proxyEndpoint + '*', async (req, res, next) => {
+
         const proxy = createProxyMiddleware({
-          target: proxyTarget + req.path.slice(proxyEndpoint.length - 2),
+          target: proxyTarget + req.path.replace(proxyEndpoint, ''),
           ignorePath: true,
           followRedirects: true,
+          changeOrigin: true,
         })
         proxy(req, res, next)
       })

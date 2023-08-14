@@ -6,3 +6,6 @@ dist
 coverage
 components
 webcm.config.ts
+kv/*
+
+!.gitkeep
