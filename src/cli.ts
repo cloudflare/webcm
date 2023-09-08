@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import yargs from "yargs";
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-console */
 
@@ -12,10 +13,8 @@
 
 /**
  * Get the error message of a given value.
- * @param {any} error The value to get.
- * @returns {string} The error message.
  */
-function getErrorMessage(error) {
+function getErrorMessage(error: Record<string, unknown>) {
   // Lazy loading because this is used only if an error happened.
   const util = require('util')
 
@@ -46,10 +45,8 @@ function getErrorMessage(error) {
 
 /**
  * Catch and report unexpected error.
- * @param {any} error The thrown error object.
- * @returns {void}
  */
-function onFatalError(error) {
+function onFatalError(error: Record<string, unknown>) {
   process.exitCode = 2
 
   const { version } = require('../package.json')
@@ -69,7 +66,7 @@ function onFatalError(error) {
   process.on('uncaughtException', onFatalError)
   process.on('unhandledRejection', onFatalError)
 
-  process.exitCode = await require('yargs')
+  yargs
     .scriptName('webcm')
     .usage('$0 [args]')
     .command(

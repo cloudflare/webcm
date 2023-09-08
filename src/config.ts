@@ -24,13 +24,16 @@ export function getConfig(configPath?: string) {
   if (configPath) {
     const configFullPath = path.resolve(configPath)
     if (!fs.existsSync(configFullPath)) {
-      console.error('Could not load WebCM config from', configFullPath)
-    }
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    config = { ...config, ...require(configFullPath).default }
-    for (const component of config.components) {
-      if ('path' in component && !component.path.startsWith('/')) {
-        component.path = path.resolve(configPath, '../', component.path)
+      throw new Error(
+        `No config file found at provided path: ${configFullPath}`
+      )
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      config = { ...config, ...require(configFullPath).default }
+      for (const component of config.components) {
+        if ('path' in component && !component.path.startsWith('/')) {
+          component.path = path.resolve(configPath, '../', component.path)
+        }
       }
     }
   } else {

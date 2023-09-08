@@ -22,9 +22,10 @@
   "bin": {
     "webcm": "./bin/webcm.js"
   },
-  "main": "index.ts",
+  "main": "lib/src/index.js",
   "scripts": {
     "dev": "TS_NODE_FILES=true nodemon --exec 'node --loader ts-node/esm' index.ts",
+    "build": "tsc",
     "lint": "eslint --ext .ts,.js, lib",
     "lint:fix": "eslint --ext .ts,.js, lib --fix",
     "typecheck": "tsc --noEmit",

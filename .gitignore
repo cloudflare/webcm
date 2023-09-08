@@ -7,5 +7,6 @@ coverage
 components
 webcm.config.ts
 kv/*
-
 !.gitkeep
+lib
+/yarn-error.log
