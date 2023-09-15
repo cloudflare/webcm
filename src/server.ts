@@ -21,19 +21,26 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
+type BasicServerConfig = {
+  configPath?: string
+  componentsFolderPath?: string
+  url?: string
+}
+
+type CustomComponentServerConfig = BasicServerConfig & {
+  customComponentPath?: string
+  customComponentSettings?: Record<string, unknown>
+}
+
+
+type ServerConfig = BasicServerConfig | CustomComponentServerConfig
+
 export async function startServerFromConfig({
   configPath,
   componentsFolderPath,
-  customComponentPath,
   url,
-  customComponentSettings,
-}: {
-  configPath?: string
-  componentsFolderPath?: string
-  customComponentPath?: string
-  customComponentSettings: Record<string, unknown>
-  url?: string
-}) {
+  ...args
+}: ServerConfig) {
   const config = getConfig(configPath)
   let componentsPath = ''
   if (componentsFolderPath) {
@@ -43,12 +50,12 @@ export async function startServerFromConfig({
   }
 
   const { hostname, port, trackPath, components } = config
-  if (customComponentPath) {
-    console.log(`⚠️  Custom component ${customComponentPath} will run with all permissions enabled, use webcm.config.ts to change what permissions it gets`)
+  if ("customComponentPath" in args && args.customComponentPath) {
+    console.log(`⚠️  Custom component ${args.customComponentPath} will run with all permissions enabled, use webcm.config.ts to change what permissions it gets`)
     components.push({
-      path: path.resolve(customComponentPath),
+      path: path.resolve(args.customComponentPath),
       permissions: Object.values(PERMISSIONS), // use all permissions, it's just for testing
-      settings: customComponentSettings,
+      settings: args.customComponentSettings || {},
     })
   }
 

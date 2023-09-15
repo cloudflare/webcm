@@ -21,4 +21,7 @@ const cliArgs = yargs(process.argv.slice(2))
   })
   .parseSync()
 
-startServerFromConfig(cliArgs)
+startServerFromConfig({
+  configPath: cliArgs.configPath,
+  componentsFolderPath: cliArgs.componentsFolderPath,
+})

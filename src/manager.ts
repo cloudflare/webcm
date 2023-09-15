@@ -42,7 +42,7 @@ export type NamedComponentConfig = {
 
 export type DirectComponentConfig = {
   path: string
-  permissions: string[],
+  permissions: string[]
   settings: ComponentSettings
 }
 
@@ -382,7 +382,7 @@ export class Manager implements MCManager {
     return get(this.#component + '__' + key)
   }
 
-  async set(key: string, value: any) {
+  set(key: string, value: any) {
     return set(this.#component + '__' + key, value)
   }
 
@@ -413,8 +413,8 @@ export class Manager implements MCManager {
     return await useCache(this.#component + '__' + key, callback, expiry)
   }
 
-  async invalidateCache(key: string) {
-    return invalidateCache(this.#component + '__' + key)
+  invalidateCache(key: string) {
+    invalidateCache(this.#component + '__' + key)
   }
 
   registerEmbed(name: string, callback: EmbedCallback) {
