@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-import yargs from "yargs";
-/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-console */
+import yargs from 'yargs'
+import { startServerFromConfig } from './server'
+import { hideBin } from 'yargs/helpers'
 
 /**
  * @fileoverview Main CLI that is run via the webcm command.
@@ -66,50 +67,67 @@ function onFatalError(error: Record<string, unknown>) {
   process.on('uncaughtException', onFatalError)
   process.on('unhandledRejection', onFatalError)
 
-  yargs
-    .scriptName('webcm')
-    .usage('$0 [args]')
+  const options = {
+    config: <const>{
+      alias: 'c',
+      type: 'string',
+      describe: 'path to your Managed Components config',
+    },
+    components: <const>{
+      alias: 'mc',
+      type: 'string',
+      default: './components',
+      describe: 'path to Managed Components folder',
+    },
+  }
+
+  yargs(hideBin(process.argv))
+    .options(options)
     .command(
-      'start [component]',
-      '(default) start webcm proxy server with given Managed Components config file',
+      '$0 [customComponentPath] [target]',
+      'proxy a demo website and load the specified component on it',
       yargs => {
-        yargs
-          .positional('component', {
+        return yargs
+          .positional('customComponentPath', {
             type: 'string',
-            describe: 'path to your managed component .js file',
+            description: 'the path to the entrypoint of your component',
           })
-          .option('target', {
-            alias: 't',
+          .positional('target', {
             type: 'string',
             describe: 'the http url to direct the proxy to',
           })
-          .option('config', {
-            alias: 'c',
-            default: './webcm.config.ts',
-            type: 'string',
-            describe: 'path to your Managed Components config',
-          })
-          .option('components', {
-            alias: 'mc',
-            type: 'string',
-            default: './components',
-            describe: 'path to Managed Components folder',
-          })
       },
-      function (argv) {
+      argv => {
+        const customSettings: Record<string, string> = Object.fromEntries(
+          Object.entries(argv)
+            .filter(([key]) => key.startsWith('settings_'))
+            .map(([key, value]) => [
+              key.replace(/^settings_/, ''),
+              String(value),
+            ])
+        )
+        if (Object.keys(customSettings).length && !argv.customComponentPath) {
+          console.log(
+            `Error: custom settings (${Object.keys(customSettings).join(
+              ', '
+            )}) passed, but no custom component specified. To use a custom component, specify the 'customComponentPath' positional argument\n\n`
+          )
+          yargs.showHelp()
+          return
+        }
         require('ts-node').register({
           files: true,
           transpileOnly: true,
           dir: __dirname,
         })
-        const { startServerFromConfig } = require('../lib/server')
         startServerFromConfig({
           configPath: argv.config,
           componentsFolderPath: argv.components,
-          customComponentPath: argv.component,
+          customComponentPath: argv.customComponentPath,
+          customComponentSettings: customSettings,
           url: argv.target,
         })
       }
     )
-    .help().argv
+    .parse()
 })().catch(onFatalError)

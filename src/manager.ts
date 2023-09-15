@@ -42,7 +42,8 @@ export type NamedComponentConfig = {
 
 export type DirectComponentConfig = {
   path: string
-  permissions: string[]
+  permissions: string[],
+  settings: ComponentSettings
 }
 
 export type ComponentConfig = NamedComponentConfig | DirectComponentConfig

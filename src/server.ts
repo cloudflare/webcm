@@ -26,10 +26,12 @@ export async function startServerFromConfig({
   componentsFolderPath,
   customComponentPath,
   url,
+  customComponentSettings,
 }: {
   configPath?: string
   componentsFolderPath?: string
   customComponentPath?: string
+  customComponentSettings: Record<string, unknown>
   url?: string
 }) {
   const config = getConfig(configPath)
@@ -42,13 +44,18 @@ export async function startServerFromConfig({
 
   const { hostname, port, trackPath, components } = config
   if (customComponentPath) {
+    console.log(`⚠️  Custom component ${customComponentPath} will run with all permissions enabled, use webcm.config.ts to change what permissions it gets`)
     components.push({
       path: path.resolve(customComponentPath),
       permissions: Object.values(PERMISSIONS), // use all permissions, it's just for testing
+      settings: customComponentSettings,
     })
   }
 
   if (url) {
+    if (!(url.startsWith('http://') || url.startsWith('https://'))) {
+      url = 'http://' + url
+    }
     config.target = url
   } else if (!config.target) {
     const server = new StaticServer(8000)

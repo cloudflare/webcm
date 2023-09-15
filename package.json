@@ -20,7 +20,7 @@
     "node": ">=18.0.0"
   },
   "bin": {
-    "webcm": "./bin/webcm.js"
+    "webcm": "./lib/src/cli.js"
   },
   "main": "lib/src/index.js",
   "scripts": {
