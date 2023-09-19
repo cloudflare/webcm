@@ -6,12 +6,13 @@ import {
   responseInterceptor,
 } from 'http-proxy-middleware'
 import * as path from 'path'
-import { version } from '../package.json'
 import { Client, ClientGeneric } from './client'
 import { ManagerGeneric, MCEvent } from './manager'
 import { getConfig } from './config'
 import { PERMISSIONS } from './constants'
 import { StaticServer } from './static-server'
+import _locreq from 'locreq'
+const locreq = _locreq(__dirname)
 
 const DEFAULT_TARGET = 'http://localhost:8000'
 
@@ -50,8 +51,10 @@ export async function startServerFromConfig({
   }
 
   const { hostname, port, trackPath, components } = config
-  if ("customComponentPath" in args && args.customComponentPath) {
-    console.log(`⚠️  Custom component ${args.customComponentPath} will run with all permissions enabled, use webcm.config.ts to change what permissions it gets`)
+  if ('customComponentPath' in args && args.customComponentPath) {
+    console.log(
+      `⚠️  Custom component ${args.customComponentPath} will run with all permissions enabled, use webcm.config.ts to change what permissions it gets`
+    )
     components.push({
       path: path.resolve(args.customComponentPath),
       permissions: Object.values(PERMISSIONS), // use all permissions, it's just for testing
@@ -87,7 +90,7 @@ export async function startServerFromConfig({
 
   const handleClientCreated = (
     req: Request,
-    res: Response,
+    _: Response,
     clientGeneric: ClientGeneric
   ) => {
     const cookieName = 'webcm_clientcreated'
@@ -203,7 +206,7 @@ export async function startServerFromConfig({
   // Mount components endpoints
   for (const route of Object.keys(manager.mappedEndpoints)) {
     app.all(route, async (req, res) => {
-      const response = await manager.mappedEndpoints[route](req)
+      const response = manager.mappedEndpoints[route](req)
       for (const [headerName, headerValue] of response.headers.entries()) {
         res.set(headerName, headerValue)
       }
@@ -280,7 +283,10 @@ export async function startServerFromConfig({
     proxy(req, res, next)
   })
 
-  console.info('\nWebCM, version', process.env.npm_package_version || version)
+  console.info(
+    '\nWebCM, version',
+    process.env.npm_package_version || locreq('package.json').version
+  )
   app.listen(port, hostname)
   console.info(
     `\n🚀 WebCM is now proxying ${config.target} at http://${hostname}:${port}\n\n`
