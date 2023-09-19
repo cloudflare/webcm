@@ -3,6 +3,12 @@
 import yargs from 'yargs'
 import { startServerFromConfig } from './server'
 import { hideBin } from 'yargs/helpers'
+import _locreq from "locreq";
+const locreq = _locreq(__dirname)
+
+import nodeCrypto from 'crypto'
+globalThis.crypto = nodeCrypto.webcrypto as any
+
 
 /**
  * @fileoverview Main CLI that is run via the webcm command.
@@ -50,12 +56,11 @@ function getErrorMessage(error: Record<string, unknown>) {
 function onFatalError(error: Record<string, unknown>) {
   process.exitCode = 2
 
-  const { version } = require('../package.json')
   const message = getErrorMessage(error)
 
   console.error(`
   Oops! Something went wrong! :(
-  Webcm: ${version}
+  Webcm: ${locreq("package.json").version}
   ${message}`)
 }
 
