@@ -1,18 +1,18 @@
 import yargs from 'yargs/yargs'
-import { startServer } from './lib/server'
+import { startServerFromConfig } from './server'
 import nodeCrypto from 'crypto'
 
 globalThis.crypto = nodeCrypto.webcrypto as any
 
 const cliArgs = yargs(process.argv.slice(2))
   .options({
-    config: {
+    configPath: {
       alias: 'c',
       type: 'string',
       default: './webcm.config.ts',
       describe: 'path to your Managed Components config',
     },
-    components: {
+    componentsFolderPath: {
       alias: 'mc',
       type: 'string',
       default: './components',
@@ -21,4 +21,7 @@ const cliArgs = yargs(process.argv.slice(2))
   })
   .parseSync()
 
-startServer(cliArgs.config, cliArgs.components)
+startServerFromConfig({
+  configPath: cliArgs.configPath,
+  componentsFolderPath: cliArgs.componentsFolderPath,
+})

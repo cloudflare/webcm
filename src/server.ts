@@ -1,15 +1,20 @@
 import { MCEventListener } from '@managed-components/types'
 import express, { Request, Response, RequestHandler } from 'express'
-import fs from 'fs'
 import { IncomingMessage, ClientRequest } from 'http'
 import {
   createProxyMiddleware,
   responseInterceptor,
 } from 'http-proxy-middleware'
-import * as fs_path from 'path'
-import { version } from '../package.json'
+import * as path from 'path'
 import { Client, ClientGeneric } from './client'
 import { ManagerGeneric, MCEvent } from './manager'
+import { getConfig } from './config'
+import { PERMISSIONS } from './constants'
+import { StaticServer } from './static-server'
+import _locreq from 'locreq'
+const locreq = _locreq(__dirname)
+
+const DEFAULT_TARGET = 'http://localhost:8000'
 
 if (process.env.NODE_ENV === 'production') {
   process.on('unhandledRejection', (reason: Error) => {
@@ -17,32 +22,63 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-export const startServer = async (
-  configPath: string,
-  componentsFolderPath: string
-) => {
-  const configFullPath = fs_path.resolve(configPath)
-  if (!fs.existsSync(configFullPath)) {
-    console.error('Could not load WebCM config from', configFullPath)
-    console.log('\nPlease create your configuration and run WebCM again.')
-    process.exit(1)
+type BasicServerConfig = {
+  configPath?: string
+  componentsFolderPath?: string
+  url?: string
+}
+
+type CustomComponentServerConfig = BasicServerConfig & {
+  customComponentPath?: string
+  customComponentSettings?: Record<string, unknown>
+}
+
+
+type ServerConfig = BasicServerConfig | CustomComponentServerConfig
+
+export async function startServerFromConfig({
+  configPath,
+  componentsFolderPath,
+  url,
+  ...args
+}: ServerConfig) {
+  const config = getConfig(configPath)
+  let componentsPath = ''
+  if (componentsFolderPath) {
+    componentsPath = path.resolve(componentsFolderPath)
+  } else {
+    console.log('Components folder path not provided')
   }
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const config = require(configFullPath).default
-  const componentsPath = componentsFolderPath
-    ? fs_path.resolve(componentsFolderPath)
-    : ''
 
-  const { target: configTarget, hostname, port, trackPath, components } = config
+  const { hostname, port, trackPath, components } = config
+  if ('customComponentPath' in args && args.customComponentPath) {
+    console.log(
+      `⚠️  Custom component ${args.customComponentPath} will run with all permissions enabled, use webcm.config.ts to change what permissions it gets`
+    )
+    components.push({
+      path: path.resolve(args.customComponentPath),
+      permissions: Object.values(PERMISSIONS), // use all permissions, it's just for testing
+      settings: args.customComponentSettings || {},
+    })
+  }
 
-  const target = process.env.CM_TARGET_URL || configTarget
+  if (url) {
+    if (!(url.startsWith('http://') || url.startsWith('https://'))) {
+      url = 'http://' + url
+    }
+    config.target = url
+  } else if (!config.target) {
+    const server = new StaticServer(8000)
+    server.start()
+    console.log('Started a demo static server at localhost:8000')
+    config.target = DEFAULT_TARGET
+  }
 
   const manager = new ManagerGeneric({
     components,
     trackPath,
     componentsFolderPath: componentsPath,
   })
-
   await manager.init()
 
   const getDefaultPayload = () => ({
@@ -54,7 +90,7 @@ export const startServer = async (
 
   const handleClientCreated = (
     req: Request,
-    res: Response,
+    _: Response,
     clientGeneric: ClientGeneric
   ) => {
     const cookieName = 'webcm_clientcreated'
@@ -170,7 +206,7 @@ export const startServer = async (
   // Mount components endpoints
   for (const route of Object.keys(manager.mappedEndpoints)) {
     app.all(route, async (req, res) => {
-      const response = await manager.mappedEndpoints[route](req)
+      const response = manager.mappedEndpoints[route](req)
       for (const [headerName, headerValue] of response.headers.entries()) {
         res.set(headerName, headerValue)
       }
@@ -205,8 +241,8 @@ export const startServer = async (
   }
 
   // Mount static files
-  for (const [path, fileTarget] of Object.entries(manager.staticFiles)) {
-    app.use(path, express.static(fs_path.join(componentsPath, fileTarget)))
+  for (const [filePath, fileTarget] of Object.entries(manager.staticFiles)) {
+    app.use(filePath, express.static(path.join(componentsPath, fileTarget)))
   }
 
   // Listen to all normal requests
@@ -214,7 +250,7 @@ export const startServer = async (
     res.payload = getDefaultPayload()
     const clientGeneric = new ClientGeneric(req, res, manager, config)
     const proxySettings = {
-      target,
+      target: config.target,
       changeOrigin: true,
       selfHandleResponse: true,
       onProxyReq: (
@@ -247,9 +283,12 @@ export const startServer = async (
     proxy(req, res, next)
   })
 
-  console.info('\nWebCM, version', process.env.npm_package_version || version)
+  console.info(
+    '\nWebCM, version',
+    process.env.npm_package_version || locreq('package.json').version
+  )
   app.listen(port, hostname)
   console.info(
-    `\n🚀 WebCM is now proxying ${target} at http://${hostname}:${port}\n\n`
+    `\n🚀 WebCM is now proxying ${config.target} at http://${hostname}:${port}\n\n`
   )
 }

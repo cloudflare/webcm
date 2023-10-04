@@ -20,11 +20,12 @@
     "node": ">=18.0.0"
   },
   "bin": {
-    "webcm": "./bin/webcm.js"
+    "webcm": "./lib/src/cli.js"
   },
-  "main": "index.ts",
+  "main": "lib/src/index.js",
   "scripts": {
     "dev": "TS_NODE_FILES=true nodemon --exec 'node --loader ts-node/esm' index.ts",
+    "build": "tsc && chmod +x lib/src/cli.js",
     "lint": "eslint --ext .ts,.js, lib",
     "lint:fix": "eslint --ext .ts,.js, lib --fix",
     "typecheck": "tsc --noEmit",
@@ -37,6 +38,7 @@
     "express": "^4.18.1",
     "http-proxy-middleware": "^2.0.6",
     "jsdom": "^20.0.0",
+    "locreq": "^2.1.0",
     "pacote": "^13.6.1",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.4",
