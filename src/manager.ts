@@ -15,6 +15,12 @@ import { invalidateCache, useCache } from './cache/index'
 import { Client, ClientGeneric } from './client'
 import { PERMISSIONS } from './constants'
 import { get, set } from './storage/kv-storage'
+import { Manifest, ManifestShape, mockManifest } from './manifest'
+import {
+  ComponentConfig,
+  explainProblemsWithConfig,
+  isComponentConfig,
+} from './compConfig'
 
 export class MCEvent extends Event implements PrimaryMCEvent {
   name?: string
@@ -33,20 +39,6 @@ export class MCEvent extends Event implements PrimaryMCEvent {
 type ComponentConfigPermissions = {
   [key: string]: { description: string; required: boolean }
 }
-
-export type NamedComponentConfig = {
-  name: string
-  settings: ComponentSettings
-  permissions: string[]
-}
-
-export type DirectComponentConfig = {
-  path: string
-  permissions: string[]
-  settings: ComponentSettings
-}
-
-export type ComponentConfig = NamedComponentConfig | DirectComponentConfig
 
 const EXTS = ['.mjs', '.js', '.mts', '.ts']
 
@@ -151,19 +143,33 @@ export class ManagerGeneric {
     }
   }
 
-  async loadComponentManifest(basePath: string) {
+  async loadComponentManifest(basePath: string): Promise<Manifest> {
     let manifest
     const manifestPath = path.join(basePath, 'manifest.json')
     if (existsSync(manifestPath)) {
-      manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+      manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<
+        string,
+        unknown
+      >
+      const parseResult = ManifestShape.safeParse(manifest)
+      if (!parseResult.success) {
+        console.error(parseResult.error)
+        console.error(parseResult.error.format())
+        throw new Error('Invalid component manifest')
+      } else {
+        manifest = manifest as Manifest
+      }
     } else {
-      manifest = {}
+      manifest = mockManifest(basePath)
     }
 
     return manifest
   }
 
-  async fetchLocalComponent(basePath: string) {
+  async fetchLocalComponent(basePath: string): Promise<{
+    component: any
+    manifest: Manifest
+  }> {
     let component
     const pkgPath = path.join(basePath, 'package.json')
     if (existsSync(pkgPath)) {
@@ -201,7 +207,9 @@ export class ManagerGeneric {
   async fetchRemoteComponent(
     basePath: string,
     name: string
-  ): Promise<{ component: any; manifest: any }> {
+  ): Promise<
+    { component: any; manifest: Manifest } | { component: null; manifest: null }
+  > {
     let component
     const componentPath = path.join(this.componentsFolderPath, name)
     try {
@@ -220,7 +228,9 @@ export class ManagerGeneric {
 
   async loadComponent(
     name: string
-  ): Promise<{ manifest: any; component: any }> {
+  ): Promise<
+    { manifest: Manifest; component: any } | { manifest: null; component: null }
+  > {
     const localPathBase = path.join(this.componentsFolderPath, name)
     return existsSync(localPathBase)
       ? this.fetchLocalComponent(localPathBase)
@@ -228,10 +238,10 @@ export class ManagerGeneric {
   }
 
   async loadComponentByPath(
-    path: string
-  ): Promise<{ manifest: any; component: any }> {
-    const component = require(path)
-    const manifest = {}
+    componentPath: string
+  ): Promise<{ manifest: Manifest; component: any }> {
+    const component = require(componentPath)
+    const manifest = mockManifest(componentPath)
     return { component, manifest }
   }
 
@@ -261,6 +271,11 @@ export class ManagerGeneric {
 
   async init() {
     for (const compConfig of this.components) {
+      if (!isComponentConfig(compConfig)) {
+        explainProblemsWithConfig(compConfig)
+        throw new Error('Bad config shape')
+      }
+
       let name: string
       let settings: Record<string, unknown>
       let permissions: string[]
@@ -271,6 +286,10 @@ export class ManagerGeneric {
         settings = {}
         permissions = (compConfig.permissions || []) as string[]
         const result = (await this.loadComponentByPath(compConfig.path)) || {}
+        if (!result.component || !result.manifest) {
+          console.warn(`Failed to load component by path: '${path}'`)
+          return
+        }
         component = result.component
         manifest = result.manifest
       } else {
@@ -278,6 +297,10 @@ export class ManagerGeneric {
         settings = compConfig.settings || {}
         permissions = compConfig.permissions
         const result = (await this.loadComponent(name)) || {}
+        if (!result.component || !result.manifest) {
+          console.warn(`Failed to load component by name: '${name}'`)
+          return
+        }
         component = result.component
         manifest = result.manifest
       }
