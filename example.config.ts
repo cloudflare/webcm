@@ -12,6 +12,19 @@ export default {
         'client_network_requests',
       ],
     },
+    {
+      name: 'custom-html', // adds an option to add custom HTML to the site. Run `webcm.track("event", { htmlCode: '<h1>Hello, world</h1>' })` in the browser console to see it in action
+      settings: {},
+      permissions: ['execute_unsafe_scripts'],
+    },
+    {
+      name: 'google-analytics-4',
+      tid: 'XXX-XXXX', // Measurement ID
+      hideOriginalIP: true,
+      ecommerce: false,
+      baseDomain: 'localhost',
+      permissions: ['access_client_kv'],
+    },
   ],
   // The target server URL to proxy. If unset, webcm will spin up a simple static website and target it instead
   // target: 'http://127.0.0.1:8000',
