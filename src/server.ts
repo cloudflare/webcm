@@ -33,7 +33,6 @@ type CustomComponentServerConfig = BasicServerConfig & {
   customComponentSettings?: Record<string, unknown>
 }
 
-
 type ServerConfig = BasicServerConfig | CustomComponentServerConfig
 
 export async function startServerFromConfig({
