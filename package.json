@@ -1,10 +1,10 @@
 {
   "name": "webcm",
-  "version": "0.10.5",
+  "version": "0.10.6",
   "description": "Demonstrative implementation of a web-based manager for utilising Managed Components",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cloudflare/webcm"
+    "url": "git+https://github.com/cloudflare/webcm.git"
   },
   "author": "Cloudflare Managed Components Team <managedcomponents@cloudflare.com> (https://blog.cloudflare.com/zaraz-open-source-managed-components-and-webcm/)",
   "license": "ISC",
@@ -20,11 +20,11 @@
     "node": ">=18.0.0"
   },
   "bin": {
-    "webcm": "./lib/src/cli.js"
+    "webcm": "lib/src/cli.js"
   },
   "main": "lib/src/index.js",
   "scripts": {
-    "dev": "TS_NODE_FILES=true nodemon --exec 'node --loader ts-node/esm' index.ts",
+    "dev": "TS_NODE_FILES=true nodemon --exec 'node --loader ts-node/esm' src/index.ts",
     "build": "tsc && chmod +x lib/src/cli.js",
     "lint": "eslint --ext .ts,.js, lib",
     "lint:fix": "eslint --ext .ts,.js, lib --fix",
