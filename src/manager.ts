@@ -49,7 +49,7 @@ export class ManagerGeneric {
   componentsFolderPath: string
   requiredSnippets: string[]
   mappedEndpoints: {
-    [k: string]: (request: Request) => Response
+    [k: string]: (request: Request) => Promise<Response>
   }
   proxiedEndpoints: {
     [k: string]: {
@@ -97,7 +97,7 @@ export class ManagerGeneric {
   route(
     component: string,
     path: string,
-    callback: (request: Request) => Response
+    callback: (request: Request) => Promise<Response>
   ) {
     const fullPath = '/webcm/' + component + path
     this.mappedEndpoints[fullPath] = callback
@@ -409,7 +409,7 @@ export class Manager implements MCManager {
     return set(this.#component + '__' + key, value)
   }
 
-  route(path: string, callback: (request: Request) => Response) {
+  route(path: string, callback: (request: Request) => Promise<Response>) {
     if (this.#generic.checkPermissions(this.#component, PERMISSIONS.route)) {
       return this.#generic.route(this.#component, path, callback)
     }
