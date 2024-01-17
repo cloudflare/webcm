@@ -214,7 +214,7 @@ export async function startServerFromConfig({
       const reader = response.body?.getReader()
       while (!isDone && reader) {
         const { value, done } = await reader.read()
-        if (value) res.send(Buffer.from(value))
+        if (value) res.write(Buffer.from(value))
         isDone = done
       }
       res.end()
