@@ -33,7 +33,6 @@ type CustomComponentServerConfig = BasicServerConfig & {
   customComponentSettings?: Record<string, unknown>
 }
 
-
 type ServerConfig = BasicServerConfig | CustomComponentServerConfig
 
 export async function startServerFromConfig({
@@ -206,7 +205,7 @@ export async function startServerFromConfig({
   // Mount components endpoints
   for (const route of Object.keys(manager.mappedEndpoints)) {
     app.all(route, async (req, res) => {
-      const response = manager.mappedEndpoints[route](req)
+      const response = await manager.mappedEndpoints[route](req)
       for (const [headerName, headerValue] of response.headers.entries()) {
         res.set(headerName, headerValue)
       }
