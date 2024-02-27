@@ -428,7 +428,11 @@ export class Manager implements MCManager {
   }
 
   fetch(path: RequestInfo, options?: RequestInit) {
-    return fetch(path, options)
+    if (
+      !this.#generic.checkPermissions(this.#component, PERMISSIONS.managerFetch)
+    ) {
+      return fetch(path, options)
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-types

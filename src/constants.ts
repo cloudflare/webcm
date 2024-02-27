@@ -9,4 +9,5 @@ export const PERMISSIONS: { [k: string]: string } = {
   clientSet: 'access_client_kv',
   clientExecute: 'execute_unsafe_scripts',
   clientFetch: 'client_network_requests',
+  managerFetch: 'server_network_requests',
 }
