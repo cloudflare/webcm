@@ -9,7 +9,7 @@ Components.
 
 ## Usage
 
-> 💡 **Prerequisite:** To run WebCM you need to have Node version >= 18. You can
+> 💡 **Prerequisite:** To run WebCM you need to use Node version 18. You can
 > then install all dependencies with `npm i`.
 
 It's very easy to get up and running with WebCM using `npx`!
