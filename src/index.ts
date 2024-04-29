@@ -1,8 +1,5 @@
 import yargs from 'yargs/yargs'
-import { startServerFromConfig } from './server'
-import nodeCrypto from 'crypto'
-
-globalThis.crypto = nodeCrypto.webcrypto as any
+import { startServerFromConfig } from './server.ts'
 
 const cliArgs = yargs(process.argv.slice(2))
   .options({

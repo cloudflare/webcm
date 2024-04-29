@@ -1,15 +1,10 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 import yargs from 'yargs'
-import { startServerFromConfig } from './server'
+import { startServerFromConfig } from './server.ts'
 import { hideBin } from 'yargs/helpers'
 import _locreq from 'locreq'
 const locreq = _locreq(__dirname)
-
-import nodeCrypto from 'crypto'
-if (!Object.prototype.hasOwnProperty.call(globalThis, 'crypto')) {
-  globalThis.crypto = nodeCrypto.webcrypto as any
-}
 
 /**
  * @fileoverview Main CLI that is run via the webcm command.
@@ -121,11 +116,7 @@ function onFatalError(error: Record<string, unknown>) {
           yargs.showHelp()
           return
         }
-        require('ts-node').register({
-          files: true,
-          transpileOnly: true,
-          dir: __dirname,
-        })
+
         startServerFromConfig({
           configPath: argv.config,
           componentsFolderPath: argv.components,

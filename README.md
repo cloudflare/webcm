@@ -9,23 +9,23 @@ Components.
 
 ## Usage
 
-> 💡 **Prerequisite:** To run WebCM you need to have Node version >= 18. You can
-> then install all dependencies with `npm i`.
+> 💡 **Prerequisite:** The best way to run WebCM is using Bun. You can
+> then install all dependencies with `bun i`.
 
-It's very easy to get up and running with WebCM using `npx`!
+It's very easy to get up and running with WebCM using `bunx`!
 
 1. Create a `webcm.config.ts` config file (use
    [example.config.ts](./example.config.ts) as an example)
-2. Run `npx webcm`
+2. Run `bunx --bun 'github:cloudflare/webcm#bun' `
 3. WebCM will automatically download the Managed Components you specified and
    start the server
 
 ## Develop
 
-1. `git clone git@github.com:cloudflare/webcm.git && cd webcm && npm i`
+1. `git clone git@github.com:cloudflare/webcm.git && cd webcm && bun i`
 2. Create a `webcm.config.ts` config file (use
    [example.config.ts](./example.config.ts) as an example)
-3. Run `npm run dev`
+3. Run `bun run dev`
 
 ## Build your own Managed Components
 
@@ -34,7 +34,7 @@ You might want to make WebCM load a locally developed Managed Component.
 To do so, run:
 
 ```bash
-npx webcm path/to/component.ts
+bunx --bun 'github:cloudflare/webcm#bun' path/to/component.ts
 ```
 
 This will run the component on a simple static site, with all permissions
@@ -42,14 +42,14 @@ enabled. If you want to proxy a different website, pass the URL as another CLI
 argument:
 
 ```bash
-npx webcm path/to/component.ts https://example.com
+bunx --bun 'github:cloudflare/webcm#bun' path/to/component.ts https://example.com
 ```
 
 To pass custom settings to that component, use `--settings_<settingName>` flags,
 like so:
 
 ```bash
-npx webcm path/to/component.ts --settings_apiKey=xxxxxxxxx
+bunx --bun 'github:cloudflare/webcm#bun' path/to/component.ts --settings_apiKey=xxxxxxxxx
 ```
 
 To test the component with different permissions, create a `webcm.config.ts`

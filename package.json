@@ -1,6 +1,7 @@
 {
   "name": "webcm",
-  "version": "0.10.6",
+  "type": "module",
+  "version": "0.11.0",
   "description": "Demonstrative implementation of a web-based manager for utilising Managed Components",
   "repository": {
     "type": "git",
@@ -16,22 +17,18 @@
     "managed-components",
     "cloudflare"
   ],
-  "engines": {
-    "node": ">=18.0.0"
-  },
   "bin": {
-    "webcm": "lib/src/cli.js"
+    "webcm": "src/cli.ts"
   },
-  "main": "lib/src/index.js",
+  "main": "src/index.ts",
   "scripts": {
-    "dev": "TS_NODE_FILES=true nodemon --exec 'node --loader ts-node/esm' src/index.ts",
-    "build": "tsc && chmod +x lib/src/cli.js",
+    "dev": "bun run --watch src/index.ts",
     "lint": "eslint --ext .ts,.js, lib",
     "lint:fix": "eslint --ext .ts,.js, lib --fix",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --globals",
     "test:dev": "vitest --globals",
-    "buildcheck": "npm run typecheck && npm run test && npm run lint"
+    "buildcheck": "bun run typecheck && bun run test && bun run lint"
   },
   "dependencies": {
     "cookies": "^0.8.0",
@@ -40,7 +37,6 @@
     "jsdom": "^20.0.0",
     "locreq": "^2.1.0",
     "pacote": "^13.6.1",
-    "ts-node": "^10.8.1",
     "typescript": "^4.7.4",
     "webcm": "^0.9.1",
     "yargs": "^17.5.1",
@@ -60,7 +56,6 @@
     "eslint": "^8.18.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "nodemon": "^2.0.18",
     "prettier": "^2.7.1",
     "vitest": "^0.15.2"
   }
