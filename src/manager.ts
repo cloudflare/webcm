@@ -432,7 +432,7 @@ export class Manager implements MCManager {
 
   fetch(path: RequestInfo, options?: RequestInit) {
     if (
-      !this.#generic.checkPermissions(this.#component, PERMISSIONS.managerFetch)
+      this.#generic.checkPermissions(this.#component, PERMISSIONS.managerFetch)
     ) {
       return fetch(path, options)
     }
