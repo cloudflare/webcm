@@ -34,8 +34,10 @@
     "buildcheck": "npm run typecheck && npm run test && npm run lint"
   },
   "dependencies": {
+    "@types/find-package-json": "^1.2.6",
     "cookies": "^0.8.0",
     "express": "^4.18.1",
+    "find-package-json": "^1.2.0",
     "http-proxy-middleware": "^2.0.6",
     "jsdom": "^20.0.0",
     "locreq": "^2.1.0",

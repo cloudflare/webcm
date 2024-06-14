@@ -21,6 +21,7 @@ import {
   explainProblemsWithConfig,
   isComponentConfig,
 } from './compConfig'
+import findPackageJson from 'find-package-json'
 
 export class MCEvent extends Event implements PrimaryMCEvent {
   name?: string
@@ -282,7 +283,9 @@ export class ManagerGeneric {
       let component
       let manifest
       if ('path' in compConfig) {
-        name = 'customComponent'
+        name =
+          findPackageJson(compConfig.path).next().value?.name ||
+          'customComponent'
         settings = {}
         permissions = (compConfig.permissions || []) as string[]
         const result = (await this.loadComponentByPath(compConfig.path)) || {}
