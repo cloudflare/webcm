@@ -6,7 +6,7 @@ import {
   MCEventListener,
   WidgetCallback,
 } from '@managed-components/types'
-import { Request } from 'express'
+import { Request as ExpressRequest, Response as ExpressResponse } from 'express'
 import { existsSync, readFileSync, rmdir } from 'fs'
 import { JSDOM } from 'jsdom'
 import pacote from 'pacote'
@@ -29,7 +29,7 @@ export class MCEvent extends Event implements PrimaryMCEvent {
   client!: Client
   type: string
 
-  constructor(type: string, req: Request) {
+  constructor(type: string, req: ExpressRequest) {
     super(type)
     this.type = type
     this.payload = req.body.payload || { timestamp: new Date().getTime() } // because pageviews are symbolic requests without a payload
@@ -50,7 +50,7 @@ export class ManagerGeneric {
   componentsFolderPath: string
   requiredSnippets: string[]
   mappedEndpoints: {
-    [k: string]: (request: Request) => Promise<Response>
+    [k: string]: (request: ExpressRequest) => Promise<Response>
   }
   proxiedEndpoints: {
     [k: string]: {
@@ -98,7 +98,7 @@ export class ManagerGeneric {
   route(
     component: string,
     path: string,
-    callback: (request: Request) => Promise<Response>
+    callback: (request: ExpressRequest) => Promise<Response>
   ) {
     const fullPath = '/webcm/' + component + path
     this.mappedEndpoints[fullPath] = callback
@@ -331,8 +331,8 @@ export class ManagerGeneric {
     return injectedScript
   }
 
-  async processEmbeds(response: string) {
-    const dom = new JSDOM(response)
+  async processEmbeds(clientGeneric: ClientGeneric, response_str: string) {
+    const dom = new JSDOM(response_str)
     for (const div of dom.window.document.querySelectorAll(
       'div[data-component-embed]'
     )) {
@@ -343,17 +343,29 @@ export class ManagerGeneric {
       )
       const name = parameters['component-embed']
       if (this.registeredEmbeds[name]) {
-        const embed = await this.registeredEmbeds[name]({ parameters })
+        const client = new Client(name, clientGeneric)
+        const embed = await this.registeredEmbeds[name]({ parameters, client })
         const uuid = 'embed-' + crypto.randomUUID()
-        div.innerHTML = `<iframe id="${uuid}" style="width: 100%; border: 0;" src="data:text/html;charset=UTF-8,${encodeURIComponent(
-          embed +
-            `<script>
-const webcmUpdateHeight = () => parent.postMessage({webcmUpdateHeight: true, id: '${uuid}', h: document.body.scrollHeight }, '*');
-addEventListener('load', webcmUpdateHeight);
-addEventListener('resize', webcmUpdateHeight);
-</script>`
-        )}"></iframe>
-`
+        div.innerHTML = /* HTML */ `<iframe
+          id="${uuid}"
+          style="width: 100%; border: 0;"
+          src="data:text/html;charset=UTF-8,${encodeURIComponent(
+            embed +
+              /* HTML */ `<script>
+                const webcmUpdateHeight = () =>
+                  parent.postMessage(
+                    {
+                      webcmUpdateHeight: true,
+                      id: '${uuid}',
+                      h: document.body.scrollHeight,
+                    },
+                    '*'
+                  )
+                addEventListener('load', webcmUpdateHeight)
+                addEventListener('resize', webcmUpdateHeight)
+              </script>`
+          )}"
+        ></iframe> `
       }
     }
 
@@ -412,7 +424,10 @@ export class Manager implements MCManager {
     return set(this.#component + '__' + key, value)
   }
 
-  route(path: string, callback: (request: Request) => Promise<Response>) {
+  route(
+    path: string,
+    callback: (request: ExpressRequest) => Promise<Response>
+  ) {
     if (this.#generic.checkPermissions(this.#component, PERMISSIONS.route)) {
       return this.#generic.route(this.#component, path, callback)
     }
