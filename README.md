@@ -1,8 +1,11 @@
 <img alt="WebCM" src="https://user-images.githubusercontent.com/55081/181248752-3f8988e0-195f-465c-b7e2-91fa81aed555.png">
 
-WebCM is a proxy server implementation of a [Components
-Manager](https://managedcomponents.dev/getting-started/components-manager). It
-works independently from your existing HTTP server. By proxying your server, it
+**WebCM** is a proxy server implementation demonstrating the principles of a [Components Manager](https://managedcomponents.dev/getting-started/components-manager).
+
+* **Purpose:** This repository serves as a **reference implementation** and **proof-of-concept** to illustrate how a proxy can integrate with and manage components.
+* **This code is not intended for use in production environments.** It has not been rigorously tested for security or reliability. Users should be aware that, as a reference implementation, it may contain security considerations that would need hardening before any practical deployment.
+
+It works independently from your existing HTTP server. By proxying your server, it
 can add endpoints, execute server-side code, manipulate responses and
 more. These capabilities allow for a very performant way to load Managed
 Components.
