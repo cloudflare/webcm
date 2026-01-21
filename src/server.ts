@@ -262,10 +262,13 @@ export async function startServerFromConfig({
       onProxyRes: responseInterceptor(
         async (responseBuffer, _proxyRes, proxyReq, _res) => {
           if (proxyReq.headers['accept']?.toLowerCase().includes('text/html')) {
-            let response = responseBuffer.toString('utf8') as string
-            response = await manager.processEmbeds(response)
-            response = await manager.processWidgets(response)
-            return response.replace(
+            let response_str = responseBuffer.toString('utf8') as string
+            response_str = await manager.processEmbeds(
+              clientGeneric,
+              response_str
+            )
+            response_str = await manager.processWidgets(response_str)
+            return response_str.replace(
               '<head>',
               `<head><script>${manager.getInjectedScript(
                 clientGeneric
